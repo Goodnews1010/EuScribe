@@ -1,0 +1,415 @@
+/* ============================================================
+   EUSCRIBE — BACKEND API CONNECTOR
+   Handles: auth guard, AI calls, document sync
+   ============================================================ */
+
+// ✅ FIX 1: Use empty string so fetch uses relative paths like /api/...
+// If your frontend and backend are on different ports/domains,
+// replace "" with your actual backend URL e.g. "https://yourapp.com"
+const API = "http://localhost:5000";
+
+/* ── get token from localStorage ── */
+function getToken() {
+  return localStorage.getItem("euscribe_token");
+}
+
+/* ============================================================
+   AUTH GUARD
+   Redirect to login page if no token found
+   ============================================================ */
+
+(function authGuard() {
+  const token = getToken();
+  if (!token) {
+    // ✅ FIX 2: Was "euscribe auth.html" (space) — now correctly hyphenated
+    window.location.href = "euscribe-auth.html";
+  }
+})();
+
+/* ============================================================
+   LOAD USER INFO INTO TOPBAR
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ── User info ── */
+  const name = localStorage.getItem("euscribe_user_name") || "User";
+
+  const avatar = document.querySelector(".avatar");
+  if (avatar) {
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+    avatar.textContent = initials;
+  }
+
+  const userInfoP = document.querySelector(".user-info p");
+  if (userInfoP) userInfoP.textContent = name;
+
+  const logoutBtn = document.querySelector(".dropdown button");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      localStorage.removeItem("euscribe_token");
+      localStorage.removeItem("euscribe_user_name");
+      localStorage.removeItem("euscribe_user_email");
+      window.location.href = "euscribe-auth.html";
+    });
+  }
+
+  /* ============================================================
+     WIRE UP AI ACTION CARDS
+     ✅ FIX 3: Moved inside DOMContentLoaded so DOM elements exist
+     ============================================================ */
+  const prompts = {
+    "Fix Grammar & Spelling": (text) =>
+      `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
+    "Rewrite for Clarity": (text) =>
+      `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
+    Summarize: (text) =>
+      `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
+    "Expand & Elaborate": (text) =>
+      `Expand and elaborate on the following text with more detail and depth. Return only the expanded text:\n\n${text}`,
+    Formal: (text) =>
+      `Rewrite the following text in a formal, professional tone. Return only the rewritten text:\n\n${text}`,
+    Casual: (text) =>
+      `Rewrite the following text in a casual, relaxed tone. Return only the rewritten text:\n\n${text}`,
+    Academic: (text) =>
+      `Rewrite the following text in an academic, scholarly style. Return only the rewritten text:\n\n${text}`,
+    Friendly: (text) =>
+      `Rewrite the following text in a warm, friendly and conversational tone. Return only the rewritten text:\n\n${text}`,
+    Persuasive: (text) =>
+      `Rewrite the following text to be more persuasive and convincing. Return only the rewritten text:\n\n${text}`,
+    Creative: (text) =>
+      `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
+  };
+
+  document.querySelectorAll(".ai-action-card").forEach((card) => {
+    const titleEl = card.querySelector(".ai-action-title");
+    if (!titleEl) return;
+    const title = titleEl.textContent.trim();
+
+    if (title === "Ask Anything") return;
+
+    if (prompts[title]) {
+      card.addEventListener("click", function () {
+        const selectedText = getSelectedText();
+        if (!selectedText) {
+          showAIResult(
+            "Please select some text in the editor first, or type something.",
+            true
+          );
+          return;
+        }
+        const aiPanel = document.getElementById("aiPanel");
+        if (
+          aiPanel &&
+          !aiPanel.classList.contains("open") &&
+          window.innerWidth <= 900
+        ) {
+          aiPanel.classList.add("open");
+        }
+        callAI(prompts[title](selectedText));
+      });
+    }
+  });
+
+  /* ── Custom "Send" button (Ask Anything) ── */
+  const sendBtn = document.querySelector(".ai-send-btn");
+  const aiInput = document.getElementById("aiInput");
+
+  if (sendBtn && aiInput) {
+    sendBtn.addEventListener("click", function () {
+      const userPrompt = aiInput.value.trim();
+      const selectedText = getSelectedText();
+      if (!userPrompt) return;
+
+      const fullPrompt = selectedText
+        ? `${userPrompt}\n\nHere is the text to work with:\n\n${selectedText}`
+        : userPrompt;
+
+      callAI(fullPrompt);
+      aiInput.value = "";
+    });
+
+    aiInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+  }
+
+  /* ============================================================
+     DOCUMENT SYNC TO BACKEND
+     ✅ FIX 4: Moved inside DOMContentLoaded so saveCurrentDocument
+     is already defined by the time we try to patch it
+     ============================================================ */
+  const token = getToken();
+  const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
+
+  function saveIdMap() {
+    localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+  }
+
+  async function syncToBackend(localDoc) {
+    if (!token || !localDoc) return;
+    const backendId = idMap[localDoc.id];
+
+    try {
+      if (backendId) {
+        await fetch(`${API}/api/documents/${backendId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: localDoc.name,
+            content: localDoc.content,
+          }),
+        });
+      } else {
+        const res = await fetch(`${API}/api/documents`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: localDoc.name,
+            content: localDoc.content,
+          }),
+        });
+        const data = await res.json();
+        if (data.id) {
+          idMap[localDoc.id] = data.id;
+          saveIdMap();
+        }
+      }
+    } catch (err) {
+      console.warn("Backend sync failed (offline?):", err.message);
+    }
+  }
+
+  const _originalSave = window.saveCurrentDocument;
+  if (typeof _originalSave === "function") {
+    window.saveCurrentDocument = function () {
+      _originalSave();
+      const docs = JSON.parse(
+        localStorage.getItem("euscribeDocuments") || "[]"
+      );
+      const currentId = window.currentDocId;
+      const doc = docs.find((d) => d.id === currentId);
+      if (doc) syncToBackend(doc);
+    };
+  }
+
+}); // ← end of DOMContentLoaded
+
+
+/* ============================================================
+   AI CALL — core function
+   ============================================================ */
+let savedRange = null;
+
+async function callAI(prompt) {
+  const token = getToken();
+  showAILoading(true);
+  hideAIResult();
+
+  try {
+    const res = await fetch(`${API}/api/ai/complete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("euscribe_token");
+        // ✅ FIX 5: Consistent hyphenated filename here too
+        window.location.href = "euscribe-auth.html";
+        return;
+      }
+      throw new Error(data.message || "AI request failed");
+    }
+
+    showAIResult(data.result);
+  } catch (err) {
+    showAIResult(`Error: ${err.message}`, true);
+  } finally {
+    showAILoading(false);
+  }
+}
+
+/* ============================================================
+   GET SELECTED TEXT FROM EDITOR
+   ============================================================ */
+function getSelectedText() {
+  const editor = document.getElementById("content");
+  const sel = window.getSelection();
+  if (sel && sel.toString().trim().length > 0) {
+    savedRange = sel.getRangeAt(0).cloneRange();
+    return sel.toString().trim();
+  }
+  savedRange = null;
+  return editor ? editor.innerText.trim() : "";
+}
+
+/* ============================================================
+   AI RESULT UI — inject result box into AI panel
+   ============================================================ */
+function injectResultBox() {
+  if (document.getElementById("ai-result-box")) return;
+
+  const box = document.createElement("div");
+  box.id = "ai-result-box";
+  box.style.cssText = `
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(79,140,255,0.06);
+    border: 1px solid rgba(79,140,255,0.2);
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  `;
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue,#4f8cff)">AI Result</span>
+      <button id="ai-result-close" style="background:none;border:none;color:var(--text-muted,#8898b4);cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>
+    </div>
+    <div id="ai-result-text" style="font-size:13px;line-height:1.7;color:var(--text,#e6edf3);white-space:pre-wrap;max-height:220px;overflow-y:auto"></div>
+    <div id="ai-result-error" style="font-size:13px;color:#ff6b6b;display:none"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="ai-insert-btn" style="
+        flex:1;padding:8px 12px;
+        background:linear-gradient(135deg,#4f8cff,#3a7de8);
+        border:none;border-radius:7px;
+        color:#fff;font-size:12px;font-weight:600;
+        cursor:pointer;letter-spacing:0.04em;
+        transition:opacity 0.2s;
+      ">Insert into editor</button>
+      <button id="ai-replace-btn" style="
+        flex:1;padding:8px 12px;
+        background:rgba(255,255,255,0.06);
+        border:1px solid rgba(255,255,255,0.1);
+        border-radius:7px;
+        color:#e6edf3;font-size:12px;font-weight:500;
+        cursor:pointer;
+        transition:all 0.2s;
+      ">Replace selection</button>
+    </div>
+  `;
+
+  const header = document.querySelector(".ai-panel-header");
+  if (header) header.after(box);
+
+  const spinner = document.createElement("div");
+  spinner.id = "ai-loading";
+  spinner.style.cssText = `
+    display:none;
+    align-items:center;gap:10px;
+    padding:14px;margin-top:8px;
+    font-size:13px;color:var(--text-muted,#8898b4);
+  `;
+  spinner.innerHTML = `
+    <div style="
+      width:14px;height:14px;flex-shrink:0;
+      border:2px solid rgba(79,140,255,0.2);
+      border-top-color:#4f8cff;
+      border-radius:50%;
+      animation:spin 0.5s linear infinite;
+    "></div>
+    <span>AI is thinking...</span>
+  `;
+  box.before(spinner);
+
+  document
+    .getElementById("ai-result-close")
+    .addEventListener("click", hideAIResult);
+
+  document.getElementById("ai-insert-btn").addEventListener("click", function () {
+    const text = document.getElementById("ai-result-text").textContent;
+    const editor = document.getElementById("content");
+    editor.focus();
+
+    if (savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+      const range = sel.getRangeAt(0);
+      range.collapse(false);
+      range.insertNode(document.createTextNode("\n\n" + text));
+      savedRange = null;
+    } else {
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      document.execCommand("insertText", false, "\n\n" + text);
+    }
+
+    hideAIResult();
+    if (typeof window.saveCurrentDocument === "function") window.saveCurrentDocument();
+  });
+
+  document.getElementById("ai-replace-btn").addEventListener("click", function () {
+    const text = document.getElementById("ai-result-text").textContent;
+    const editor = document.getElementById("content");
+    editor.focus();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && sel.toString().trim()) {
+      sel.getRangeAt(0).deleteContents();
+      sel.getRangeAt(0).insertNode(document.createTextNode(text));
+    } else {
+      document.execCommand("insertText", false, text);
+    }
+    hideAIResult();
+    if (typeof window.saveCurrentDocument === "function") window.saveCurrentDocument();
+  });
+}
+
+function showAILoading(on) {
+  injectResultBox();
+  const el = document.getElementById("ai-loading");
+  if (el) el.style.display = on ? "flex" : "none";
+}
+
+function showAIResult(text, isError = false) {
+  injectResultBox();
+  const box = document.getElementById("ai-result-box");
+  const textEl = document.getElementById("ai-result-text");
+  const errEl = document.getElementById("ai-result-error");
+  if (!box) return;
+
+  if (isError) {
+    textEl.style.display = "none";
+    errEl.style.display = "block";
+    errEl.textContent = text;
+    document.getElementById("ai-insert-btn").style.display = "none";
+    document.getElementById("ai-replace-btn").style.display = "none";
+  } else {
+    textEl.style.display = "block";
+    errEl.style.display = "none";
+    textEl.textContent = text;
+    document.getElementById("ai-insert-btn").style.display = "";
+    document.getElementById("ai-replace-btn").style.display = "";
+  }
+
+  box.style.display = "flex";
+}
+
+function hideAIResult() {
+  const box = document.getElementById("ai-result-box");
+  if (box) box.style.display = "none";
+}
