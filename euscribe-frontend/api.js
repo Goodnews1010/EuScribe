@@ -30,7 +30,6 @@ function getToken() {
    LOAD USER INFO INTO TOPBAR
    ============================================================ */
 document.addEventListener("DOMContentLoaded", function () {
-
   /* ── User info ── */
   const name = localStorage.getItem("euscribe_user_name") || "User";
 
@@ -57,6 +56,31 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = "euscribe-auth.html";
     });
   }
+  async function loadDocumentsFromBackend() {
+    const token = getToken();
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/documents`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const backendDocs = await res.json();
+      if (!backendDocs.length) return;
+      const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
+      const localDocs = backendDocs.map((doc) => {
+        let localId = Object.keys(idMap).find((k) => idMap[k] === doc._id) || doc._id;
+        idMap[localId] = doc._id;
+        return { id: localId, name: doc.title || "Untitled Document", content: doc.content || "" };
+      });
+      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
+      if (typeof renderDocuments === "function") renderDocuments();
+      if (localDocs.length > 0 && typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    } catch (err) {
+      console.warn("Could not load documents from backend:", err.message);
+    }
+  }
+  loadDocumentsFromBackend();
 
   /* ============================================================
      WIRE UP AI ACTION CARDS
@@ -98,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!selectedText) {
           showAIResult(
             "Please select some text in the editor first, or type something.",
-            true
+            true,
           );
           return;
         }
@@ -183,8 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
           }),
         });
         const data = await res.json();
-        if (data.id) {
-          idMap[localDoc.id] = data.id;
+        if (data._id) {
+          idMap[localDoc.id] = data._id;
           saveIdMap();
         }
       }
@@ -198,16 +222,14 @@ document.addEventListener("DOMContentLoaded", function () {
     window.saveCurrentDocument = function () {
       _originalSave();
       const docs = JSON.parse(
-        localStorage.getItem("euscribeDocuments") || "[]"
+        localStorage.getItem("euscribeDocuments") || "[]",
       );
       const currentId = window.currentDocId;
       const doc = docs.find((d) => d.id === currentId);
       if (doc) syncToBackend(doc);
     };
   }
-
 }); // ← end of DOMContentLoaded
-
 
 /* ============================================================
    AI CALL — core function
@@ -336,29 +358,36 @@ function injectResultBox() {
     .getElementById("ai-result-close")
     .addEventListener("click", hideAIResult);
 
-  document.getElementById("ai-insert-btn").addEventListener("click", function () {
-  const text = document.getElementById("ai-result-text").textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById("ai-insert-btn");
-    btn.textContent = "Copied!";
-    setTimeout(() => { btn.textContent = "Copy"; }, 2000);
-  });
-});
+  document
+    .getElementById("ai-insert-btn")
+    .addEventListener("click", function () {
+      const text = document.getElementById("ai-result-text").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById("ai-insert-btn");
+        btn.textContent = "Copied!";
+        setTimeout(() => {
+          btn.textContent = "Copy";
+        }, 2000);
+      });
+    });
 
-  document.getElementById("ai-replace-btn").addEventListener("click", function () {
-    const text = document.getElementById("ai-result-text").textContent;
-    const editor = document.getElementById("content");
-    editor.focus();
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0 && sel.toString().trim()) {
-      sel.getRangeAt(0).deleteContents();
-      sel.getRangeAt(0).insertNode(document.createTextNode(text));
-    } else {
-      document.execCommand("insertText", false, text);
-    }
-    hideAIResult();
-    if (typeof window.saveCurrentDocument === "function") window.saveCurrentDocument();
-  });
+  document
+    .getElementById("ai-replace-btn")
+    .addEventListener("click", function () {
+      const text = document.getElementById("ai-result-text").textContent;
+      const editor = document.getElementById("content");
+      editor.focus();
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && sel.toString().trim()) {
+        sel.getRangeAt(0).deleteContents();
+        sel.getRangeAt(0).insertNode(document.createTextNode(text));
+      } else {
+        document.execCommand("insertText", false, text);
+      }
+      hideAIResult();
+      if (typeof window.saveCurrentDocument === "function")
+        window.saveCurrentDocument();
+    });
 }
 
 function showAILoading(on) {
