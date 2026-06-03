@@ -7,8 +7,16 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ Allow requests from GitHub Pages frontend
+app.use(cors({
+  origin: 'https://goodnews1010.github.io',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
 // Routes
@@ -21,7 +29,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Euscribe API is running 🚀' });
 });
 
-// Connect to MongoDB then start server
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGO_URI)
