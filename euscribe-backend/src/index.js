@@ -9,7 +9,7 @@ const app = express();
 
 // ✅ Allow requests from GitHub Pages frontend
 app.use(cors({
-  origin: 'https://goodnews1010.github.io',
+  origin: ['https://goodnews1010.github.io', 'http://127.0.0.1:5500'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
