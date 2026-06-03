@@ -6,7 +6,7 @@
 // ✅ FIX 1: Use empty string so fetch uses relative paths like /api/...
 // If your frontend and backend are on different ports/domains,
 // replace "" with your actual backend URL e.g. "https://yourapp.com"
-const API = "http://localhost:5000";
+const API = "https://euscribe.onrender.com";
 
 /* ── get token from localStorage ── */
 function getToken() {
