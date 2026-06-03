@@ -296,7 +296,7 @@ function injectResultBox() {
         color:#fff;font-size:12px;font-weight:600;
         cursor:pointer;letter-spacing:0.04em;
         transition:opacity 0.2s;
-      ">Insert into editor</button>
+      ">Copy</button>
       <button id="ai-replace-btn" style="
         flex:1;padding:8px 12px;
         background:rgba(255,255,255,0.06);
@@ -337,31 +337,13 @@ function injectResultBox() {
     .addEventListener("click", hideAIResult);
 
   document.getElementById("ai-insert-btn").addEventListener("click", function () {
-    const text = document.getElementById("ai-result-text").textContent;
-    const editor = document.getElementById("content");
-    editor.focus();
-
-    if (savedRange) {
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(savedRange);
-      const range = sel.getRangeAt(0);
-      range.collapse(false);
-      range.insertNode(document.createTextNode("\n\n" + text));
-      savedRange = null;
-    } else {
-      const range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-      document.execCommand("insertText", false, "\n\n" + text);
-    }
-
-    hideAIResult();
-    if (typeof window.saveCurrentDocument === "function") window.saveCurrentDocument();
+  const text = document.getElementById("ai-result-text").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("ai-insert-btn");
+    btn.textContent = "Copied!";
+    setTimeout(() => { btn.textContent = "Copy"; }, 2000);
   });
+});
 
   document.getElementById("ai-replace-btn").addEventListener("click", function () {
     const text = document.getElementById("ai-result-text").textContent;
