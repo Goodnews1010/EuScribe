@@ -259,32 +259,6 @@ document.querySelectorAll(".ai-tab").forEach((tab) => {
 });
 
 /* ============================================================
-   ONLINE / OFFLINE AI BADGES
-   ============================================================ */
-const aiBadges = document.querySelectorAll(".ai-badge");
-let activeAI   = "offline";
-
-function setActiveAI(mode) {
-  activeAI = mode;
-  aiBadges.forEach((badge) => {
-    badge.classList.remove("active-ai");
-    const text = badge.textContent.toLowerCase();
-    if ((mode === "offline" && text.includes("offline")) ||
-        (mode === "online"  && text.includes("online"))) {
-      badge.classList.add("active-ai");
-    }
-  });
-}
-
-aiBadges.forEach((badge) => {
-  badge.addEventListener("click", function () {
-    setActiveAI(this.textContent.toLowerCase().includes("offline") ? "offline" : "online");
-  });
-});
-
-setActiveAI("offline");
-
-/* ============================================================
    THEME TOGGLE
    ============================================================ */
 const themeToggle = document.getElementById("themeToggle");
