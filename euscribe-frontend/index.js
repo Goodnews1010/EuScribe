@@ -770,7 +770,7 @@ function updateDocStats() {
     popup.style.left = left + "px";
     popup.style.top = top + "px";
 
-    hideTimer = setTimeout(hidePopup, 4000);
+    hideTimer = setTimeout(hidePopup, 10000);
   }
 
   function hidePopup() {
