@@ -261,6 +261,19 @@
         }
       }
 
+      /* ── Forgot link ── */
+      .forgot-link {
+        color: #4f8cff;
+        cursor: pointer;
+        font-weight: 500;
+        background: none;
+        border: none;
+        font-size: 12px;
+        font-family: "DM Sans", sans-serif;
+        padding: 0;
+      }
+      .forgot-link:hover { text-decoration: underline; }
+
       /* ── Responsive ── */
       @media (max-width: 480px) {
         .card {
@@ -369,12 +382,45 @@
         <button class="primary-btn" type="submit">Sign In</button>
       </form>
 
-      <p class="switch-line">
-        No account?
-        <button class="switch-link" type="button" onclick="toggle('signup')">
-          Create one
-        </button>
+      <p class="switch-line" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#666">No account? <button class="switch-link" type="button" onclick="toggle('signup')">Create one</button></span>
+        <button class="forgot-link" type="button" onclick="toggle('forgot')">Forgot password?</button>
       </p>
+    </div>
+
+    <!-- ── FORGOT PASSWORD CARD ── -->
+    <div class="card hidden" id="forgot-card">
+      <div class="card-title">Reset password</div>
+      <div class="card-sub">Enter your email and we'll send a reset link</div>
+      <div class="toast" id="forgot-toast">
+        <span class="toast-icon" id="forgot-toast-icon"></span>
+        <span id="forgot-toast-msg"></span>
+      </div>
+      <form onsubmit="handleForgot(event)">
+        <label class="field-label" for="forgot-email">Email Address</label>
+        <input class="field-input" id="forgot-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        <button class="primary-btn" type="submit" id="forgot-btn">Send Reset Link</button>
+      </form>
+      <p class="switch-line">
+        Remember it? <button class="switch-link" type="button" onclick="toggle('login')">Back to Sign In</button>
+      </p>
+    </div>
+
+    <!-- ── RESET PASSWORD CARD ── -->
+    <div class="card hidden" id="reset-card">
+      <div class="card-title">New password</div>
+      <div class="card-sub">Enter your new password below</div>
+      <div class="toast" id="reset-toast">
+        <span class="toast-icon" id="reset-toast-icon"></span>
+        <span id="reset-toast-msg"></span>
+      </div>
+      <form onsubmit="handleReset(event)">
+        <label class="field-label" for="reset-password">New Password</label>
+        <input class="field-input" id="reset-password" type="password" placeholder="Min. 6 characters" required />
+        <label class="field-label" for="reset-password2">Confirm Password</label>
+        <input class="field-input" id="reset-password2" type="password" placeholder="Repeat your password" required />
+        <button class="primary-btn" type="submit" id="reset-btn">Reset Password</button>
+      </form>
     </div>
 
     <div class="card hidden" id="signup-card">
@@ -500,13 +546,24 @@
         toast._timer = setTimeout(() => toast.classList.remove("show"), 4000);
       }
 
+      let resetToken = null;
+
+      // Check for reset token in URL on load
+      (function checkResetToken() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('reset');
+        if (token) {
+          resetToken = token;
+          window.history.replaceState({}, document.title, window.location.pathname);
+          toggle('reset');
+        }
+      })();
+
       function toggle(view) {
-        document
-          .getElementById("login-card")
-          .classList.toggle("hidden", view !== "login");
-        document
-          .getElementById("signup-card")
-          .classList.toggle("hidden", view !== "signup");
+        ['login', 'signup', 'forgot', 'reset'].forEach(id => {
+          const el = document.getElementById(id + '-card');
+          if (el) el.classList.toggle('hidden', id !== view);
+        });
       }
 
       function socialLogin(provider) {
@@ -602,6 +659,65 @@
         } catch (err) {
           showToast('signup', err.message || 'Signup failed')
           btn.textContent = "Create Account";
+          btn.disabled = false;
+        }
+      }
+
+      async function handleForgot(event) {
+        event.preventDefault();
+        const email = document.getElementById("forgot-email").value.trim();
+        if (!email) { showToast('forgot', 'Please enter your email.'); return; }
+
+        const btn = document.getElementById("forgot-btn");
+        btn.textContent = "Sending...";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(`${API}/api/password/forgot`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message);
+          showToast('forgot', 'Reset link sent! Check your email.', 'success');
+          document.getElementById("forgot-email").value = '';
+        } catch (err) {
+          showToast('forgot', err.message || 'Failed to send reset email');
+        } finally {
+          btn.textContent = "Send Reset Link";
+          btn.disabled = false;
+        }
+      }
+
+      async function handleReset(event) {
+        event.preventDefault();
+        const password = document.getElementById("reset-password").value;
+        const password2 = document.getElementById("reset-password2").value;
+        if (!password || !password2) { showToast('reset', 'Please fill in both fields.'); return; }
+        if (password.length < 6) { showToast('reset', 'Password must be at least 6 characters.'); return; }
+        if (password !== password2) { showToast('reset', 'Passwords do not match.'); return; }
+        if (!resetToken) { showToast('reset', 'Invalid reset link. Please request a new one.'); return; }
+
+        const btn = document.getElementById("reset-btn");
+        btn.textContent = "Resetting...";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(`${API}/api/password/reset`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: resetToken, password }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message);
+          showToast('reset', 'Password reset! Redirecting to login...', 'success');
+          resetToken = null;
+          setTimeout(() => toggle('login'), 2000);
+        } catch (err) {
+          showToast('reset', err.message || 'Failed to reset password');
+        } finally {
+          btn.textContent = "Reset Password";
           btn.disabled = false;
         }
       }

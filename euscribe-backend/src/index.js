@@ -37,6 +37,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Euscribe API is running 🚀" });
 });
 
+app.use('/api/password', require('./routes/password'));
+
 const PORT = process.env.PORT || 5000;
 
 mongoose
