@@ -551,6 +551,8 @@
           localStorage.setItem("euscribe_user_name", data.user.name);
           localStorage.setItem("euscribe_user_email", data.user.email);
 
+          localStorage.removeItem("euscribe_onboarded");
+
           window.location.href = "index.html";
         } catch (err) {
           showToast('login', err.message || 'Login failed')
@@ -593,6 +595,8 @@
           localStorage.setItem("euscribe_token", data.token);
           localStorage.setItem("euscribe_user_name", data.user.name);
           localStorage.setItem("euscribe_user_email", data.user.email);
+
+          localStorage.removeItem("euscribe_onboarded");
 
           window.location.href = "index.html";
         } catch (err) {
