@@ -780,14 +780,18 @@ function updateDocStats() {
     clearTimeout(hideTimer);
   }
 
-  // Listen for copy events inside the editor
-  content.addEventListener("copy", function () {
+  // Show popup on text selection
+  document.addEventListener("mouseup", function () {
     setTimeout(() => {
       const sel = window.getSelection();
       const text = sel ? sel.toString().trim() : "";
-      if (!text || text.length < 3) return;
+      if (!text || text.length < 3) {
+        hidePopup();
+        return;
+      }
+      // Only show if selection is inside the editor
+      if (!content.contains(sel.anchorNode)) return;
 
-      // Get position from selection
       const range = sel.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
