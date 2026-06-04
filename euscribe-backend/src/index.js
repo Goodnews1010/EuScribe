@@ -21,10 +21,11 @@ app.use(
 
 app.use(express.json());
 
-// Google authentication
+// Google | Github authentication
 
 app.use(passport.initialize());
 app.use('/api/auth/google', require('./routes/google'));
+app.use('/api/auth/github', require('./routes/github'));
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
