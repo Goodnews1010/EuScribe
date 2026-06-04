@@ -791,7 +791,7 @@ function updateDocStats() {
       const range = sel.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
-      const y = rect.bottom + window.scrollY;
+      const y = rect.bottom;
 
       showPopup(x, y, text);
     }, 50);
@@ -799,7 +799,9 @@ function updateDocStats() {
 
   // Hide popup when clicking outside
   document.addEventListener("click", function (e) {
-    if (!popup.contains(e.target)) hidePopup();
+    if (!popup.contains(e.target) && e.target !== popup) {
+      setTimeout(hidePopup, 100);
+    }
   });
 
   // Hide popup when user starts typing
