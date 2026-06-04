@@ -91,30 +91,18 @@ function saveCurrentDocument() {
 const saveStatus = document.getElementById("saveStatus");
 
 let typingTimer;
-const typingDelay = 1000; // 1 second after user stops typing
+const typingDelay = 1000;
 
 content.addEventListener("input", () => {
-
-  // User is typing
   saveStatus.textContent = "Saving...";
   saveStatus.classList.add("saving");
-
-  // Clear old timer
   clearTimeout(typingTimer);
-
-  // Start new timer
   typingTimer = setTimeout(() => {
-
-    // User stopped typing
     saveCurrentDocument();
-
     saveStatus.textContent = "Saved";
     saveStatus.classList.remove("saving");
-
   }, typingDelay);
-
 });
-
 
 }
 
@@ -206,7 +194,7 @@ function fileHandle(value) {
 =================================================== */
 content.addEventListener("input", () => {
   saveCurrentDocument();
-  updateDocStats(); // ← add this
+  updateDocStats();
 });
 
 /* ===================================================
@@ -238,7 +226,6 @@ renderDocuments();
 /*=========================================
     ACTIVE BUTTONS
   =========================================*/
-
 document.querySelectorAll(".tool-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     btn.classList.toggle("active");
@@ -325,7 +312,6 @@ content.addEventListener("paste", function (e) {
 
   menuBtn.addEventListener("click", function () {
     if (window.innerWidth > 640) {
-      /* Desktop: push layout */
       sidebarOpen = !sidebarOpen;
       if (sidebarOpen) {
         sidebar.classList.remove("closed");
@@ -335,7 +321,6 @@ content.addEventListener("paste", function (e) {
         mainContent.classList.add("full");
       }
     }
-    /* Mobile: handled by the mobile controller below */
   });
 })();
 
@@ -359,20 +344,17 @@ content.addEventListener("paste", function (e) {
         appShell.classList.add("ai-closed");
       }
     }
-    /* Tablet/mobile: handled by the mobile controller below */
   });
 })();
 
 /* ============================================================
    MOBILE CONTROLLER
-   Full rewrite — bottom nav, drawers, overlay
    ============================================================ */
 (function () {
 
   const MOBILE_BP  = 640;
   const TABLET_BP  = 900;
 
-  /* Elements */
   const menuBtn    = document.getElementById("menuBtn");
   const aiBtn      = document.getElementById("aiBtn");
   const sidebar    = document.querySelector(".sidebar");
@@ -382,11 +364,9 @@ content.addEventListener("paste", function (e) {
   const fileListEl = document.getElementById("fileList");
   const actionsRow = document.querySelector(".toolbar-actions");
 
-  /* State */
   let sidebarOpen = false;
   let aiOpen      = false;
 
-  /* ── Inject compact format select for mobile ── */
   let formatSelectInjected = false;
   function ensureFormatSelect() {
     if (formatSelectInjected || !actionsRow) return;
@@ -407,20 +387,12 @@ content.addEventListener("paste", function (e) {
     formatSelectInjected = true;
   }
 
-  /* ── Close all drawers ── */
   function closeAll() {
-    /* Sidebar */
     sidebar.classList.remove("open");
     sidebarOpen = false;
-
-    /* AI panel */
     aiPanel.classList.remove("open");
     aiOpen = false;
-
-    /* Overlay */
     overlay.classList.remove("visible");
-
-    /* Reset bottom nav to "write" */
     if (bottomNav) {
       bottomNav.querySelectorAll(".mob-nav-btn").forEach((b) =>
         b.classList.toggle("active", b.dataset.view === "write")
@@ -428,7 +400,6 @@ content.addEventListener("paste", function (e) {
     }
   }
 
-  /* ── Open sidebar ── */
   function openSidebar() {
     aiPanel.classList.remove("open");
     aiOpen = false;
@@ -437,32 +408,25 @@ content.addEventListener("paste", function (e) {
     overlay.classList.add("visible");
   }
 
-  /* ── Open AI panel ── */
   function openAI() {
     sidebar.classList.remove("open");
     sidebarOpen = false;
-    /* Remove desktop closed class so the open transition works */
     aiPanel.classList.remove("closed");
     aiPanel.classList.add("open");
     aiOpen = true;
     overlay.classList.add("visible");
   }
 
-  /* ── Overlay tap → close ── */
   overlay.addEventListener("click", closeAll);
 
-  /* ── Bottom nav ── */
   if (bottomNav) {
     bottomNav.addEventListener("click", function (e) {
       const btn = e.target.closest(".mob-nav-btn");
       if (!btn) return;
       const view = btn.dataset.view;
-
-      /* Update active state */
       bottomNav.querySelectorAll(".mob-nav-btn").forEach((b) =>
         b.classList.toggle("active", b === btn)
       );
-
       if (view === "docs") {
         if (sidebarOpen) { closeAll(); }
         else             { openSidebar(); }
@@ -475,7 +439,6 @@ content.addEventListener("paste", function (e) {
     });
   }
 
-  /* ── Mobile hamburger → sidebar drawer ── */
   menuBtn.addEventListener("click", function (e) {
     if (window.innerWidth <= MOBILE_BP) {
       e.stopImmediatePropagation();
@@ -484,7 +447,6 @@ content.addEventListener("paste", function (e) {
     }
   }, true);
 
-  /* ── Tablet AI btn → drawer ── */
   aiBtn.addEventListener("click", function (e) {
     if (window.innerWidth <= TABLET_BP) {
       e.stopImmediatePropagation();
@@ -493,14 +455,12 @@ content.addEventListener("paste", function (e) {
     }
   }, true);
 
-  /* ── Pick a doc → close sidebar ── */
   fileListEl.addEventListener("click", function () {
     if (window.innerWidth <= MOBILE_BP && sidebarOpen) {
       setTimeout(closeAll, 160);
     }
   });
 
-  /* ── Resize cleanup ── */
   window.addEventListener("resize", function () {
     if (window.innerWidth > MOBILE_BP) {
       sidebar.classList.remove("open");
@@ -514,12 +474,10 @@ content.addEventListener("paste", function (e) {
     }
   });
 
-  /* ── Prevent scroll-through on overlay touch ── */
   overlay.addEventListener("touchmove", function (e) {
     e.preventDefault();
   }, { passive: false });
 
-  /* ── Init ── */
   if (window.innerWidth <= MOBILE_BP) {
     ensureFormatSelect();
   }
@@ -531,37 +489,233 @@ content.addEventListener("paste", function (e) {
 })();
 
 /* ============================================================
-      WORD COUNT
+   WORD COUNT
    ============================================================ */
-
 function updateDocStats() {
   const text = content.innerText.trim();
   const words = text === "" ? 0 : text.split(/\s+/).filter(Boolean).length;
-  const chars = text.length; // ← add this
+  const chars = text.length;
   const minutes = Math.ceil(words / 200);
 
   document.getElementById("wordCount").textContent =
     words === 1 ? "1 word" : `${words.toLocaleString()} words`;
 
-  document.getElementById("charCount").textContent = // ← add this
+  document.getElementById("charCount").textContent =
     `${chars.toLocaleString()} chars`;
 
   document.getElementById("readTime").textContent =
     minutes <= 1 ? "< 1 min read" : `${minutes} min read`;
 }
 
-// Handle Google OAuth redirect
-(function handleGoogleAuth() {
+// Handle Google/GitHub OAuth redirect
+(function handleOAuthRedirect() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   const name = params.get('name');
   const email = params.get('email');
 
   if (token) {
+    localStorage.removeItem("euscribeDocuments");
+    localStorage.removeItem("euscribe_id_map");
     localStorage.setItem('euscribe_token', token);
     localStorage.setItem('euscribe_user_name', name);
     localStorage.setItem('euscribe_user_email', email);
-    // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+})();
+
+/* ============================================================
+   FEATURE 1 — ONBOARDING DOCUMENT (first time users only)
+   Shows a welcome doc with full explanation on first login
+   ============================================================ */
+(function showOnboardingIfFirstTime() {
+  const hasSeenOnboarding = localStorage.getItem("euscribe_onboarded");
+  if (hasSeenOnboarding) return;
+
+  // Mark as onboarded so it never shows again
+  localStorage.setItem("euscribe_onboarded", "true");
+
+  const onboardingContent = `
+<h2 style="color:#4f8cff;margin-bottom:12px">Welcome to EuScribe ✦</h2>
+<p style="margin-bottom:16px">EuScribe is your AI-powered writing assistant. Here's everything you need to know to get started:</p>
+
+<h3 style="margin-bottom:8px">✦ The Toolbar</h3>
+<p style="margin-bottom:8px">The toolbar at the top lets you format your writing:</p>
+<ul style="margin-left:20px;margin-bottom:16px;line-height:2">
+  <li><strong>Undo / Redo</strong> — go back or forward on your changes</li>
+  <li><strong>Bold, Underline, Italic, Strikethrough</strong> — style your text</li>
+  <li><strong>Align Left, Center, Right</strong> — control text alignment</li>
+  <li><strong>Ordered &amp; Unordered Lists</strong> — create bullet or numbered lists</li>
+  <li><strong>Add Link / Remove Link</strong> — insert or remove hyperlinks</li>
+  <li><strong>Format</strong> — switch between Heading 1–6 and Paragraph</li>
+  <li><strong>Font Size</strong> — change text size</li>
+  <li><strong>Color &amp; Highlight</strong> — change text color or highlight it</li>
+</ul>
+
+<h3 style="margin-bottom:8px">✦ AI Assistant</h3>
+<p style="margin-bottom:8px">The AI panel on the right is your writing partner. Here's how to use it:</p>
+<ul style="margin-left:20px;margin-bottom:16px;line-height:2">
+  <li>Select any text in the editor</li>
+  <li>Click an action like <strong>Fix Grammar</strong>, <strong>Rewrite for Clarity</strong>, <strong>Summarize</strong>, or <strong>Expand</strong></li>
+  <li>The AI result appears — you can <strong>Copy</strong> it or <strong>Replace</strong> your selection</li>
+  <li>Use the <strong>Tone</strong> tab to change writing style to Formal, Casual, Academic, and more</li>
+  <li>Use the <strong>Custom</strong> tab to ask the AI anything you want</li>
+</ul>
+
+<h3 style="margin-bottom:8px">✦ Documents</h3>
+<p style="margin-bottom:16px">All your documents are saved automatically and synced to your account. Access them from any device by logging in. Use the sidebar to create, search, and switch between documents.</p>
+
+<h3 style="margin-bottom:8px">✦ Export</h3>
+<p style="margin-bottom:16px">Use the <strong>File</strong> menu to save your document as a <strong>PDF</strong> or <strong>TXT</strong> file at any time.</p>
+
+<h3 style="margin-bottom:8px">✦ Quick Tip</h3>
+<p style="margin-bottom:16px">When you copy any text in the editor, a quick action bar appears — use it to instantly fix, rewrite, summarize or expand your copied text with one click.</p>
+
+<p style="color:#4f8cff;font-weight:600">You're all set. Start writing! ✦</p>
+`;
+
+  // Create the onboarding document
+  const onboardingDoc = {
+    id: Date.now(),
+    name: "Getting Started with EuScribe",
+    content: onboardingContent
+  };
+
+  documents.unshift(onboardingDoc);
+  currentDocId = onboardingDoc.id;
+  content.innerHTML = onboardingContent;
+  filename.value = onboardingDoc.name;
+  topFileTitle.value = onboardingDoc.name;
+  saveToStorage();
+  renderDocuments();
+})();
+
+/* ============================================================
+   FEATURE 2 — COPY QUICK ACTION POPUP
+   Shows Fix | Rewrite | Summarize | Expand when user copies text
+   ============================================================ */
+(function setupCopyPopup() {
+  // Create the popup element
+  const popup = document.createElement("div");
+  popup.id = "copy-action-popup";
+  popup.style.cssText = `
+    position: fixed;
+    display: none;
+    align-items: center;
+    gap: 0;
+    background: #1a1a1c;
+    border: 0.5px solid #2e2e30;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 9999;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+  `;
+
+  const actions = [
+    { label: "Fix", prompt: (t) => `Fix all grammar and spelling errors in this text. Return only the corrected text:\n\n${t}` },
+    { label: "Rewrite", prompt: (t) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${t}` },
+    { label: "Summarize", prompt: (t) => `Summarize the following text into concise key points. Return only the summary:\n\n${t}` },
+    { label: "Expand", prompt: (t) => `Expand and elaborate on the following text with more detail. Return only the expanded text:\n\n${t}` },
+  ];
+
+  actions.forEach((action, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = action.label;
+    btn.style.cssText = `
+      padding: 7px 14px;
+      background: none;
+      border: none;
+      border-right: ${i < actions.length - 1 ? "0.5px solid #2e2e30" : "none"};
+      color: #b0b0b0;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    `;
+    btn.addEventListener("mouseenter", () => {
+      btn.style.background = "rgba(79,140,255,0.1)";
+      btn.style.color = "#4f8cff";
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.style.background = "none";
+      btn.style.color = "#b0b0b0";
+    });
+    btn.addEventListener("click", function () {
+      const copiedText = popup.dataset.copiedText;
+      if (!copiedText) return;
+      hidePopup();
+
+      // Open AI panel on mobile
+      const aiPanel = document.getElementById("aiPanel");
+      if (aiPanel && !aiPanel.classList.contains("open") && window.innerWidth <= 900) {
+        aiPanel.classList.add("open");
+      }
+
+      // Call AI with the copied text
+      if (typeof callAI === "function") {
+        callAI(action.prompt(copiedText));
+      }
+    });
+    popup.appendChild(btn);
+  });
+
+  document.body.appendChild(popup);
+
+  let hideTimer;
+
+  function showPopup(x, y, text) {
+    clearTimeout(hideTimer);
+    popup.dataset.copiedText = text;
+    popup.style.display = "flex";
+
+    // Position below cursor, keep within viewport
+    const popupW = 280;
+    const popupH = 36;
+    let left = x - popupW / 2;
+    let top  = y + 12;
+
+    if (left < 8) left = 8;
+    if (left + popupW > window.innerWidth - 8) left = window.innerWidth - popupW - 8;
+    if (top + popupH > window.innerHeight - 8) top = y - popupH - 12;
+
+    popup.style.left = left + "px";
+    popup.style.top  = top + "px";
+
+    // Auto hide after 4 seconds
+    hideTimer = setTimeout(hidePopup, 4000);
+  }
+
+  function hidePopup() {
+    popup.style.display = "none";
+    clearTimeout(hideTimer);
+  }
+
+  // Listen for copy events inside the editor
+  content.addEventListener("copy", function () {
+    setTimeout(() => {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : "";
+      if (!text || text.length < 3) return;
+
+      // Get position from selection
+      const range = sel.getRangeAt(0);
+      const rect  = range.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.bottom + window.scrollY;
+
+      showPopup(x, y, text);
+    }, 50);
+  });
+
+  // Hide popup when clicking outside
+  document.addEventListener("click", function (e) {
+    if (!popup.contains(e.target)) hidePopup();
+  });
+
+  // Hide popup when user starts typing
+  content.addEventListener("keydown", hidePopup);
+
 })();
