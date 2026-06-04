@@ -790,12 +790,10 @@ function updateDocStats() {
       // Only show if selection is inside the editor
       if (!content.contains(sel.anchorNode)) return;
 
-      const range = sel.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.bottom;
+      const editorRect = content.getBoundingClientRect();
+      const x = editorRect.left + editorRect.width / 2;
+      const y = editorRect.bottom - 60;
 
-      justShown = true;
       showPopup(x, y, text);
     }, 50);
   });
@@ -803,13 +801,11 @@ function updateDocStats() {
   // Hide popup when clicking outside
   let justShown = false;
 
-  document.addEventListener("click", function (e) {
-    if (justShown) {
-      justShown = false;
-      return;
-    }
-    if (!popup.contains(e.target)) hidePopup();
-  });
+  document.addEventListener("mousedown", function (e) {
+  if (!popup.contains(e.target) && !content.contains(e.target)) {
+    hidePopup();
+  }
+});
 
   // Hide popup when user starts typing
   content.addEventListener("keydown", hidePopup);
