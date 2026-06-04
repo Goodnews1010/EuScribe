@@ -1,23 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 // Store reset tokens in memory
 const resetTokens = {};
-
-// Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  }
-});
 
 // POST /api/password/forgot
 router.post('/forgot', async (req, res) => {
@@ -33,8 +24,8 @@ router.post('/forgot', async (req, res) => {
 
     const resetLink = `https://goodnews1010.github.io/EuScribe/euscribe-frontend/euscribe-auth.html?reset=${token}`;
 
-    await transporter.sendMail({
-      from: `"EuScribe" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: 'EuScribe <onboarding@resend.dev>',
       to: email,
       subject: 'Reset your EuScribe password',
       html: `
