@@ -412,19 +412,59 @@ content.addEventListener("paste", function (e) {
   function ensureFormatSelect() {
     if (formatSelectInjected || !actionsRow) return;
     if (actionsRow.querySelector(".mobile-format-select")) return;
+
+    // Format select
     const sel = document.createElement("select");
     sel.className = "mobile-format-select";
     sel.innerHTML = `
-      <option value="p"  selected>Paragraph</option>
-      <option value="h1">Heading 1</option>
-      <option value="h2">Heading 2</option>
-      <option value="h3">Heading 3</option>
-      <option value="h4">Heading 4</option>
-    `;
+    <option value="p" selected>Paragraph</option>
+    <option value="h1">Heading 1</option>
+    <option value="h2">Heading 2</option>
+    <option value="h3">Heading 3</option>
+    <option value="h4">Heading 4</option>
+  `;
     sel.addEventListener("change", function () {
       document.execCommand("formatBlock", false, this.value);
     });
     actionsRow.prepend(sel);
+
+    // File select
+    const fileSelect = document.createElement("select");
+    fileSelect.className = "mobile-format-select";
+    fileSelect.innerHTML = `
+    <option value="" selected hidden disabled>File</option>
+    <option value="new">New File</option>
+    <option value="txt">Save as .txt</option>
+    <option value="pdf">Save as .pdf</option>
+  `;
+    fileSelect.addEventListener("change", function () {
+      fileHandle(this.value);
+      this.selectedIndex = 0;
+    });
+    actionsRow.prepend(fileSelect);
+
+    // Color picker
+    const colorLabel = document.createElement("label");
+    colorLabel.className = "color-picker";
+    colorLabel.style.flexShrink = "0";
+    colorLabel.innerHTML = `<span>Color</span><input type="color" value="#e6edf3" />`;
+    colorLabel.querySelector("input").addEventListener("input", function () {
+      document.execCommand("foreColor", false, this.value);
+    });
+    actionsRow.appendChild(colorLabel);
+
+    // Highlight picker
+    const highlightLabel = document.createElement("label");
+    highlightLabel.className = "color-picker";
+    highlightLabel.style.flexShrink = "0";
+    highlightLabel.innerHTML = `<span>Highlight</span><input type="color" value="#ffff00" />`;
+    highlightLabel
+      .querySelector("input")
+      .addEventListener("input", function () {
+        document.execCommand("hiliteColor", false, this.value);
+      });
+    actionsRow.appendChild(highlightLabel);
+
     formatSelectInjected = true;
   }
 
@@ -802,10 +842,10 @@ function updateDocStats() {
   let justShown = false;
 
   document.addEventListener("mousedown", function (e) {
-  if (!popup.contains(e.target) && !content.contains(e.target)) {
-    hidePopup();
-  }
-});
+    if (!popup.contains(e.target) && !content.contains(e.target)) {
+      hidePopup();
+    }
+  });
 
   // Hide popup when user starts typing
   content.addEventListener("keydown", hidePopup);
