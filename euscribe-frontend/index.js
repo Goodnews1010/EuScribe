@@ -172,21 +172,37 @@ function fileHandle(value) {
     link.download = `${topFileTitle.value}.txt`;
     link.click();
   } else if (value === "pdf") {
-    html2pdf()
-  .set({
-    margin: 10,
-    filename: `${topFileTitle.value}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: {
-      unit: "mm",
-      format: "a4",
-      orientation: "portrait"
-    }
-  })
-  .from(content)
-  .save();
-  }
+
+  const exportContent = content.cloneNode(true);
+
+  exportContent.style.background = "#ffffff";
+  exportContent.style.color = "#000000";
+  exportContent.style.padding = "56px 64px";
+  exportContent.style.width = "100%";
+
+  document.body.appendChild(exportContent);
+
+  html2pdf()
+    .set({
+      margin: 10,
+      filename: `${topFileTitle.value}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        backgroundColor: "#ffffff"
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait"
+      }
+    })
+    .from(exportContent)
+    .save()
+    .then(() => {
+      document.body.removeChild(exportContent);
+    });
+}
 }
 
 /* ===================================================
