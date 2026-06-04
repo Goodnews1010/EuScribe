@@ -8,12 +8,12 @@ function addLink() {
   if (url) formatDoc("createLink", url);
 }
 
-const content      = document.getElementById("content");
-const filename     = document.getElementById("filename");
+const content = document.getElementById("content");
+const filename = document.getElementById("filename");
 const topFileTitle = document.querySelector(".file-title");
-const fileList     = document.getElementById("fileList");
-const newDocBtn    = document.getElementById("newDocBtn");
-const searchInput  = document.getElementById("searchInput");
+const fileList = document.getElementById("fileList");
+const newDocBtn = document.getElementById("newDocBtn");
+const searchInput = document.getElementById("searchInput");
 
 /* ===================================================
    LINK HOVER FIX
@@ -34,7 +34,7 @@ content.addEventListener("mouseenter", function () {
 /* ===================================================
    DOCUMENT STORAGE
 =================================================== */
-let documents   = JSON.parse(localStorage.getItem("euscribeDocuments")) || [];
+let documents = JSON.parse(localStorage.getItem("euscribeDocuments")) || [];
 let currentDocId = null;
 
 function saveToStorage() {
@@ -46,15 +46,15 @@ function saveToStorage() {
 =================================================== */
 function createNewDocument() {
   const newDoc = {
-    id:      Date.now(),
-    name:    `Untitled Document ${documents.length + 1}`,
-    content: ""
+    id: Date.now(),
+    name: `Untitled Document ${documents.length + 1}`,
+    content: "",
   };
   documents.unshift(newDoc);
   currentDocId = newDoc.id;
-  content.innerHTML      = "";
-  filename.value         = newDoc.name;
-  topFileTitle.value     = newDoc.name;
+  content.innerHTML = "";
+  filename.value = newDoc.name;
+  topFileTitle.value = newDoc.name;
   saveToStorage();
   renderDocuments();
 }
@@ -65,9 +65,9 @@ function createNewDocument() {
 function loadDocument(id) {
   const doc = documents.find((item) => item.id === id);
   if (!doc) return;
-  currentDocId       = id;
-  content.innerHTML  = doc.content;
-  filename.value     = doc.name;
+  currentDocId = id;
+  content.innerHTML = doc.content;
+  filename.value = doc.name;
   topFileTitle.value = doc.name;
   renderDocuments();
   updateDocStats();
@@ -80,30 +80,29 @@ function saveCurrentDocument() {
   if (!currentDocId) return;
   const doc = documents.find((item) => item.id === currentDocId);
   if (!doc) return;
-  doc.content    = content.innerHTML;
-  doc.name       = topFileTitle.value.trim() || "Untitled Document";
+  doc.content = content.innerHTML;
+  doc.name = topFileTitle.value.trim() || "Untitled Document";
   filename.value = doc.name;
   saveToStorage();
 
-/* ===================================================
+  /* ===================================================
   SAVED OR SAVING
 =================================================== */
-const saveStatus = document.getElementById("saveStatus");
+  const saveStatus = document.getElementById("saveStatus");
 
-let typingTimer;
-const typingDelay = 1000;
+  let typingTimer;
+  const typingDelay = 1000;
 
-content.addEventListener("input", () => {
-  saveStatus.textContent = "Saving...";
-  saveStatus.classList.add("saving");
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => {
-    saveCurrentDocument();
-    saveStatus.textContent = "Saved";
-    saveStatus.classList.remove("saving");
-  }, typingDelay);
-});
-
+  content.addEventListener("input", () => {
+    saveStatus.textContent = "Saving...";
+    saveStatus.classList.add("saving");
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      saveCurrentDocument();
+      saveStatus.textContent = "Saved";
+      saveStatus.classList.remove("saving");
+    }, typingDelay);
+  });
 }
 
 /* ===================================================
@@ -113,8 +112,8 @@ function renameCurrentDocument(newName) {
   if (!currentDocId) return;
   const doc = documents.find((item) => item.id === currentDocId);
   if (!doc) return;
-  doc.name           = newName.trim() || "Untitled Document";
-  filename.value     = doc.name;
+  doc.name = newName.trim() || "Untitled Document";
+  filename.value = doc.name;
   topFileTitle.value = doc.name;
   saveToStorage();
   renderDocuments();
@@ -126,7 +125,10 @@ function renameCurrentDocument(newName) {
 function deleteDocument(id) {
   if (!confirm("Delete this document?")) return;
   documents = documents.filter((doc) => doc.id !== id);
-  if (documents.length === 0) { createNewDocument(); return; }
+  if (documents.length === 0) {
+    createNewDocument();
+    return;
+  }
   if (currentDocId === id) loadDocument(documents[0].id);
   saveToStorage();
   renderDocuments();
@@ -137,9 +139,9 @@ function deleteDocument(id) {
 =================================================== */
 function renderDocuments() {
   fileList.innerHTML = "";
-  const searchValue  = searchInput.value.toLowerCase();
+  const searchValue = searchInput.value.toLowerCase();
   const filteredDocs = documents.filter((doc) =>
-    doc.name.toLowerCase().includes(searchValue)
+    doc.name.toLowerCase().includes(searchValue),
   );
   filteredDocs.forEach((doc) => {
     const fileItem = document.createElement("div");
@@ -149,7 +151,9 @@ function renderDocuments() {
       <input type="text" class="file-name" value="${doc.name}" readonly />
       <i class='bx bx-trash delete'></i>
     `;
-    fileItem.querySelector(".file-name").addEventListener("click", () => loadDocument(doc.id));
+    fileItem
+      .querySelector(".file-name")
+      .addEventListener("click", () => loadDocument(doc.id));
     fileItem.querySelector(".delete").addEventListener("click", (e) => {
       e.stopPropagation();
       deleteDocument(doc.id);
@@ -166,43 +170,42 @@ function fileHandle(value) {
     createNewDocument();
   } else if (value === "txt") {
     const blob = new Blob([content.innerText]);
-    const url  = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href  = url;
+    link.href = url;
     link.download = `${topFileTitle.value}.txt`;
     link.click();
   } else if (value === "pdf") {
+    const exportContent = content.cloneNode(true);
 
-  const exportContent = content.cloneNode(true);
+    exportContent.style.background = "#ffffff";
+    exportContent.style.color = "#000000";
+    exportContent.style.padding = "56px 64px";
+    exportContent.style.width = "100%";
 
-  exportContent.style.background = "#ffffff";
-  exportContent.style.color = "#000000";
-  exportContent.style.padding = "56px 64px";
-  exportContent.style.width = "100%";
+    document.body.appendChild(exportContent);
 
-  document.body.appendChild(exportContent);
-
-  html2pdf()
-    .set({
-      margin: 10,
-      filename: `${topFileTitle.value}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        backgroundColor: "#ffffff"
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait"
-      }
-    })
-    .from(exportContent)
-    .save()
-    .then(() => {
-      document.body.removeChild(exportContent);
-    });
-}
+    html2pdf()
+      .set({
+        margin: 10,
+        filename: `${topFileTitle.value}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          backgroundColor: "#ffffff",
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+      })
+      .from(exportContent)
+      .save()
+      .then(() => {
+        document.body.removeChild(exportContent);
+      });
+  }
 }
 
 /* ===================================================
@@ -216,8 +219,12 @@ content.addEventListener("input", () => {
 /* ===================================================
    TITLE EDITING
 =================================================== */
-topFileTitle.addEventListener("input", function () { renameCurrentDocument(this.value); });
-filename.addEventListener("input",     function () { renameCurrentDocument(this.value); });
+topFileTitle.addEventListener("input", function () {
+  renameCurrentDocument(this.value);
+});
+filename.addEventListener("input", function () {
+  renameCurrentDocument(this.value);
+});
 
 /* ===================================================
    SEARCH
@@ -242,7 +249,7 @@ renderDocuments();
 /*=========================================
     ACTIVE BUTTONS
   =========================================*/
-document.querySelectorAll(".tool-btn").forEach(btn => {
+document.querySelectorAll(".tool-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     btn.classList.toggle("active");
   });
@@ -253,8 +260,12 @@ document.querySelectorAll(".tool-btn").forEach(btn => {
    ============================================================ */
 document.querySelectorAll(".ai-tab").forEach((tab) => {
   tab.addEventListener("click", function () {
-    document.querySelectorAll(".ai-tab").forEach((t) => t.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+    document
+      .querySelectorAll(".ai-tab")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((c) => c.classList.remove("active"));
     this.classList.add("active");
     const target = document.getElementById(`${this.dataset.tab}-tab`);
     if (target) target.classList.add("active");
@@ -286,23 +297,38 @@ themeToggle.addEventListener("change", function () {
    ============================================================ */
 content.addEventListener("paste", function (e) {
   e.preventDefault();
-  let html  = e.clipboardData.getData("text/html");
+  let html = e.clipboardData.getData("text/html");
   let plain = e.clipboardData.getData("text/plain");
 
   if (html) {
     const parser = new DOMParser();
-    const doc    = parser.parseFromString(html, "text/html");
+    const doc = parser.parseFromString(html, "text/html");
 
     doc.querySelectorAll("*").forEach((el) => {
       const style = el.getAttribute("style");
       if (style) {
-        const cleaned = style.split(";").filter((rule) => {
-          const prop = rule.split(":")[0].trim().toLowerCase();
-          const blocked = ["background","background-color","color","font-family","font-size","line-height","mso-","-webkit-"];
-          return !blocked.some((b) => prop.startsWith(b));
-        }).join(";");
-        if (cleaned.trim()) { el.setAttribute("style", cleaned); }
-        else                { el.removeAttribute("style"); }
+        const cleaned = style
+          .split(";")
+          .filter((rule) => {
+            const prop = rule.split(":")[0].trim().toLowerCase();
+            const blocked = [
+              "background",
+              "background-color",
+              "color",
+              "font-family",
+              "font-size",
+              "line-height",
+              "mso-",
+              "-webkit-",
+            ];
+            return !blocked.some((b) => prop.startsWith(b));
+          })
+          .join(";");
+        if (cleaned.trim()) {
+          el.setAttribute("style", cleaned);
+        } else {
+          el.removeAttribute("style");
+        }
       }
       el.removeAttribute("bgcolor");
       el.removeAttribute("color");
@@ -320,11 +346,11 @@ content.addEventListener("paste", function (e) {
    DESKTOP — SIDEBAR TOGGLE (hamburger)
    ============================================================ */
 (function () {
-  const menuBtn     = document.getElementById("menuBtn");
-  const sidebar     = document.querySelector(".sidebar");
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
-  const appShell    = document.getElementById("appShell");
-  let   sidebarOpen = true;
+  const appShell = document.getElementById("appShell");
+  let sidebarOpen = true;
 
   menuBtn.addEventListener("click", function () {
     if (window.innerWidth > 640) {
@@ -344,10 +370,10 @@ content.addEventListener("paste", function (e) {
    DESKTOP — AI PANEL TOGGLE
    ============================================================ */
 (function () {
-  const aiBtn   = document.getElementById("aiBtn");
+  const aiBtn = document.getElementById("aiBtn");
   const aiPanel = document.getElementById("aiPanel");
   const appShell = document.getElementById("appShell");
-  let   aiOpen  = true;
+  let aiOpen = true;
 
   aiBtn.addEventListener("click", function () {
     if (window.innerWidth > 900) {
@@ -367,21 +393,20 @@ content.addEventListener("paste", function (e) {
    MOBILE CONTROLLER
    ============================================================ */
 (function () {
+  const MOBILE_BP = 640;
+  const TABLET_BP = 900;
 
-  const MOBILE_BP  = 640;
-  const TABLET_BP  = 900;
-
-  const menuBtn    = document.getElementById("menuBtn");
-  const aiBtn      = document.getElementById("aiBtn");
-  const sidebar    = document.querySelector(".sidebar");
-  const aiPanel    = document.getElementById("aiPanel");
-  const overlay    = document.getElementById("mobileOverlay");
-  const bottomNav  = document.getElementById("mobileBottomNav");
+  const menuBtn = document.getElementById("menuBtn");
+  const aiBtn = document.getElementById("aiBtn");
+  const sidebar = document.querySelector(".sidebar");
+  const aiPanel = document.getElementById("aiPanel");
+  const overlay = document.getElementById("mobileOverlay");
+  const bottomNav = document.getElementById("mobileBottomNav");
   const fileListEl = document.getElementById("fileList");
   const actionsRow = document.querySelector(".toolbar-actions");
 
   let sidebarOpen = false;
-  let aiOpen      = false;
+  let aiOpen = false;
 
   let formatSelectInjected = false;
   function ensureFormatSelect() {
@@ -410,9 +435,11 @@ content.addEventListener("paste", function (e) {
     aiOpen = false;
     overlay.classList.remove("visible");
     if (bottomNav) {
-      bottomNav.querySelectorAll(".mob-nav-btn").forEach((b) =>
-        b.classList.toggle("active", b.dataset.view === "write")
-      );
+      bottomNav
+        .querySelectorAll(".mob-nav-btn")
+        .forEach((b) =>
+          b.classList.toggle("active", b.dataset.view === "write"),
+        );
     }
   }
 
@@ -440,36 +467,56 @@ content.addEventListener("paste", function (e) {
       const btn = e.target.closest(".mob-nav-btn");
       if (!btn) return;
       const view = btn.dataset.view;
-      bottomNav.querySelectorAll(".mob-nav-btn").forEach((b) =>
-        b.classList.toggle("active", b === btn)
-      );
+      bottomNav
+        .querySelectorAll(".mob-nav-btn")
+        .forEach((b) => b.classList.toggle("active", b === btn));
       if (view === "docs") {
-        if (sidebarOpen) { closeAll(); }
-        else             { openSidebar(); }
+        if (sidebarOpen) {
+          closeAll();
+        } else {
+          openSidebar();
+        }
       } else if (view === "write") {
         closeAll();
       } else if (view === "ai") {
-        if (aiOpen) { closeAll(); }
-        else        { openAI(); }
+        if (aiOpen) {
+          closeAll();
+        } else {
+          openAI();
+        }
       }
     });
   }
 
-  menuBtn.addEventListener("click", function (e) {
-    if (window.innerWidth <= MOBILE_BP) {
-      e.stopImmediatePropagation();
-      if (sidebarOpen) { closeAll(); }
-      else             { openSidebar(); }
-    }
-  }, true);
+  menuBtn.addEventListener(
+    "click",
+    function (e) {
+      if (window.innerWidth <= MOBILE_BP) {
+        e.stopImmediatePropagation();
+        if (sidebarOpen) {
+          closeAll();
+        } else {
+          openSidebar();
+        }
+      }
+    },
+    true,
+  );
 
-  aiBtn.addEventListener("click", function (e) {
-    if (window.innerWidth <= TABLET_BP) {
-      e.stopImmediatePropagation();
-      if (aiOpen) { closeAll(); }
-      else        { openAI(); }
-    }
-  }, true);
+  aiBtn.addEventListener(
+    "click",
+    function (e) {
+      if (window.innerWidth <= TABLET_BP) {
+        e.stopImmediatePropagation();
+        if (aiOpen) {
+          closeAll();
+        } else {
+          openAI();
+        }
+      }
+    },
+    true,
+  );
 
   fileListEl.addEventListener("click", function () {
     if (window.innerWidth <= MOBILE_BP && sidebarOpen) {
@@ -490,9 +537,13 @@ content.addEventListener("paste", function (e) {
     }
   });
 
-  overlay.addEventListener("touchmove", function (e) {
-    e.preventDefault();
-  }, { passive: false });
+  overlay.addEventListener(
+    "touchmove",
+    function (e) {
+      e.preventDefault();
+    },
+    { passive: false },
+  );
 
   if (window.innerWidth <= MOBILE_BP) {
     ensureFormatSelect();
@@ -501,7 +552,6 @@ content.addEventListener("paste", function (e) {
   window.addEventListener("resize", function () {
     if (window.innerWidth <= MOBILE_BP) ensureFormatSelect();
   });
-
 })();
 
 /* ============================================================
@@ -526,16 +576,16 @@ function updateDocStats() {
 // Handle Google/GitHub OAuth redirect
 (function handleOAuthRedirect() {
   const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const name = params.get('name');
-  const email = params.get('email');
+  const token = params.get("token");
+  const name = params.get("name");
+  const email = params.get("email");
 
   if (token) {
     localStorage.removeItem("euscribeDocuments");
     localStorage.removeItem("euscribe_id_map");
-    localStorage.setItem('euscribe_token', token);
-    localStorage.setItem('euscribe_user_name', name);
-    localStorage.setItem('euscribe_user_email', email);
+    localStorage.setItem("euscribe_token", token);
+    localStorage.setItem("euscribe_user_name", name);
+    localStorage.setItem("euscribe_user_email", email);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 })();
@@ -545,11 +595,11 @@ function updateDocStats() {
    Shows a welcome doc with full explanation on first login
    ============================================================ */
 (function showOnboardingIfFirstTime() {
-  const hasSeenOnboarding = localStorage.getItem("euscribe_onboarded");
+  const hasSeenOnboarding = localStorage.getItem("euscribe_onboarded_v2");
   if (hasSeenOnboarding) return;
 
   // Mark as onboarded so it never shows again
-  localStorage.setItem("euscribe_onboarded", "true");
+  localStorage.setItem("euscribe_onboarded_v2", "true");
 
   const onboardingContent = `
 <h2 style="color:#4f8cff;margin-bottom:12px">Welcome to EuScribe ✦</h2>
@@ -594,7 +644,7 @@ function updateDocStats() {
   const onboardingDoc = {
     id: Date.now(),
     name: "Getting Started with EuScribe",
-    content: onboardingContent
+    content: onboardingContent,
   };
 
   documents.unshift(onboardingDoc);
@@ -629,10 +679,26 @@ function updateDocStats() {
   `;
 
   const actions = [
-    { label: "Fix", prompt: (t) => `Fix all grammar and spelling errors in this text. Return only the corrected text:\n\n${t}` },
-    { label: "Rewrite", prompt: (t) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${t}` },
-    { label: "Summarize", prompt: (t) => `Summarize the following text into concise key points. Return only the summary:\n\n${t}` },
-    { label: "Expand", prompt: (t) => `Expand and elaborate on the following text with more detail. Return only the expanded text:\n\n${t}` },
+    {
+      label: "Fix",
+      prompt: (t) =>
+        `Fix all grammar and spelling errors in this text. Return only the corrected text:\n\n${t}`,
+    },
+    {
+      label: "Rewrite",
+      prompt: (t) =>
+        `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${t}`,
+    },
+    {
+      label: "Summarize",
+      prompt: (t) =>
+        `Summarize the following text into concise key points. Return only the summary:\n\n${t}`,
+    },
+    {
+      label: "Expand",
+      prompt: (t) =>
+        `Expand and elaborate on the following text with more detail. Return only the expanded text:\n\n${t}`,
+    },
   ];
 
   actions.forEach((action, i) => {
@@ -666,7 +732,11 @@ function updateDocStats() {
 
       // Open AI panel on mobile
       const aiPanel = document.getElementById("aiPanel");
-      if (aiPanel && !aiPanel.classList.contains("open") && window.innerWidth <= 900) {
+      if (
+        aiPanel &&
+        !aiPanel.classList.contains("open") &&
+        window.innerWidth <= 900
+      ) {
         aiPanel.classList.add("open");
       }
 
@@ -691,14 +761,15 @@ function updateDocStats() {
     const popupW = 280;
     const popupH = 36;
     let left = x - popupW / 2;
-    let top  = y + 12;
+    let top = y + 12;
 
     if (left < 8) left = 8;
-    if (left + popupW > window.innerWidth - 8) left = window.innerWidth - popupW - 8;
+    if (left + popupW > window.innerWidth - 8)
+      left = window.innerWidth - popupW - 8;
     if (top + popupH > window.innerHeight - 8) top = y - popupH - 12;
 
     popup.style.left = left + "px";
-    popup.style.top  = top + "px";
+    popup.style.top = top + "px";
 
     // Auto hide after 4 seconds
     hideTimer = setTimeout(hidePopup, 4000);
@@ -718,7 +789,7 @@ function updateDocStats() {
 
       // Get position from selection
       const range = sel.getRangeAt(0);
-      const rect  = range.getBoundingClientRect();
+      const rect = range.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
       const y = rect.bottom + window.scrollY;
 
@@ -733,5 +804,4 @@ function updateDocStats() {
 
   // Hide popup when user starts typing
   content.addEventListener("keydown", hidePopup);
-
 })();
