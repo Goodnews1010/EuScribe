@@ -549,3 +549,19 @@ function updateDocStats() {
   document.getElementById("readTime").textContent =
     minutes <= 1 ? "< 1 min read" : `${minutes} min read`;
 }
+
+// Handle Google OAuth redirect
+(function handleGoogleAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const name = params.get('name');
+  const email = params.get('email');
+
+  if (token) {
+    localStorage.setItem('euscribe_token', token);
+    localStorage.setItem('euscribe_user_name', name);
+    localStorage.setItem('euscribe_user_email', email);
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
