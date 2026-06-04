@@ -757,21 +757,19 @@ function updateDocStats() {
     popup.dataset.copiedText = text;
     popup.style.display = "flex";
 
-    // Position below cursor, keep within viewport
+    // Position at bottom of editor
+    const editorRect = content.getBoundingClientRect();
     const popupW = 280;
-    const popupH = 36;
-    let left = x - popupW / 2;
-    let top = y + 12;
+    let left = editorRect.left + editorRect.width / 2 - popupW / 2;
+    let top = editorRect.bottom - 50;
 
     if (left < 8) left = 8;
     if (left + popupW > window.innerWidth - 8)
       left = window.innerWidth - popupW - 8;
-    if (top + popupH > window.innerHeight - 8) top = y - popupH - 12;
 
     popup.style.left = left + "px";
     popup.style.top = top + "px";
 
-    // Auto hide after 4 seconds
     hideTimer = setTimeout(hidePopup, 4000);
   }
 
@@ -797,15 +795,20 @@ function updateDocStats() {
       const x = rect.left + rect.width / 2;
       const y = rect.bottom;
 
+      justShown = true;
       showPopup(x, y, text);
     }, 50);
   });
 
   // Hide popup when clicking outside
+  let justShown = false;
+
   document.addEventListener("click", function (e) {
-    if (!popup.contains(e.target) && e.target !== popup) {
-      setTimeout(hidePopup, 100);
+    if (justShown) {
+      justShown = false;
+      return;
     }
+    if (!popup.contains(e.target)) hidePopup();
   });
 
   // Hide popup when user starts typing
