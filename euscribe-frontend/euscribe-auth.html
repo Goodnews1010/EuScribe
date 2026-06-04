@@ -488,6 +488,10 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.message);
 
+          // Clear previous user's documents before logging in new user
+          localStorage.removeItem("euscribeDocuments");
+          localStorage.removeItem("euscribe_id_map");
+
           localStorage.setItem("euscribe_token", data.token);
           localStorage.setItem("euscribe_user_name", data.user.name);
           localStorage.setItem("euscribe_user_email", data.user.email);
@@ -526,6 +530,10 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.message);
+
+          // Clear previous user's documents before logging in new user
+          localStorage.removeItem("euscribeDocuments");
+          localStorage.removeItem("euscribe_id_map");
 
           localStorage.setItem("euscribe_token", data.token);
           localStorage.setItem("euscribe_user_name", data.user.name);
