@@ -260,7 +260,7 @@
           transform: translateY(0);
         }
       }
-      
+
       /* ── Responsive ── */
       @media (max-width: 480px) {
         .card {
@@ -341,7 +341,10 @@
         <span class="divider-text">or continue with email</span>
         <div class="divider-line"></div>
       </div>
-
+      <div class="toast" id="login-toast">
+        <span class="toast-icon" id="login-toast-icon"></span>
+        <span id="login-toast-msg"></span>
+      </div>
       <form onsubmit="handleSignIn(event)">
         <label class="field-label" for="login-email">Email</label>
         <input
@@ -437,7 +440,10 @@
         <span class="divider-text">or continue with email</span>
         <div class="divider-line"></div>
       </div>
-
+      <div class="toast" id="signup-toast">
+        <span class="toast-icon" id="signup-toast-icon"></span>
+        <span id="signup-toast-msg"></span>
+      </div>
       <form onsubmit="handleSignUp(event)">
         <label class="field-label" for="signup-name">Your Name</label>
         <input
@@ -483,6 +489,17 @@
     <script>
       const API = "https://euscribe.onrender.com";
 
+      function showToast(cardPrefix, message, type = "error") {
+        const toast = document.getElementById(cardPrefix + "-toast");
+        const msg = document.getElementById(cardPrefix + "-toast-msg");
+        const icon = document.getElementById(cardPrefix + "-toast-icon");
+        toast.className = `toast show ${type}`;
+        msg.textContent = message;
+        icon.textContent = type === "error" ? "✕" : "✓";
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove("show"), 4000);
+      }
+
       function toggle(view) {
         document
           .getElementById("login-card")
@@ -500,7 +517,7 @@
           window.location.href =
             "https://euscribe.onrender.com/api/auth/github";
         } else {
-          alert(provider + " coming soon!");
+          showToast('login', provider + ' coming soon!')
         }
       }
 
@@ -509,7 +526,7 @@
         const email = document.getElementById("login-email").value.trim();
         const pass = document.getElementById("login-password").value;
         if (!email || !pass) {
-          alert("Please fill in all fields.");
+          showToast('login', 'Please fill in all fields.')
           return;
         }
 
@@ -536,7 +553,7 @@
 
           window.location.href = "index.html";
         } catch (err) {
-          alert(err.message || "Login failed");
+          showToast('login', err.message || 'Login failed')
           btn.textContent = "Sign In";
           btn.disabled = false;
         }
@@ -548,11 +565,11 @@
         const email = document.getElementById("signup-email").value.trim();
         const pass = document.getElementById("signup-password").value;
         if (!name || !email || !pass) {
-          alert("Please fill in all fields.");
+          showToast('signup', 'Please fill in all fields.')
           return;
         }
         if (pass.length < 6) {
-          alert("Password must be at least 6 characters.");
+          showToast('signup', 'Password must be at least 6 characters.')
           return;
         }
 
@@ -579,7 +596,7 @@
 
           window.location.href = "index.html";
         } catch (err) {
-          alert(err.message || "Signup failed");
+          showToast('signup', err.message || 'Signup failed')
           btn.textContent = "Create Account";
           btn.disabled = false;
         }
