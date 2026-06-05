@@ -3,12 +3,12 @@ const router = express.Router();
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const Brevo = require('@getbrevo/brevo');
+const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
 
 // Setup Brevo
-const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.authentications['apiKey'].apiKey = process.env.BREVO_API_KEY;
-
+const apiClient = ApiClient.instance;
+apiClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+const apiInstance = new TransactionalEmailsApi();
 // Store reset tokens in memory
 const resetTokens = {};
 
