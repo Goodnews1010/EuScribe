@@ -23,7 +23,7 @@ router.post('/forgot', async (req, res) => {
     const resetLink = `https://goodnews1010.github.io/EuScribe/euscribe-frontend/euscribe-auth.html?reset=${token}`;
 
     await axios.post('https://api.brevo.com/v3/smtp/email', {
-      sender: { name: 'EuScribe', email: 'aarogoodnews01@gmail.com' },
+      sender: { name: 'EuScribe', email: 'aarongoodnews01@gmail.com' },
       to: [{ email }],
       subject: 'Reset your EuScribe password',
       htmlContent: `
