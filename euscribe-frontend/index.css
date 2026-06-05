@@ -70,7 +70,9 @@ body {
 .center {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 12px;
 }
 .file-title {
   width: 90%;
@@ -372,6 +374,10 @@ body {
 
 .toolbar { display: flex; flex-direction: column; gap: 8px; }
 
+.toolbar > * {
+  flex-shrink: 0;
+}
+
 .toolbar-row {
   display: flex;
   align-items: center;
@@ -475,7 +481,7 @@ body {
   padding: 30px;
   background: radial-gradient(circle at top, #0f1117, #0b0e14);
   overflow-y: auto;
-  min-height: 100%;
+  min-height: 0; /* IMPORTANT FIX */
 }
 .editor-area::-webkit-scrollbar { width: 6px; cursor: default; }
 .editor-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -510,7 +516,7 @@ body {
 .pdf-export {
   background: #ffffff !important;
   color: #000000 !important;
-}
+} 
 
 /* ============================================================
       WORD COUNT
@@ -627,6 +633,7 @@ body {
   display: flex;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  padding: 0 12px;
 }
 .ai-tab {
   flex: 1;
@@ -639,12 +646,13 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
-  margin-bottom: -1px;
+  flex: unset;
+  padding: 12px 16px;
 }
 .ai-tab:hover { color: var(--text); }
 .ai-tab.active {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  border-bottom: 3px solid var(--accent);
 }
 
 /* PANEL BODY */
