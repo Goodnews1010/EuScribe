@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EuScribe Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0b;
+      --bg2: #111113;
+      --bg3: #1a1a1c;
+      --border: rgba(255,255,255,0.07);
+      --text: #e6edf3;
+      --muted: #6b7280;
+      --blue: #4f8cff;
+      --green: #3dd68c;
+      --red: #ff6b6b;
+      --yellow: #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      background: var(--bg2);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue);
+      padding: 0 20px 24px;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-logo span { color: var(--text); }
+    .sidebar-logo small {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-item.active { background: rgba(79,140,255,0.1); color: var(--blue); border-right: 2px solid var(--blue); }
+    .nav-item i { font-size: 16px; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--red);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      padding: 0;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; }
+    .stat-sub { font-size: 12px; color: var(--muted); }
+    .stat-icon { font-size: 20px; margin-bottom: 4px; }
+
+    /* ── SYSTEM HEALTH ── */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .health-card {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .health-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .health-value { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .status-dot.yellow { background: var(--yellow); }
+    .status-dot.red { background: var(--red); }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 0.5px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .table-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+
+    .search-input {
+      background: var(--bg3);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      width: 220px;
+    }
+    .search-input:focus { border-color: var(--blue); }
+    .search-input::placeholder { color: #333336; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 0.5px solid var(--border);
+    }
+    td {
+      padding: 12px 20px;
+      font-size: 13px;
+      border-bottom: 0.5px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.green { background: rgba(61,214,140,0.1); color: var(--green); border: 0.5px solid rgba(61,214,140,0.2); }
+    .badge.blue { background: rgba(79,140,255,0.1); color: var(--blue); border: 0.5px solid rgba(79,140,255,0.2); }
+    .badge.red { background: rgba(255,107,107,0.1); color: var(--red); border: 0.5px solid rgba(255,107,107,0.2); }
+
+    .action-btn {
+      background: none;
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { border-color: var(--red); color: var(--red); }
+    .action-btn i { font-size: 13px; }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 0.5px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .page-btns { display: flex; gap: 6px; }
+    .page-btn {
+      padding: 5px 10px;
+      background: var(--bg3);
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .page-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── LOADING ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--muted);
+      font-size: 13px;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(79,140,255,0.2);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      animation: toastIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.success { background: rgba(61,214,140,0.1); border: 1px solid rgba(61,214,140,0.25); color: var(--green); }
+    .toast.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); color: var(--red); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ── CONFIRM MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 16px;
+    }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .modal-body { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-cancel { padding: 9px 18px; background: var(--bg3); border: 0.5px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .modal-confirm { padding: 9px 18px; background: var(--red); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+    /* ── AVATAR ── */
+    .avatar-sm {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), #a78bfa);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .user-cell { display: flex; align-items: center; }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; }
+      .sidebar-logo small, .nav-item span, .sidebar-footer { display: none; }
+      .nav-item { justify-content: center; padding: 12px; }
+      .main { margin-left: 60px; padding: 16px; }
+      .sidebar-logo { padding: 0 0 16px; text-align: center; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">Confirm Delete</div>
+      <div class="modal-body" id="modalBody">Are you sure? This action cannot be undone.</div>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-confirm" id="modalConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      Eu<span>Scribe</span>
+      <small>Admin Panel</small>
+    </div>
+    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <i class="bx bx-home-alt"></i><span>Dashboard</span>
+    </button>
+    <button class="nav-item" onclick="showPage('users')" id="nav-users">
+      <i class="bx bx-group"></i><span>Users</span>
+    </button>
+    <button class="nav-item" onclick="showPage('documents')" id="nav-documents">
+      <i class="bx bx-file-blank"></i><span>Documents</span>
+    </button>
+    <button class="nav-item" onclick="showPage('health')" id="nav-health">
+      <i class="bx bx-chip"></i><span>System Health</span>
+    </button>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="adminLogout()">
+        <i class="bx bx-log-out"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Overview of your EuScribe platform</div>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Recent Users</div>
+        </div>
+        <div id="recentUsersTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- USERS PAGE -->
+    <div class="page" id="page-users">
+      <div class="page-title">Users</div>
+      <div class="page-sub">Manage all registered users</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title" id="userTableTitle">All Users</div>
+          <input class="search-input" placeholder="Search users..." id="userSearch" oninput="searchUsers()" />
+        </div>
+        <div id="usersTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+        <div class="pagination" id="usersPagination"></div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS PAGE -->
+    <div class="page" id="page-documents">
+      <div class="page-title">Documents</div>
+      <div class="page-sub">View and manage all documents</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title" id="docTableTitle">All Documents</div>
+          <input class="search-input" placeholder="Search documents..." id="docSearch" oninput="searchDocs()" />
+        </div>
+        <div id="docsTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+        <div class="pagination" id="docsPagination"></div>
+      </div>
+    </div>
+
+    <!-- SYSTEM HEALTH PAGE -->
+    <div class="page" id="page-health">
+      <div class="page-title">System Health</div>
+      <div class="page-sub">Server and database status</div>
+      <div class="health-grid" id="healthGrid">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API = "https://euscribe.onrender.com";
+    const token = localStorage.getItem("euscribe_token");
+
+    // ── Auth check ──
+    if (!token) {
+      window.location.href = "euscribe-auth.html";
+    }
+
+    let usersPage = 1;
+    let docsPage = 1;
+    let usersSearch = '';
+    let docsSearch = '';
+    let deleteCallback = null;
+
+    // ── Helpers ──
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="bx ${type === 'success' ? 'bx-check' : 'bx-x'}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function openModal(title, body, onConfirm) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = body;
+      document.getElementById('confirmModal').classList.add('open');
+      document.getElementById('modalConfirm').onclick = () => { closeModal(); onConfirm(); };
+    }
+
+    function closeModal() {
+      document.getElementById('confirmModal').classList.remove('open');
+    }
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function initials(name) {
+      return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function formatUptime(s) {
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      return `${h}h ${m}m`;
+    }
+
+    async function apiFetch(path) {
+      const res = await fetch(`${API}${path}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.status === 401 || res.status === 403) {
+        adminLogout();
+        throw new Error('Unauthorized');
+      }
+      return res.json();
+    }
+
+    async function apiDelete(path) {
+      const res = await fetch(`${API}${path}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.json();
+    }
+
+    // ── Navigation ──
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      document.getElementById('nav-' + page).classList.add('active');
+
+      if (page === 'dashboard') loadDashboard();
+      if (page === 'users') loadUsers();
+      if (page === 'documents') loadDocuments();
+      if (page === 'health') loadHealth();
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('euscribe_token');
+      localStorage.removeItem('euscribe_user_name');
+      localStorage.removeItem('euscribe_user_email');
+      window.location.href = 'euscribe-auth.html';
+    }
+
+    // ── DASHBOARD ──
+    async function loadDashboard() {
+      try {
+        const data = await apiFetch('/api/admin/stats');
+
+        document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">${data.totalUsers.toLocaleString()}</div>
+            <div class="stat-sub">+${data.newUsers} this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-label">Total Documents</div>
+            <div class="stat-value">${data.totalDocs.toLocaleString()}</div>
+            <div class="stat-sub">+${data.newDocs} this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-label">Server Uptime</div>
+            <div class="stat-value">${formatUptime(data.system.uptime)}</div>
+            <div class="stat-sub"><span class="status-dot green"></span>Online</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧠</div>
+            <div class="stat-label">Memory Used</div>
+            <div class="stat-value">${data.system.memUsedMB} MB</div>
+            <div class="stat-sub">of ${data.system.memTotalMB} MB total</div>
+          </div>
+        `;
+
+        // Recent users
+        const recent = await apiFetch('/api/admin/users?limit=5');
+        renderUsersTable(recent.users, 'recentUsersTable', false);
+
+      } catch (err) {
+        document.getElementById('statsGrid').innerHTML = `<div class="loading" style="color:var(--red)">Failed to load stats</div>`;
+      }
+    }
+
+    // ── USERS ──
+    async function loadUsers(page = 1) {
+      usersPage = page;
+      document.getElementById('usersTable').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const data = await apiFetch(`/api/admin/users?page=${page}&limit=15&search=${usersSearch}`);
+        document.getElementById('userTableTitle').textContent = `All Users (${data.total})`;
+        renderUsersTable(data.users, 'usersTable', true);
+        renderPagination('usersPagination', data.page, data.pages, (p) => loadUsers(p));
+      } catch (err) {
+        document.getElementById('usersTable').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load users</div>';
+      }
+    }
+
+    function renderUsersTable(users, containerId, showDelete) {
+      if (!users.length) {
+        document.getElementById(containerId).innerHTML = '<div class="loading">No users found</div>';
+        return;
+      }
+      const rows = users.map(u => `
+        <tr>
+          <td><div class="user-cell"><div class="avatar-sm">${initials(u.name)}</div>${u.name}</div></td>
+          <td>${u.email}</td>
+          <td><span class="badge blue">${u.docCount || 0} docs</span></td>
+          <td>${formatDate(u.createdAt)}</td>
+          ${showDelete ? `<td><button class="action-btn" onclick="confirmDeleteUser('${u._id}', '${u.name}')"><i class="bx bx-trash"></i></button></td>` : '<td></td>'}
+        </tr>
+      `).join('');
+
+      document.getElementById(containerId).innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>Documents</th><th>Joined</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function confirmDeleteUser(id, name) {
+      openModal('Delete User', `Delete "${name}" and all their documents? This cannot be undone.`, async () => {
+        try {
+          await apiDelete(`/api/admin/users/${id}`);
+          showToast(`User "${name}" deleted`);
+          loadUsers(usersPage);
+        } catch (err) {
+          showToast('Failed to delete user', 'error');
+        }
+      });
+    }
+
+    let userSearchTimer;
+    function searchUsers() {
+      usersSearch = document.getElementById('userSearch').value;
+      clearTimeout(userSearchTimer);
+      userSearchTimer = setTimeout(() => loadUsers(1), 400);
+    }
+
+    // ── DOCUMENTS ──
+    async function loadDocuments(page = 1) {
+      docsPage = page;
+      document.getElementById('docsTable').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const data = await apiFetch(`/api/admin/documents?page=${page}&limit=15&search=${docsSearch}`);
+        document.getElementById('docTableTitle').textContent = `All Documents (${data.total})`;
+
+        if (!data.documents.length) {
+          document.getElementById('docsTable').innerHTML = '<div class="loading">No documents found</div>';
+          return;
+        }
+
+        const rows = data.documents.map(d => `
+          <tr>
+            <td>${d.title || 'Untitled'}</td>
+            <td>${d.userId ? d.userId.name : '—'}</td>
+            <td style="color:var(--muted);font-size:12px">${d.userId ? d.userId.email : '—'}</td>
+            <td>${formatDate(d.updatedAt)}</td>
+            <td><button class="action-btn" onclick="confirmDeleteDoc('${d._id}', '${(d.title || 'Untitled').replace(/'/g, '')}')"><i class="bx bx-trash"></i></button></td>
+          </tr>
+        `).join('');
+
+        document.getElementById('docsTable').innerHTML = `
+          <table>
+            <thead><tr>
+              <th>Title</th><th>Owner</th><th>Email</th><th>Last Updated</th><th></th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+
+        renderPagination('docsPagination', data.page, data.pages, (p) => loadDocuments(p));
+      } catch (err) {
+        document.getElementById('docsTable').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load documents</div>';
+      }
+    }
+
+    function confirmDeleteDoc(id, title) {
+      openModal('Delete Document', `Delete "${title}"? This cannot be undone.`, async () => {
+        try {
+          await apiDelete(`/api/admin/documents/${id}`);
+          showToast(`Document deleted`);
+          loadDocuments(docsPage);
+        } catch (err) {
+          showToast('Failed to delete document', 'error');
+        }
+      });
+    }
+
+    let docSearchTimer;
+    function searchDocs() {
+      docsSearch = document.getElementById('docSearch').value;
+      clearTimeout(docSearchTimer);
+      docSearchTimer = setTimeout(() => loadDocuments(1), 400);
+    }
+
+    // ── SYSTEM HEALTH ──
+    async function loadHealth() {
+      document.getElementById('healthGrid').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const data = await apiFetch('/api/admin/stats');
+        const sys = data.system;
+        const memPercent = Math.round((sys.memUsedMB / sys.memTotalMB) * 100);
+        const memColor = memPercent > 80 ? 'var(--red)' : memPercent > 60 ? 'var(--yellow)' : 'var(--green)';
+
+        document.getElementById('healthGrid').innerHTML = `
+          <div class="health-card">
+            <div class="health-label">Server Status</div>
+            <div class="health-value"><span class="status-dot green"></span>Online</div>
+            <div style="font-size:12px;color:var(--muted)">Render Free Tier</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Uptime</div>
+            <div class="health-value">${formatUptime(sys.uptime)}</div>
+            <div style="font-size:12px;color:var(--muted)">${sys.uptime} seconds</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Memory Usage</div>
+            <div class="health-value">${sys.memUsedMB} MB / ${sys.memTotalMB} MB</div>
+            <div class="progress-bar" style="margin-top:8px">
+              <div class="progress-fill" style="width:${memPercent}%;background:${memColor}"></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${memPercent}% used</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">CPU Load</div>
+            <div class="health-value">${sys.cpuLoad}</div>
+            <div style="font-size:12px;color:var(--muted)">1-min average</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Node.js Version</div>
+            <div class="health-value">${sys.nodeVersion}</div>
+            <div style="font-size:12px;color:var(--muted)">Runtime</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Platform</div>
+            <div class="health-value">${sys.platform}</div>
+            <div style="font-size:12px;color:var(--muted)">Server OS</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Database</div>
+            <div class="health-value"><span class="status-dot green"></span>Connected</div>
+            <div style="font-size:12px;color:var(--muted)">MongoDB Atlas</div>
+          </div>
+          <div class="health-card">
+            <div class="health-label">Total Users</div>
+            <div class="health-value">${data.totalUsers}</div>
+            <div style="font-size:12px;color:var(--muted)">Registered accounts</div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('healthGrid').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load health data</div>';
+      }
+    }
+
+    // ── PAGINATION ──
+    function renderPagination(containerId, page, pages, onPage) {
+      if (pages <= 1) { document.getElementById(containerId).innerHTML = ''; return; }
+      document.getElementById(containerId).innerHTML = `
+        <span>Page ${page} of ${pages}</span>
+        <div class="page-btns">
+          <button class="page-btn" onclick="(${onPage.toString()})(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Prev</button>
+          <button class="page-btn" onclick="(${onPage.toString()})(${page + 1})" ${page >= pages ? 'disabled' : ''}>Next →</button>
+        </div>
+      `;
+    }
+
+    // ── INIT ──
+    loadDashboard();
+
+    // Auto refresh health every 30 seconds when on health page
+    setInterval(() => {
+      if (document.getElementById('page-health').classList.contains('active')) {
+        loadHealth();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>
