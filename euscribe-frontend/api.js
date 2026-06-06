@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   loadDocumentsFromBackend();
+  loadAnnouncement();
 
   /* ============================================================
      WIRE UP AI ACTION CARDS
@@ -229,7 +230,102 @@ document.addEventListener("DOMContentLoaded", function () {
       if (doc) syncToBackend(doc);
     };
   }
-}); // ← end of DOMContentLoaded
+}); 
+
+/* ============================================================
+   ANNOUNCEMENT BANNER — add this inside DOMContentLoaded in api.js
+   ============================================================ */
+
+async function loadAnnouncement() {
+  const token = getToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API}/api/announcement`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      // Retry once after 55 seconds (Render cold start)
+      setTimeout(loadAnnouncement, 55000);
+      return;
+    }
+    const ann = await res.json();
+    if (!ann) return;
+    const dismissed = localStorage.getItem('euscribe_dismissed_ann');
+    if (dismissed === ann._id) return;
+    showAnnouncementBanner(ann);
+  } catch (err) {
+    // Retry once after 55 seconds
+    setTimeout(loadAnnouncement, 55000);
+  }
+}
+
+function showAnnouncementBanner(ann) {
+  // Remove existing banner if any
+  const existing = document.getElementById('euscribe-announcement');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'euscribe-announcement';
+  banner.style.cssText = `
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    background: linear-gradient(135deg, #1a2a4a, #0d1a30);
+    border-bottom: 1px solid rgba(79,140,255,0.3);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #e6edf3;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    animation: slideDown 0.3s ease;
+  `;
+
+  banner.innerHTML = `
+    <style>
+      @keyframes slideDown {
+        from { transform: translateY(-100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    </style>
+    <span style="font-size:16px;flex-shrink:0">📢</span>
+    <span style="flex:1;line-height:1.5">${ann.message}</span>
+    <button onclick="dismissAnnouncement('${ann._id}')" style="
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; color: #8898b4; cursor: pointer;
+      font-size: 12px; padding: 4px 10px; font-family: inherit;
+      flex-shrink: 0; transition: all 0.15s;
+    " onmouseover="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='#e6edf3'"
+       onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#8898b4'">
+      Dismiss
+    </button>
+  `;
+
+  document.body.prepend(banner);
+
+  // Push page content down
+  document.body.style.paddingTop = (parseInt(document.body.style.paddingTop) || 0) + banner.offsetHeight + 'px';
+}
+
+function dismissAnnouncement(id) {
+  localStorage.setItem('euscribe_dismissed_ann', id);
+  const banner = document.getElementById('euscribe-announcement');
+  if (banner) {
+    banner.style.animation = 'none';
+    banner.style.transition = 'opacity 0.2s, transform 0.2s';
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-100%)';
+    setTimeout(() => {
+      document.body.style.paddingTop = '';
+      banner.remove();
+    }, 200);
+  }
+}
+
+// Call it on load
+// ← end of DOMContentLoaded
 
 /* ============================================================
    AI CALL — core function
