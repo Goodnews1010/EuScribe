@@ -4,6 +4,7 @@ const axios = require('axios');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Document = require('../models/Document');
+const Announcement = require('../models/Announcement');
 
 // Admin middleware
 async function adminOnly(req, res, next) {
@@ -44,7 +45,6 @@ router.patch('/users/:id/promote', auth, adminOnly, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    // Prevent demoting yourself
     if (user._id.toString() === req.user.id) {
       return res.status(400).json({ message: 'You cannot change your own admin status' });
     }
@@ -79,33 +79,24 @@ router.post('/broadcast', auth, adminOnly, async (req, res) => {
     if (!subject || !message) {
       return res.status(400).json({ message: 'Subject and message are required' });
     }
-
     const users = await User.find({ isBanned: { $ne: true } }).select('email name');
     if (!users.length) return res.status(400).json({ message: 'No users to send to' });
 
-    const toList = users.map(u => ({ email: u.email, name: u.name || 'EuScribe User' }));
-
     await axios.post('https://api.brevo.com/v3/smtp/email', {
       sender: { name: 'EuScribe', email: 'aarongoodnews01@gmail.com' },
-      to: toList,
-      subject: subject,
+      to: users.map(u => ({ email: u.email, name: u.name || 'EuScribe User' })),
+      subject,
       htmlContent: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0e0e0f;color:#e6edf3;padding:32px;border-radius:12px">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
-            <div style="width:32px;height:32px;border-radius:8px;background:#4f8cff;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px">E</div>
-            <span style="font-size:18px;font-weight:700;color:#e6edf3">EuScribe</span>
-          </div>
-          <h2 style="color:#4f8cff;margin-bottom:16px;font-size:20px">${subject}</h2>
+          <div style="margin-bottom:24px"><span style="font-size:18px;font-weight:700;color:#4f8cff">EuScribe</span></div>
+          <h2 style="color:#4f8cff;margin-bottom:16px">${subject}</h2>
           <div style="color:#c8d3e6;line-height:1.7;white-space:pre-wrap">${message}</div>
           <hr style="border:none;border-top:1px solid #2e2e40;margin:24px 0"/>
-          <p style="color:#555;font-size:12px">You're receiving this because you have a EuScribe account. <a href="https://goodnews1010.github.io/EuScribe/euscribe-frontend/" style="color:#4f8cff">Visit EuScribe</a></p>
+          <p style="color:#555;font-size:12px">You're receiving this because you have a EuScribe account.</p>
         </div>
       `
     }, {
-      headers: {
-        'api-key': process.env.BREVO_API_KEY,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' }
     });
 
     res.json({ message: `Broadcast sent to ${users.length} users`, count: users.length });
@@ -115,12 +106,37 @@ router.post('/broadcast', auth, adminOnly, async (req, res) => {
   }
 });
 
+// ── ANNOUNCEMENTS ──
+
+// POST /api/admin/announcement — create/replace active announcement
+router.post('/announcement', auth, adminOnly, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ message: 'Message is required' });
+    // Deactivate all previous announcements
+    await Announcement.updateMany({}, { active: false });
+    // Create new one
+    const ann = await Announcement.create({ message, createdBy: req.user.id });
+    res.json(ann);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// DELETE /api/admin/announcement — clear active announcement
+router.delete('/announcement', auth, adminOnly, async (req, res) => {
+  try {
+    await Announcement.updateMany({}, { active: false });
+    res.json({ message: 'Announcement cleared' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // GET /api/admin/documents
 router.get('/documents', auth, adminOnly, async (req, res) => {
   try {
-    const docs = await Document.find({})
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
+    const docs = await Document.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
     res.json(docs);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
