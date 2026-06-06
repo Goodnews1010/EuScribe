@@ -8,304 +8,105 @@
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  --bg:#07080d;
-  --surface:#0d0f18;
-  --surface2:#12141f;
-  --surface3:#181b28;
-  --border:rgba(255,255,255,0.06);
-  --border2:rgba(255,255,255,0.1);
-  --text:#e8edf5;
-  --text2:#6878a0;
-  --text3:#3a4460;
-  --blue:#3d7fff;
-  --blue2:#6fa3ff;
-  --green:#00e59a;
-  --red:#ff4d6a;
-  --yellow:#f5c518;
-  --orange:#ff7043;
-  --ff-head:'Syne',sans-serif;
-  --ff-body:'DM Sans',sans-serif;
-  --sidebar:220px;
-  --topbar:56px;
+  --bg:#07080d;--surface:#0d0f18;--surface2:#12141f;--surface3:#181b28;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#e8edf5;--text2:#6878a0;--text3:#3a4460;
+  --blue:#3d7fff;--blue2:#6fa3ff;--green:#00e59a;--red:#ff4d6a;
+  --yellow:#f5c518;--orange:#ff7043;
+  --ff-head:'Syne',sans-serif;--ff-body:'DM Sans',sans-serif;
+  --sidebar:220px;--topbar:56px;
 }
-
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff-body);font-size:14px;overflow:hidden}
-
-/* ══ GRAIN ══ */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;
-  opacity:0.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:180px;pointer-events:none;
-}
-
-/* ══ LAYOUT ══ */
+body::before{content:'';position:fixed;inset:0;z-index:0;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;pointer-events:none;}
 .shell{position:fixed;inset:0;z-index:1;display:flex}
 
-/* ══ SIDEBAR ══ */
-.sidebar{
-  width:var(--sidebar);flex-shrink:0;
-  background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-
-.sidebar-brand{
-  height:var(--topbar);
-  display:flex;align-items:center;
-  padding:0 20px;
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.brand-mark{
-  width:28px;height:28px;border-radius:7px;
-  background:linear-gradient(135deg,var(--blue),#5fa8ff);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--ff-head);font-size:12px;font-weight:800;color:#fff;
-  margin-right:10px;flex-shrink:0;
-  box-shadow:0 0 14px rgba(61,127,255,0.3);
-}
-.brand-text{
-  font-family:var(--ff-head);font-size:15px;font-weight:700;
-  color:var(--text);letter-spacing:-0.01em;
-}
-.brand-badge{
-  margin-left:auto;
-  padding:2px 7px;
-  background:rgba(61,127,255,0.12);
-  border:1px solid rgba(61,127,255,0.2);
-  border-radius:4px;
-  font-size:9px;font-weight:700;
-  letter-spacing:0.08em;color:var(--blue2);
-  text-transform:uppercase;
-}
-
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-brand{height:var(--topbar);display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.brand-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--blue),#5fa8ff);display:flex;align-items:center;justify-content:center;font-family:var(--ff-head);font-size:12px;font-weight:800;color:#fff;margin-right:10px;flex-shrink:0;box-shadow:0 0 14px rgba(61,127,255,0.3);}
+.brand-text{font-family:var(--ff-head);font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.01em;}
+.brand-badge{margin-left:auto;padding:2px 7px;background:rgba(61,127,255,0.12);border:1px solid rgba(61,127,255,0.2);border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--blue2);text-transform:uppercase;}
 .sidebar-nav{flex:1;padding:16px 10px;overflow-y:auto}
 .nav-section{margin-bottom:24px}
-.nav-section-label{
-  font-size:9px;font-weight:700;letter-spacing:0.16em;
-  text-transform:uppercase;color:var(--text3);
-  padding:0 10px;margin-bottom:6px;
-}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 10px;border-radius:8px;
-  color:var(--text2);font-size:13px;font-weight:500;
-  cursor:pointer;border:none;background:none;
-  width:100%;text-align:left;font-family:var(--ff-body);
-  transition:all 0.15s;position:relative;
-}
+.nav-section-label{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);padding:0 10px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--ff-body);transition:all 0.15s;position:relative;}
 .nav-item i{font-size:16px;flex-shrink:0}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{background:rgba(61,127,255,0.1);color:var(--blue2)}
-.nav-item.active::before{
-  content:'';position:absolute;left:0;top:25%;bottom:25%;
-  width:2px;border-radius:0 2px 2px 0;background:var(--blue);
-}
-.nav-badge{
-  margin-left:auto;
-  padding:1px 7px;border-radius:100px;
-  font-size:10px;font-weight:600;
-  background:rgba(61,127,255,0.15);color:var(--blue2);
-}
-
-.sidebar-footer{
-  padding:14px 10px;border-top:1px solid var(--border);flex-shrink:0;
-}
-.admin-profile{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;border-radius:8px;
-  cursor:pointer;transition:background 0.15s;
-}
+.nav-item.active::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:2px;border-radius:0 2px 2px 0;background:var(--blue);}
+.nav-badge{margin-left:auto;padding:1px 7px;border-radius:100px;font-size:10px;font-weight:600;background:rgba(61,127,255,0.15);color:var(--blue2);}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border);flex-shrink:0;}
+.admin-profile{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background 0.15s;}
 .admin-profile:hover{background:var(--surface2)}
-.admin-av{
-  width:30px;height:30px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue),#5fa8ff);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--ff-head);font-size:11px;font-weight:700;color:#fff;
-  flex-shrink:0;
-}
+.admin-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#5fa8ff);display:flex;align-items:center;justify-content:center;font-family:var(--ff-head);font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
 .admin-name{font-size:12px;font-weight:600;color:var(--text)}
 .admin-role{font-size:10px;color:var(--text2)}
 .admin-exit{margin-left:auto;color:var(--text3);font-size:14px;cursor:pointer;transition:color 0.15s}
 .admin-exit:hover{color:var(--red)}
 
-/* ══ MAIN ══ */
+/* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-
-/* ══ TOPBAR ══ */
-.topbar{
-  height:var(--topbar);flex-shrink:0;
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;
-}
+.topbar{height:var(--topbar);flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
 .topbar-left{display:flex;align-items:center;gap:8px}
-.breadcrumb{
-  font-size:12px;color:var(--text2);
-  display:flex;align-items:center;gap:6px;
-}
+.breadcrumb{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
 .breadcrumb-sep{color:var(--text3)}
 .breadcrumb-current{color:var(--text);font-weight:500}
 .topbar-right{display:flex;align-items:center;gap:12px}
 .topbar-time{font-size:11px;color:var(--text3);font-family:'Courier New',monospace}
-.status-pill{
-  display:flex;align-items:center;gap:6px;
-  padding:4px 10px;border-radius:100px;
-  background:rgba(0,229,154,0.08);
-  border:1px solid rgba(0,229,154,0.15);
-  font-size:11px;font-weight:500;color:var(--green);
-}
+.status-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;background:rgba(0,229,154,0.08);border:1px solid rgba(0,229,154,0.15);font-size:11px;font-weight:500;color:var(--green);}
 .status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,154,0.4)}50%{opacity:0.7;box-shadow:0 0 0 4px rgba(0,229,154,0)}}
-
-/* ══ CONTENT ══ */
 .content{flex:1;overflow-y:auto;padding:28px}
 .content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-
-/* ══ SECTIONS ══ */
 .section{display:none}
 .section.active{display:block;animation:fadeIn 0.3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ══ PAGE HEADER ══ */
 .page-header{margin-bottom:28px}
-.page-title{
-  font-family:var(--ff-head);font-size:24px;font-weight:700;
-  color:var(--text);letter-spacing:-0.02em;
-}
+.page-title{font-family:var(--ff-head);font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.02em;}
 .page-sub{margin-top:4px;font-size:13px;color:var(--text2);font-weight:300}
 
-/* ══ STATS GRID ══ */
-.stats-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:16px;margin-bottom:24px;
-}
-.stat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:20px;
-  position:relative;overflow:hidden;
-  transition:border-color 0.2s;
-}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:border-color 0.2s;}
 .stat-card:hover{border-color:var(--border2)}
-.stat-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(to right,transparent,var(--accent-color,var(--blue)),transparent);
-  opacity:0.5;
-}
-.stat-label{
-  font-size:11px;font-weight:500;letter-spacing:0.08em;
-  text-transform:uppercase;color:var(--text2);
-  margin-bottom:10px;
-  display:flex;align-items:center;gap:6px;
-}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--accent-color,var(--blue)),transparent);opacity:0.5;}
+.stat-label{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .stat-label i{font-size:13px}
-.stat-num{
-  font-family:var(--ff-head);font-size:32px;font-weight:700;
-  color:var(--text);letter-spacing:-0.02em;line-height:1;
-}
-.stat-num span{font-size:16px;color:var(--text2);font-weight:400}
-.stat-change{
-  margin-top:8px;font-size:11px;font-weight:500;
-  display:flex;align-items:center;gap:4px;
-}
+.stat-num{font-family:var(--ff-head);font-size:32px;font-weight:700;color:var(--text);letter-spacing:-0.02em;line-height:1;}
+.stat-change{margin-top:8px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px;}
 .stat-change.up{color:var(--green)}
-.stat-change.down{color:var(--red)}
 
-/* ══ GRID 2 ══ */
+/* GRID */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
 .grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
 
-/* ══ CARD ══ */
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;overflow:hidden;
-}
-.card-header{
-  padding:16px 20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.card-title{
-  font-family:var(--ff-head);font-size:14px;font-weight:600;
-  color:var(--text);letter-spacing:-0.01em;
-}
-.card-action{
-  font-size:12px;color:var(--blue2);cursor:pointer;
-  background:none;border:none;font-family:var(--ff-body);
-  transition:opacity 0.2s;
-}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.card-title{font-family:var(--ff-head);font-size:14px;font-weight:600;color:var(--text);letter-spacing:-0.01em;}
+.card-action{font-size:12px;color:var(--blue2);cursor:pointer;background:none;border:none;font-family:var(--ff-body);transition:opacity 0.2s;}
 .card-action:hover{opacity:0.7}
 .card-body{padding:20px}
 
-/* ══ CHART BARS ══ */
-.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
-.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
-.bar{
-  width:100%;border-radius:4px 4px 0 0;
-  background:linear-gradient(to top,var(--blue),rgba(61,127,255,0.3));
-  transition:height 0.5s cubic-bezier(0.16,1,0.3,1);
-  position:relative;cursor:pointer;
-}
-.bar:hover{filter:brightness(1.2)}
-.bar-tooltip{
-  position:absolute;top:-28px;left:50%;transform:translateX(-50%);
-  background:var(--surface3);border:1px solid var(--border2);
-  border-radius:4px;padding:2px 7px;
-  font-size:10px;color:var(--text);white-space:nowrap;
-  opacity:0;transition:opacity 0.2s;pointer-events:none;
-}
-.bar:hover .bar-tooltip{opacity:1}
-.bar-label{font-size:9px;color:var(--text3);text-align:center;letter-spacing:0.04em}
+/* SEARCH BAR */
+.search-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:320px;}
+.search-input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;font-family:var(--ff-body);outline:none;transition:border-color 0.15s;}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--text3)}
+.filter-select{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;color:var(--text2);font-size:12px;font-family:var(--ff-body);outline:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--blue)}
 
-/* ══ ACTIVITY FEED ══ */
-.activity-list{display:flex;flex-direction:column;gap:0}
-.activity-item{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:12px 0;border-bottom:1px solid var(--border);
-}
-.activity-item:last-child{border-bottom:none}
-.activity-icon{
-  width:30px;height:30px;border-radius:8px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-}
-.ai-blue{background:rgba(61,127,255,0.1);color:var(--blue2)}
-.ai-green{background:rgba(0,229,154,0.1);color:var(--green)}
-.ai-red{background:rgba(255,77,106,0.1);color:var(--red)}
-.ai-yellow{background:rgba(245,197,24,0.1);color:var(--yellow)}
-.activity-body{flex:1;min-width:0}
-.activity-text{font-size:12px;color:var(--text);line-height:1.5}
-.activity-text strong{color:var(--blue2);font-weight:500}
-.activity-time{font-size:10px;color:var(--text3);margin-top:2px}
-
-/* ══ USER TABLE ══ */
+/* TABLE */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
-th{
-  padding:10px 16px;text-align:left;
-  font-size:10px;font-weight:700;letter-spacing:0.1em;
-  text-transform:uppercase;color:var(--text3);
-  border-bottom:1px solid var(--border);
-}
-td{
-  padding:12px 16px;
-  font-size:13px;color:var(--text2);
-  border-bottom:1px solid var(--border);
-}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);}
+td{padding:12px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
 .user-cell{display:flex;align-items:center;gap:10px}
-.user-av{
-  width:28px;height:28px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;color:#fff;flex-shrink:0;
-}
+.user-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
 .uav1{background:linear-gradient(135deg,var(--blue),#5fa8ff)}
 .uav2{background:linear-gradient(135deg,var(--green),#00c9a7)}
 .uav3{background:linear-gradient(135deg,var(--orange),#ffd200)}
@@ -313,23 +114,71 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
 .uav5{background:linear-gradient(135deg,#667eea,#764ba2)}
 .user-name{font-size:13px;font-weight:500;color:var(--text)}
 .user-email{font-size:11px;color:var(--text3)}
-.badge{
-  padding:2px 8px;border-radius:100px;
-  font-size:10px;font-weight:600;
-}
+.badge{padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;}
 .badge-green{background:rgba(0,229,154,0.1);color:var(--green);border:1px solid rgba(0,229,154,0.2)}
 .badge-blue{background:rgba(61,127,255,0.1);color:var(--blue2);border:1px solid rgba(61,127,255,0.2)}
 .badge-red{background:rgba(255,77,106,0.1);color:var(--red);border:1px solid rgba(255,77,106,0.2)}
 .badge-yellow{background:rgba(245,197,24,0.1);color:var(--yellow);border:1px solid rgba(245,197,24,0.2)}
-.action-btn{
-  padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;
-  border:1px solid var(--border2);background:none;
-  color:var(--text2);cursor:pointer;font-family:var(--ff-body);
-  transition:all 0.15s;
-}
-.action-btn:hover{border-color:var(--red);color:var(--red)}
+.badge-gray{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border2)}
 
-/* ══ AI STATS ══ */
+/* ACTION BUTTONS */
+.actions-cell{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;font-family:var(--ff-body);transition:all 0.15s;}
+.action-btn:hover{border-color:var(--red);color:var(--red)}
+.action-btn.promote{color:var(--blue2);border-color:rgba(61,127,255,0.3)}
+.action-btn.promote:hover{background:rgba(61,127,255,0.1);border-color:var(--blue2)}
+.action-btn.ban{color:var(--yellow);border-color:rgba(245,197,24,0.3)}
+.action-btn.ban:hover{background:rgba(245,197,24,0.08);border-color:var(--yellow)}
+.action-btn.unban{color:var(--green);border-color:rgba(0,229,154,0.3)}
+.action-btn.unban:hover{background:rgba(0,229,154,0.08);border-color:var(--green)}
+
+/* BROADCAST FORM */
+.broadcast-form{display:flex;flex-direction:column;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);}
+.form-input{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--ff-body);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--blue)}
+.form-input::placeholder{color:var(--text3)}
+.form-textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--ff-body);outline:none;resize:vertical;min-height:140px;transition:border-color 0.15s;line-height:1.6;}
+.form-textarea:focus{border-color:var(--blue)}
+.form-textarea::placeholder{color:var(--text3)}
+.send-btn{padding:12px 24px;background:linear-gradient(135deg,var(--blue),#5fa8ff);border:none;border-radius:8px;color:#fff;font-family:var(--ff-head);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.2s;align-self:flex-start;display:flex;align-items:center;gap:8px;}
+.send-btn:hover{opacity:0.85}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed}
+.broadcast-result{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;display:none;}
+.broadcast-result.success{background:rgba(0,229,154,0.08);border:1px solid rgba(0,229,154,0.2);color:var(--green);}
+.broadcast-result.error{background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);color:var(--red);}
+
+/* ACTIVITY */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.ai-blue{background:rgba(61,127,255,0.1);color:var(--blue2)}
+.ai-green{background:rgba(0,229,154,0.1);color:var(--green)}
+.activity-body{flex:1;min-width:0}
+.activity-text{font-size:12px;color:var(--text);line-height:1.5}
+.activity-text strong{color:var(--blue2);font-weight:500}
+.activity-time{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(to top,var(--blue),rgba(61,127,255,0.3));transition:height 0.5s cubic-bezier(0.16,1,0.3,1);position:relative;cursor:pointer;}
+.bar:hover{filter:brightness(1.2)}
+.bar-tooltip{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--text);white-space:nowrap;opacity:0;transition:opacity 0.2s;pointer-events:none;}
+.bar:hover .bar-tooltip{opacity:1}
+.bar-label{font-size:9px;color:var(--text3);text-align:center;letter-spacing:0.04em}
+
+/* SYS */
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sys-item{padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;}
+.sys-label{font-size:12px;color:var(--text2)}
+.sys-val{font-size:12px;font-weight:600;color:var(--text)}
+.sys-ok{color:var(--green)}
+.sys-warn{color:var(--yellow)}
+
+/* AI */
 .ai-list{display:flex;flex-direction:column;gap:10px}
 .ai-row{display:flex;align-items:center;gap:12px}
 .ai-row-label{font-size:12px;color:var(--text2);min-width:140px}
@@ -337,20 +186,6 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
 .ai-bar-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--blue),var(--blue2));transition:width 1s cubic-bezier(0.16,1,0.3,1)}
 .ai-row-count{font-size:11px;color:var(--text3);min-width:40px;text-align:right}
 
-/* ══ SYSTEM ══ */
-.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.sys-item{
-  padding:14px 16px;
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.sys-label{font-size:12px;color:var(--text2)}
-.sys-val{font-size:12px;font-weight:600;color:var(--text)}
-.sys-ok{color:var(--green)}
-.sys-warn{color:var(--yellow)}
-
-/* ══ MOBILE ══ */
 @media(max-width:768px){
   .sidebar{display:none}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -368,44 +203,25 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
       <div class="brand-text">EuScribe</div>
       <div class="brand-badge">Admin</div>
     </div>
-
     <nav class="sidebar-nav">
       <div class="nav-section">
         <div class="nav-section-label">Overview</div>
-        <button class="nav-item active" onclick="showSection('dashboard',this)">
-          <i class="bx bx-grid-alt"></i> Dashboard
-        </button>
-        <button class="nav-item" onclick="showSection('analytics',this)">
-          <i class="bx bx-bar-chart-alt-2"></i> Analytics
-          <span class="nav-badge">Live</span>
-        </button>
+        <button class="nav-item active" onclick="showSection('dashboard',this)"><i class="bx bx-grid-alt"></i> Dashboard</button>
+        <button class="nav-item" onclick="showSection('analytics',this)"><i class="bx bx-bar-chart-alt-2"></i> Analytics <span class="nav-badge">Live</span></button>
       </div>
-
       <div class="nav-section">
         <div class="nav-section-label">Management</div>
-        <button class="nav-item" onclick="showSection('users',this)">
-          <i class="bx bx-group"></i> Users
-          <span class="nav-badge" id="userCountBadge">—</span>
-        </button>
-        <button class="nav-item" onclick="showSection('documents',this)">
-          <i class="bx bx-file-blank"></i> Documents
-        </button>
-        <button class="nav-item" onclick="showSection('ai',this)">
-          <i class="bx bx-brain"></i> AI Usage
-        </button>
+        <button class="nav-item" onclick="showSection('users',this)"><i class="bx bx-group"></i> Users <span class="nav-badge" id="userCountBadge">—</span></button>
+        <button class="nav-item" onclick="showSection('documents',this)"><i class="bx bx-file-blank"></i> Documents</button>
+        <button class="nav-item" onclick="showSection('broadcast',this)"><i class="bx bx-envelope"></i> Broadcast</button>
+        <button class="nav-item" onclick="showSection('ai',this)"><i class="bx bx-brain"></i> AI Usage</button>
       </div>
-
       <div class="nav-section">
         <div class="nav-section-label">System</div>
-        <button class="nav-item" onclick="showSection('system',this)">
-          <i class="bx bx-server"></i> System Health
-        </button>
-        <button class="nav-item" onclick="showSection('logs',this)">
-          <i class="bx bx-list-ul"></i> Activity Logs
-        </button>
+        <button class="nav-item" onclick="showSection('system',this)"><i class="bx bx-server"></i> System Health</button>
+        <button class="nav-item" onclick="showSection('logs',this)"><i class="bx bx-list-ul"></i> Activity Logs</button>
       </div>
     </nav>
-
     <div class="sidebar-footer">
       <div class="admin-profile">
         <div class="admin-av" id="adminAv">A</div>
@@ -420,8 +236,6 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
 
   <!-- MAIN -->
   <div class="main">
-
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
         <div class="breadcrumb">
@@ -432,23 +246,18 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="clock">--:--:--</div>
-        <div class="status-pill">
-          <div class="status-dot"></div>
-          All systems operational
-        </div>
+        <div class="status-pill"><div class="status-dot"></div>All systems operational</div>
       </div>
     </div>
 
-    <!-- CONTENT -->
     <div class="content">
 
-      <!-- ══ DASHBOARD ══ -->
+      <!-- DASHBOARD -->
       <div class="section active" id="section-dashboard">
         <div class="page-header">
           <div class="page-title">Dashboard</div>
           <div class="page-sub">Welcome back. Here's what's happening with EuScribe.</div>
         </div>
-
         <div class="stats-grid">
           <div class="stat-card" style="--accent-color:var(--blue)">
             <div class="stat-label"><i class="bx bx-group"></i> Total Users</div>
@@ -461,115 +270,71 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
             <div class="stat-change up"><i class="bx bx-trending-up"></i> All time</div>
           </div>
           <div class="stat-card" style="--accent-color:var(--yellow)">
-            <div class="stat-label"><i class="bx bx-brain"></i> AI Requests</div>
-            <div class="stat-num">—<span></span></div>
-            <div class="stat-change up"><i class="bx bx-trending-up"></i> Coming soon</div>
+            <div class="stat-label"><i class="bx bx-shield-x"></i> Banned Users</div>
+            <div class="stat-num" id="totalBanned">—</div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> Live count</div>
           </div>
           <div class="stat-card" style="--accent-color:var(--orange)">
-            <div class="stat-label"><i class="bx bx-time"></i> Avg Session</div>
-            <div class="stat-num">—<span></span></div>
-            <div class="stat-change up"><i class="bx bx-trending-up"></i> Coming soon</div>
+            <div class="stat-label"><i class="bx bx-crown"></i> Admins</div>
+            <div class="stat-num" id="totalAdmins">—</div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> Live count</div>
           </div>
         </div>
-
         <div class="grid3">
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">User Registrations</div>
-              <button class="card-action">Last 7 days</button>
-            </div>
-            <div class="card-body">
-              <div class="bar-chart" id="regChart">
-                <!-- rendered by JS -->
-              </div>
-            </div>
+            <div class="card-header"><div class="card-title">User Registrations</div><button class="card-action">Last 7 days</button></div>
+            <div class="card-body"><div class="bar-chart" id="regChart"></div></div>
           </div>
-
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">System Status</div>
-            </div>
+            <div class="card-header"><div class="card-title">System Status</div></div>
             <div class="card-body">
               <div class="sys-grid">
-                <div class="sys-item">
-                  <div class="sys-label">API Server</div>
-                  <div class="sys-val sys-ok">● Online</div>
-                </div>
-                <div class="sys-item">
-                  <div class="sys-label">MongoDB</div>
-                  <div class="sys-val sys-ok" id="dbStatus">● Checking</div>
-                </div>
-                <div class="sys-item">
-                  <div class="sys-label">Groq AI</div>
-                  <div class="sys-val sys-ok">● Active</div>
-                </div>
-                <div class="sys-item">
-                  <div class="sys-label">Email (Brevo)</div>
-                  <div class="sys-val sys-ok">● Active</div>
-                </div>
-                <div class="sys-item">
-                  <div class="sys-label">Auth (JWT)</div>
-                  <div class="sys-val sys-ok">● Active</div>
-                </div>
-                <div class="sys-item">
-                  <div class="sys-label">GitHub OAuth</div>
-                  <div class="sys-val sys-ok">● Active</div>
-                </div>
+                <div class="sys-item"><div class="sys-label">API Server</div><div class="sys-val sys-ok">● Online</div></div>
+                <div class="sys-item"><div class="sys-label">MongoDB</div><div class="sys-val sys-ok">● Connected</div></div>
+                <div class="sys-item"><div class="sys-label">Groq AI</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">Email (Brevo)</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">Auth (JWT)</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">GitHub OAuth</div><div class="sys-val sys-ok">● Active</div></div>
               </div>
             </div>
           </div>
         </div>
-
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Recent Activity</div>
-            <button class="card-action">View all</button>
-          </div>
-          <div class="card-body">
-            <div class="activity-list" id="activityFeed">
-              <div class="activity-item">
-                <div class="activity-icon ai-blue"><i class="bx bx-user-plus"></i></div>
-                <div class="activity-body">
-                  <div class="activity-text"><strong>New signup</strong> — Loading recent activity...</div>
-                  <div class="activity-time">Just now</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="card-header"><div class="card-title">Recent Signups</div><button class="card-action">View all</button></div>
+          <div class="card-body"><div class="activity-list" id="activityFeed"><div class="activity-item"><div class="activity-icon ai-blue"><i class="bx bx-user-plus"></i></div><div class="activity-body"><div class="activity-text"><strong>Loading</strong> — fetching recent activity...</div><div class="activity-time">Just now</div></div></div></div></div>
         </div>
       </div>
 
-      <!-- ══ USERS ══ -->
+      <!-- USERS -->
       <div class="section" id="section-users">
         <div class="page-header">
           <div class="page-title">Users</div>
-          <div class="page-sub">All registered EuScribe accounts.</div>
+          <div class="page-sub">Manage all registered EuScribe accounts.</div>
         </div>
         <div class="card">
           <div class="card-header">
             <div class="card-title">All Users <span id="userCountLabel" style="color:var(--text2);font-weight:400;font-size:12px"></span></div>
+            <div class="search-wrap">
+              <input class="search-input" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()"/>
+              <select class="filter-select" id="userFilter" onchange="filterUsers()">
+                <option value="all">All</option>
+                <option value="admin">Admins</option>
+                <option value="banned">Banned</option>
+                <option value="active">Active</option>
+              </select>
+            </div>
             <button class="card-action" onclick="loadUsers()"><i class="bx bx-refresh"></i> Refresh</button>
           </div>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Joined</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="usersTable">
-                <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading users...</td></tr>
-              </tbody>
+              <thead><tr><th>User</th><th>Joined</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="usersTable"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading users...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══ DOCUMENTS ══ -->
+      <!-- DOCUMENTS -->
       <div class="section" id="section-documents">
         <div class="page-header">
           <div class="page-title">Documents</div>
@@ -582,24 +347,57 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
           </div>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Owner</th>
-                  <th>Words</th>
-                  <th>Created</th>
-                  <th>Updated</th>
-                </tr>
-              </thead>
-              <tbody id="docsTable">
-                <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading documents...</td></tr>
-              </tbody>
+              <thead><tr><th>Title</th><th>Owner</th><th>Words</th><th>Created</th><th>Updated</th></tr></thead>
+              <tbody id="docsTable"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading documents...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══ AI USAGE ══ -->
+      <!-- BROADCAST -->
+      <div class="section" id="section-broadcast">
+        <div class="page-header">
+          <div class="page-title">Broadcast Email</div>
+          <div class="page-sub">Send a message to all EuScribe users via email.</div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Compose Message</div></div>
+            <div class="card-body">
+              <div class="broadcast-form">
+                <div class="form-group">
+                  <label class="form-label">Subject Line</label>
+                  <input class="form-input" id="broadcastSubject" placeholder="e.g. New feature: Version History is live!"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Message</label>
+                  <textarea class="form-textarea" id="broadcastMessage" placeholder="Write your message to all users here..."></textarea>
+                </div>
+                <div class="broadcast-result" id="broadcastResult"></div>
+                <button class="send-btn" id="sendBroadcastBtn" onclick="sendBroadcast()">
+                  <i class="bx bx-send"></i> Send to All Users
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Broadcast Info</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><div class="sys-label">Total Recipients</div><div class="sys-val sys-ok" id="broadcastCount">—</div></div>
+                <div class="sys-item"><div class="sys-label">Email Provider</div><div class="sys-val sys-ok">Brevo</div></div>
+                <div class="sys-item"><div class="sys-label">Sender Name</div><div class="sys-val">EuScribe</div></div>
+                <div class="sys-item"><div class="sys-label">Excluded</div><div class="sys-val" id="broadcastExcluded">Banned users</div></div>
+              </div>
+              <div style="margin-top:16px;padding:12px;background:rgba(245,197,24,0.06);border:1px solid rgba(245,197,24,0.15);border-radius:8px;font-size:12px;color:var(--yellow);line-height:1.6">
+                <strong>⚠ Note:</strong> This sends a real email to every active user. Double-check your message before sending.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI USAGE -->
       <div class="section" id="section-ai">
         <div class="page-header">
           <div class="page-title">AI Usage</div>
@@ -610,36 +408,12 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
             <div class="card-header"><div class="card-title">Action Breakdown</div></div>
             <div class="card-body">
               <div class="ai-list">
-                <div class="ai-row">
-                  <div class="ai-row-label">Fix Grammar & Spelling</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:78%"></div></div>
-                  <div class="ai-row-count">78%</div>
-                </div>
-                <div class="ai-row">
-                  <div class="ai-row-label">Rewrite for Clarity</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:54%"></div></div>
-                  <div class="ai-row-count">54%</div>
-                </div>
-                <div class="ai-row">
-                  <div class="ai-row-label">Expand & Elaborate</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:42%"></div></div>
-                  <div class="ai-row-count">42%</div>
-                </div>
-                <div class="ai-row">
-                  <div class="ai-row-label">Summarize</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:35%"></div></div>
-                  <div class="ai-row-count">35%</div>
-                </div>
-                <div class="ai-row">
-                  <div class="ai-row-label">Custom Prompt</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div>
-                  <div class="ai-row-count">28%</div>
-                </div>
-                <div class="ai-row">
-                  <div class="ai-row-label">Tone Changes</div>
-                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:18%"></div></div>
-                  <div class="ai-row-count">18%</div>
-                </div>
+                <div class="ai-row"><div class="ai-row-label">Fix Grammar & Spelling</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:78%"></div></div><div class="ai-row-count">78%</div></div>
+                <div class="ai-row"><div class="ai-row-label">Rewrite for Clarity</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:54%"></div></div><div class="ai-row-count">54%</div></div>
+                <div class="ai-row"><div class="ai-row-label">Expand & Elaborate</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:42%"></div></div><div class="ai-row-count">42%</div></div>
+                <div class="ai-row"><div class="ai-row-label">Summarize</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:35%"></div></div><div class="ai-row-count">35%</div></div>
+                <div class="ai-row"><div class="ai-row-label">Custom Prompt</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div><div class="ai-row-count">28%</div></div>
+                <div class="ai-row"><div class="ai-row-label">Tone Changes</div><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:18%"></div></div><div class="ai-row-count">18%</div></div>
               </div>
             </div>
           </div>
@@ -657,7 +431,7 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
         </div>
       </div>
 
-      <!-- ══ SYSTEM ══ -->
+      <!-- SYSTEM -->
       <div class="section" id="section-system">
         <div class="page-header">
           <div class="page-title">System Health</div>
@@ -695,60 +469,39 @@ tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
         </div>
       </div>
 
-      <!-- ══ LOGS ══ -->
+      <!-- LOGS -->
       <div class="section" id="section-logs">
         <div class="page-header">
           <div class="page-title">Activity Logs</div>
           <div class="page-sub">Recent platform activity.</div>
         </div>
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Recent Events</div>
-            <button class="card-action" onclick="loadActivity()"><i class="bx bx-refresh"></i> Refresh</button>
-          </div>
-          <div class="card-body">
-            <div class="activity-list" id="logsActivity">
-              <div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Loading activity...</div>
-            </div>
-          </div>
+          <div class="card-header"><div class="card-title">Recent Events</div><button class="card-action" onclick="loadActivity()"><i class="bx bx-refresh"></i> Refresh</button></div>
+          <div class="card-body"><div class="activity-list" id="logsActivity"><div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Loading activity...</div></div></div>
         </div>
       </div>
 
-      <!-- ══ ANALYTICS ══ -->
+      <!-- ANALYTICS -->
       <div class="section" id="section-analytics">
         <div class="page-header">
           <div class="page-title">Analytics</div>
           <div class="page-sub">Platform growth and usage metrics.</div>
         </div>
         <div class="stats-grid">
-          <div class="stat-card" style="--accent-color:var(--blue)">
-            <div class="stat-label"><i class="bx bx-group"></i> Total Users</div>
-            <div class="stat-num" id="anaUsers">—</div>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--green)">
-            <div class="stat-label"><i class="bx bx-file"></i> Total Documents</div>
-            <div class="stat-num" id="anaDocs">—</div>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--yellow)">
-            <div class="stat-label"><i class="bx bx-text"></i> Avg Doc Length</div>
-            <div class="stat-num">—</div>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--orange)">
-            <div class="stat-label"><i class="bx bx-calendar"></i> Joined Today</div>
-            <div class="stat-num" id="anaToday">—</div>
-          </div>
+          <div class="stat-card" style="--accent-color:var(--blue)"><div class="stat-label"><i class="bx bx-group"></i> Total Users</div><div class="stat-num" id="anaUsers">—</div></div>
+          <div class="stat-card" style="--accent-color:var(--green)"><div class="stat-label"><i class="bx bx-file"></i> Total Documents</div><div class="stat-num" id="anaDocs">—</div></div>
+          <div class="stat-card" style="--accent-color:var(--yellow)"><div class="stat-label"><i class="bx bx-text"></i> Avg Doc Length</div><div class="stat-num">—</div></div>
+          <div class="stat-card" style="--accent-color:var(--orange)"><div class="stat-label"><i class="bx bx-calendar"></i> Joined Today</div><div class="stat-num" id="anaToday">—</div></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Registration Trend (Last 7 Days)</div></div>
-          <div class="card-body">
-            <div class="bar-chart" id="anaChart" style="height:160px"></div>
-          </div>
+          <div class="card-body"><div class="bar-chart" id="anaChart" style="height:160px"></div></div>
         </div>
       </div>
 
-    </div><!-- end content -->
-  </div><!-- end main -->
-</div><!-- end shell -->
+    </div>
+  </div>
+</div>
 
 <script>
 const API = 'https://euscribe.onrender.com';
@@ -763,13 +516,15 @@ if (!token) {
   window.location.href = 'euscribe-auth.html';
 }
 
+/* ══ ALL USERS CACHE (for filtering) ══ */
+let allUsers = [];
+
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('euscribe_user_name') || 'Admin';
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('adminAv').textContent = initials;
   document.getElementById('adminName').textContent = name;
-
   startClock();
   loadDashboard();
   renderBarChart('regChart', getDummyData(), 80);
@@ -777,12 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ══ CLOCK ══ */
 function startClock() {
-  function tick() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {hour12:false});
-  }
-  tick();
-  setInterval(tick, 1000);
+  function tick() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', {hour12:false}); }
+  tick(); setInterval(tick, 1000);
 }
 
 /* ══ NAV ══ */
@@ -792,35 +543,33 @@ function showSection(id, btn) {
   document.getElementById('section-' + id).classList.add('active');
   btn.classList.add('active');
   document.getElementById('breadcrumb').textContent = btn.textContent.trim().split('\n')[0].trim();
-
   if (id === 'users') loadUsers();
   if (id === 'documents') loadDocs();
   if (id === 'logs') loadActivity();
   if (id === 'analytics') loadAnalytics();
+  if (id === 'broadcast') loadBroadcastInfo();
 }
 
-/* ══ DASHBOARD DATA ══ */
+/* ══ DASHBOARD ══ */
 async function loadDashboard() {
   try {
     const headers = { 'Authorization': `Bearer ${token}` };
-
-    // Fetch users count
     const uRes = await fetch(`${API}/api/admin/users`, { headers });
     if (uRes.ok) {
       const users = await uRes.json();
+      allUsers = users;
       document.getElementById('totalUsers').textContent = users.length;
       document.getElementById('userCountBadge').textContent = users.length;
+      document.getElementById('totalBanned').textContent = users.filter(u => u.isBanned).length;
+      document.getElementById('totalAdmins').textContent = users.filter(u => u.isAdmin).length;
       renderActivity(users);
     }
-
-    // Fetch docs count
     const dRes = await fetch(`${API}/api/admin/documents`, { headers });
     if (dRes.ok) {
       const docs = await dRes.json();
       document.getElementById('totalDocs').textContent = docs.length;
     }
   } catch(e) {
-    console.log('Backend not connected yet — showing demo data');
     document.getElementById('totalUsers').textContent = '—';
     document.getElementById('totalDocs').textContent = '—';
   }
@@ -830,66 +579,187 @@ async function loadDashboard() {
 async function loadUsers() {
   const tbody = document.getElementById('usersTable');
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading...</td></tr>';
-
   try {
-    const res = await fetch(`${API}/api/admin/users`, {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error('Failed');
+    allUsers = await res.json();
+    document.getElementById('userCountLabel').textContent = `(${allUsers.length} total)`;
+    document.getElementById('userCountBadge').textContent = allUsers.length;
+    renderUsersTable(allUsers);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load users.</td></tr>';
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersTable');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">No users found.</td></tr>';
+    return;
+  }
+  const colors = ['uav1','uav2','uav3','uav4','uav5'];
+  const myId = parseJwt(token)?.id;
+  tbody.innerHTML = users.map((u, i) => `
+    <tr id="user-row-${u._id}">
+      <td>
+        <div class="user-cell">
+          <div class="user-av ${colors[i % colors.length]}">${u.name ? u.name[0].toUpperCase() : '?'}</div>
+          <div>
+            <div class="user-name">${u.name || 'Unknown'}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>${new Date(u.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</td>
+      <td><span class="badge ${u.isAdmin ? 'badge-yellow' : 'badge-blue'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+      <td><span class="badge ${u.isBanned ? 'badge-red' : 'badge-green'}">${u.isBanned ? 'Banned' : 'Active'}</span></td>
+      <td>
+        <div class="actions-cell">
+          ${u._id !== myId ? `
+            <button class="action-btn promote" onclick="togglePromote('${u._id}')">${u.isAdmin ? 'Demote' : 'Make Admin'}</button>
+            <button class="action-btn ${u.isBanned ? 'unban' : 'ban'}" onclick="toggleBan('${u._id}')">${u.isBanned ? 'Unban' : 'Ban'}</button>
+            <button class="action-btn" onclick="deleteUser('${u._id}')">Remove</button>
+          ` : '<span style="font-size:11px;color:var(--text3)">You</span>'}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ══ SEARCH & FILTER ══ */
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase().trim();
+  const filter = document.getElementById('userFilter').value;
+  let filtered = allUsers;
+  if (q) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  if (filter === 'admin') filtered = filtered.filter(u => u.isAdmin);
+  if (filter === 'banned') filtered = filtered.filter(u => u.isBanned);
+  if (filter === 'active') filtered = filtered.filter(u => !u.isBanned);
+  renderUsersTable(filtered);
+}
+
+/* ══ PROMOTE / DEMOTE ══ */
+async function togglePromote(id) {
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/promote`, {
+      method: 'PATCH',
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error('Failed');
-    const users = await res.json();
+    const data = await res.json();
+    if (!res.ok) { alert(data.message); return; }
+    // Update local cache
+    const u = allUsers.find(u => u._id === id);
+    if (u) u.isAdmin = data.isAdmin;
+    filterUsers();
+  } catch(e) { alert('Error updating user.'); }
+}
 
-    document.getElementById('userCountLabel').textContent = `(${users.length} total)`;
-    document.getElementById('userCountBadge').textContent = users.length;
+/* ══ BAN / UNBAN ══ */
+async function toggleBan(id) {
+  const u = allUsers.find(u => u._id === id);
+  const action = u?.isBanned ? 'unban' : 'ban';
+  if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/ban`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.message); return; }
+    if (u) u.isBanned = data.isBanned;
+    filterUsers();
+  } catch(e) { alert('Error updating user.'); }
+}
 
-    const colors = ['uav1','uav2','uav3','uav4','uav5'];
-    tbody.innerHTML = users.map((u, i) => `
-      <tr>
-        <td>
-          <div class="user-cell">
-            <div class="user-av ${colors[i % colors.length]}">${u.name ? u.name[0].toUpperCase() : '?'}</div>
-            <div>
-              <div class="user-name">${u.name || 'Unknown'}</div>
-              <div class="user-email">${u.email}</div>
-            </div>
-          </div>
-        </td>
-        <td>${new Date(u.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</td>
-        <td><span class="badge ${u.isAdmin ? 'badge-yellow' : 'badge-blue'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
-        <td><span class="badge badge-green">Active</span></td>
-        <td><button class="action-btn" onclick="deleteUser('${u._id}')">Remove</button></td>
-      </tr>
-    `).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load users. Admin routes not set up yet.</td></tr>';
+/* ══ DELETE ══ */
+async function deleteUser(id) {
+  if (!confirm('Remove this user permanently? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      allUsers = allUsers.filter(u => u._id !== id);
+      filterUsers();
+    } else { alert('Could not delete user.'); }
+  } catch(e) { alert('Error deleting user.'); }
+}
+
+/* ══ BROADCAST ══ */
+async function loadBroadcastInfo() {
+  try {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (res.ok) {
+      const users = await res.json();
+      const active = users.filter(u => !u.isBanned).length;
+      document.getElementById('broadcastCount').textContent = active;
+    }
+  } catch(e) {}
+}
+
+async function sendBroadcast() {
+  const subject = document.getElementById('broadcastSubject').value.trim();
+  const message = document.getElementById('broadcastMessage').value.trim();
+  const resultEl = document.getElementById('broadcastResult');
+  const btn = document.getElementById('sendBroadcastBtn');
+
+  if (!subject || !message) {
+    showBroadcastResult('Please fill in both subject and message.', false);
+    return;
   }
+  if (!confirm(`Send this email to all active users?\n\nSubject: ${subject}`)) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Sending...';
+
+  try {
+    const res = await fetch(`${API}/api/admin/broadcast`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, message })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    showBroadcastResult(`✓ Sent successfully to ${data.count} users!`, true);
+    document.getElementById('broadcastSubject').value = '';
+    document.getElementById('broadcastMessage').value = '';
+  } catch(e) {
+    showBroadcastResult(`✕ Failed: ${e.message}`, false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bx bx-send"></i> Send to All Users';
+  }
+}
+
+function showBroadcastResult(msg, success) {
+  const el = document.getElementById('broadcastResult');
+  el.textContent = msg;
+  el.className = `broadcast-result ${success ? 'success' : 'error'}`;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
 }
 
 /* ══ DOCUMENTS ══ */
 async function loadDocs() {
   const tbody = document.getElementById('docsTable');
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading...</td></tr>';
-
   try {
-    const res = await fetch(`${API}/api/admin/documents`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res = await fetch(`${API}/api/admin/documents`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) throw new Error('Failed');
     const docs = await res.json();
-
     tbody.innerHTML = docs.map(d => {
       const words = d.content ? d.content.replace(/<[^>]*>/g,'').split(/\s+/).filter(Boolean).length : 0;
-      return `
-        <tr>
-          <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
-          <td>${d.userId?.name || d.userId || '—'}</td>
-          <td>${words.toLocaleString()}</td>
-          <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
-          <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
-        </tr>
-      `;
+      return `<tr>
+        <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
+        <td>${d.userId?.name || d.userId || '—'}</td>
+        <td>${words.toLocaleString()}</td>
+        <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+      </tr>`;
     }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">No documents found.</td></tr>';
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load documents. Admin routes not set up yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load documents.</td></tr>';
   }
 }
 
@@ -912,23 +782,20 @@ function renderActivity(users) {
 async function loadActivity() {
   const el = document.getElementById('logsActivity');
   try {
-    const res = await fetch(`${API}/api/admin/users`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) throw new Error();
     const users = await res.json();
-    const sorted = [...users].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-    el.innerHTML = sorted.map(u => `
+    el.innerHTML = [...users].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(u => `
       <div class="activity-item">
         <div class="activity-icon ai-green"><i class="bx bx-user"></i></div>
         <div class="activity-body">
-          <div class="activity-text"><strong>${u.name || 'User'}</strong> (${u.email}) signed up</div>
+          <div class="activity-text"><strong>${u.name || 'User'}</strong> (${u.email}) signed up${u.isBanned ? ' <span class="badge badge-red" style="margin-left:6px">Banned</span>' : ''}</div>
           <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
         </div>
       </div>
     `).join('');
   } catch(e) {
-    el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Admin routes not set up yet.</div>';
+    el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Could not load activity.</div>';
   }
 }
 
@@ -941,77 +808,53 @@ async function loadAnalytics() {
     if (uRes.ok) {
       const users = await uRes.json();
       document.getElementById('anaUsers').textContent = users.length;
-      const today = users.filter(u => new Date(u.createdAt).toDateString() === new Date().toDateString()).length;
-      document.getElementById('anaToday').textContent = today;
+      document.getElementById('anaToday').textContent = users.filter(u => new Date(u.createdAt).toDateString() === new Date().toDateString()).length;
       renderBarChart('anaChart', getRegistrationData(users), 140);
     }
-    if (dRes.ok) {
-      const docs = await dRes.json();
-      document.getElementById('anaDocs').textContent = docs.length;
-    }
+    if (dRes.ok) { const docs = await dRes.json(); document.getElementById('anaDocs').textContent = docs.length; }
   } catch(e) {}
 }
 
-/* ══ DELETE USER ══ */
-async function deleteUser(id) {
-  if (!confirm('Remove this user? This cannot be undone.')) return;
-  try {
-    const res = await fetch(`${API}/api/admin/users/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (res.ok) loadUsers();
-    else alert('Could not delete user.');
-  } catch(e) { alert('Error deleting user.'); }
-}
-
-/* ══ BAR CHART ══ */
+/* ══ CHARTS ══ */
 function getDummyData() {
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  return days.map(d => ({ label: d, value: Math.floor(Math.random() * 8) + 1 }));
+  return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => ({ label: d, value: Math.floor(Math.random() * 8) + 1 }));
 }
-
 function getRegistrationData(users) {
   const days = [];
   for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const label = d.toLocaleDateString('en-GB', {weekday:'short'});
-    const count = users.filter(u => new Date(u.createdAt).toDateString() === d.toDateString()).length;
-    days.push({ label, value: count });
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push({ label: d.toLocaleDateString('en-GB', {weekday:'short'}), value: users.filter(u => new Date(u.createdAt).toDateString() === d.toDateString()).length });
   }
   return days;
 }
-
 function renderBarChart(id, data, maxH) {
   const container = document.getElementById(id);
   if (!container) return;
   const max = Math.max(...data.map(d => d.value), 1);
   container.innerHTML = data.map(d => `
     <div class="bar-group">
-      <div class="bar" style="height:${Math.max((d.value/max)*maxH, 4)}px">
-        <div class="bar-tooltip">${d.value}</div>
-      </div>
+      <div class="bar" style="height:${Math.max((d.value/max)*maxH, 4)}px"><div class="bar-tooltip">${d.value}</div></div>
       <div class="bar-label">${d.label}</div>
     </div>
   `).join('');
+}
+
+/* ══ JWT PARSER (to get current user id) ══ */
+function parseJwt(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
 }
 
 /* ══ UPTIME ══ */
 const startTime = Date.now();
 setInterval(() => {
   const s = Math.floor((Date.now() - startTime) / 1000);
-  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
   const el = document.getElementById('uptime');
-  if (el) el.textContent = `${h}h ${m}m ${sec}s`;
+  if (el) el.textContent = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ${s%60}s`;
 }, 1000);
 
 /* ══ LOGOUT ══ */
 function logout() {
-  localStorage.removeItem('euscribe_token');
-  localStorage.removeItem('euscribe_user_name');
-  localStorage.removeItem('euscribe_user_email');
-  localStorage.removeItem('euscribe_is_admin');
+  ['euscribe_token','euscribe_user_name','euscribe_user_email','euscribe_is_admin'].forEach(k => localStorage.removeItem(k));
   window.location.href = 'euscribe-auth.html';
 }
 </script>

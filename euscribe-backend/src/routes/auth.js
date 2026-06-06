@@ -35,6 +35,10 @@ router.post('/login', async (req, res) => {
     if (!user)
       return res.status(400).json({ message: 'Invalid credentials' });
 
+    // Block banned users
+    if (user.isBanned)
+      return res.status(403).json({ message: 'Your account has been suspended. Contact support.' });
+
     const match = await bcrypt.compare(password, user.password);
     if (!match)
       return res.status(400).json({ message: 'Invalid credentials' });
