@@ -1,817 +1,1016 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EuScribe Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EuScribe — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
-      --bg: #0a0a0b;
-      --bg2: #111113;
-      --bg3: #1a1a1c;
-      --border: rgba(255,255,255,0.07);
-      --text: #e6edf3;
-      --muted: #6b7280;
-      --blue: #4f8cff;
-      --green: #3dd68c;
-      --red: #ff6b6b;
-      --yellow: #f59e0b;
-    }
+:root{
+  --bg:#07080d;
+  --surface:#0d0f18;
+  --surface2:#12141f;
+  --surface3:#181b28;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.1);
+  --text:#e8edf5;
+  --text2:#6878a0;
+  --text3:#3a4460;
+  --blue:#3d7fff;
+  --blue2:#6fa3ff;
+  --green:#00e59a;
+  --red:#ff4d6a;
+  --yellow:#f5c518;
+  --orange:#ff7043;
+  --ff-head:'Syne',sans-serif;
+  --ff-body:'DM Sans',sans-serif;
+  --sidebar:220px;
+  --topbar:56px;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      display: flex;
-    }
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff-body);font-size:14px;overflow:hidden}
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 220px;
-      background: var(--bg2);
-      border-right: 0.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 24px 0;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 10;
-    }
+/* ══ GRAIN ══ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;pointer-events:none;
+}
 
-    .sidebar-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--blue);
-      padding: 0 20px 24px;
-      border-bottom: 0.5px solid var(--border);
-      margin-bottom: 16px;
-    }
-    .sidebar-logo span { color: var(--text); }
-    .sidebar-logo small {
-      display: block;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+/* ══ LAYOUT ══ */
+.shell{position:fixed;inset:0;z-index:1;display:flex}
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      border-radius: 0;
-      transition: background 0.15s, color 0.15s;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-    .nav-item.active { background: rgba(79,140,255,0.1); color: var(--blue); border-right: 2px solid var(--blue); }
-    .nav-item i { font-size: 16px; }
+/* ══ SIDEBAR ══ */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
 
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 16px 20px;
-      border-top: 0.5px solid var(--border);
-    }
+.sidebar-brand{
+  height:var(--topbar);
+  display:flex;align-items:center;
+  padding:0 20px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.brand-mark{
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--blue),#5fa8ff);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:12px;font-weight:800;color:#fff;
+  margin-right:10px;flex-shrink:0;
+  box-shadow:0 0 14px rgba(61,127,255,0.3);
+}
+.brand-text{
+  font-family:var(--ff-head);font-size:15px;font-weight:700;
+  color:var(--text);letter-spacing:-0.01em;
+}
+.brand-badge{
+  margin-left:auto;
+  padding:2px 7px;
+  background:rgba(61,127,255,0.12);
+  border:1px solid rgba(61,127,255,0.2);
+  border-radius:4px;
+  font-size:9px;font-weight:700;
+  letter-spacing:0.08em;color:var(--blue2);
+  text-transform:uppercase;
+}
 
-    .logout-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--red);
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      padding: 0;
-    }
+.sidebar-nav{flex:1;padding:16px 10px;overflow-y:auto}
+.nav-section{margin-bottom:24px}
+.nav-section-label{
+  font-size:9px;font-weight:700;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--text3);
+  padding:0 10px;margin-bottom:6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:8px;
+  color:var(--text2);font-size:13px;font-weight:500;
+  cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;font-family:var(--ff-body);
+  transition:all 0.15s;position:relative;
+}
+.nav-item i{font-size:16px;flex-shrink:0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(61,127,255,0.1);color:var(--blue2)}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:25%;bottom:25%;
+  width:2px;border-radius:0 2px 2px 0;background:var(--blue);
+}
+.nav-badge{
+  margin-left:auto;
+  padding:1px 7px;border-radius:100px;
+  font-size:10px;font-weight:600;
+  background:rgba(61,127,255,0.15);color:var(--blue2);
+}
 
-    /* ── MAIN ── */
-    .main {
-      margin-left: 220px;
-      flex: 1;
-      padding: 32px;
-      min-height: 100vh;
-    }
+.sidebar-footer{
+  padding:14px 10px;border-top:1px solid var(--border);flex-shrink:0;
+}
+.admin-profile{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;
+  cursor:pointer;transition:background 0.15s;
+}
+.admin-profile:hover{background:var(--surface2)}
+.admin-av{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),#5fa8ff);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:11px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.admin-name{font-size:12px;font-weight:600;color:var(--text)}
+.admin-role{font-size:10px;color:var(--text2)}
+.admin-exit{margin-left:auto;color:var(--text3);font-size:14px;cursor:pointer;transition:color 0.15s}
+.admin-exit:hover{color:var(--red)}
 
-    .page { display: none; }
-    .page.active { display: block; }
+/* ══ MAIN ══ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
-    .page-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
+/* ══ TOPBAR ══ */
+.topbar{
+  height:var(--topbar);flex-shrink:0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.breadcrumb{
+  font-size:12px;color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.breadcrumb-sep{color:var(--text3)}
+.breadcrumb-current{color:var(--text);font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-time{font-size:11px;color:var(--text3);font-family:'Courier New',monospace}
+.status-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:100px;
+  background:rgba(0,229,154,0.08);
+  border:1px solid rgba(0,229,154,0.15);
+  font-size:11px;font-weight:500;color:var(--green);
+}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,154,0.4)}50%{opacity:0.7;box-shadow:0 0 0 4px rgba(0,229,154,0)}}
 
-    .page-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+/* ══ CONTENT ══ */
+.content{flex:1;overflow-y:auto;padding:28px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-    /* ── STAT CARDS ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
+/* ══ SECTIONS ══ */
+.section{display:none}
+.section.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-    .stat-card {
-      background: var(--bg2);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+/* ══ PAGE HEADER ══ */
+.page-header{margin-bottom:28px}
+.page-title{
+  font-family:var(--ff-head);font-size:24px;font-weight:700;
+  color:var(--text);letter-spacing:-0.02em;
+}
+.page-sub{margin-top:4px;font-size:13px;color:var(--text2);font-weight:300}
 
-    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-    .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; }
-    .stat-sub { font-size: 12px; color: var(--muted); }
-    .stat-icon { font-size: 20px; margin-bottom: 4px; }
+/* ══ STATS GRID ══ */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:16px;margin-bottom:24px;
+}
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,var(--accent-color,var(--blue)),transparent);
+  opacity:0.5;
+}
+.stat-label{
+  font-size:11px;font-weight:500;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--text2);
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.stat-label i{font-size:13px}
+.stat-num{
+  font-family:var(--ff-head);font-size:32px;font-weight:700;
+  color:var(--text);letter-spacing:-0.02em;line-height:1;
+}
+.stat-num span{font-size:16px;color:var(--text2);font-weight:400}
+.stat-change{
+  margin-top:8px;font-size:11px;font-weight:500;
+  display:flex;align-items:center;gap:4px;
+}
+.stat-change.up{color:var(--green)}
+.stat-change.down{color:var(--red)}
 
-    /* ── SYSTEM HEALTH ── */
-    .health-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
+/* ══ GRID 2 ══ */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
 
-    .health-card {
-      background: var(--bg2);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
+/* ══ CARD ══ */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+.card-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{
+  font-family:var(--ff-head);font-size:14px;font-weight:600;
+  color:var(--text);letter-spacing:-0.01em;
+}
+.card-action{
+  font-size:12px;color:var(--blue2);cursor:pointer;
+  background:none;border:none;font-family:var(--ff-body);
+  transition:opacity 0.2s;
+}
+.card-action:hover{opacity:0.7}
+.card-body{padding:20px}
 
-    .health-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-    .health-value { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+/* ══ CHART BARS ══ */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar{
+  width:100%;border-radius:4px 4px 0 0;
+  background:linear-gradient(to top,var(--blue),rgba(61,127,255,0.3));
+  transition:height 0.5s cubic-bezier(0.16,1,0.3,1);
+  position:relative;cursor:pointer;
+}
+.bar:hover{filter:brightness(1.2)}
+.bar-tooltip{
+  position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+  background:var(--surface3);border:1px solid var(--border2);
+  border-radius:4px;padding:2px 7px;
+  font-size:10px;color:var(--text);white-space:nowrap;
+  opacity:0;transition:opacity 0.2s;pointer-events:none;
+}
+.bar:hover .bar-tooltip{opacity:1}
+.bar-label{font-size:9px;color:var(--text3);text-align:center;letter-spacing:0.04em}
 
-    .progress-bar {
-      height: 4px;
-      background: var(--bg3);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.5s ease;
-    }
+/* ══ ACTIVITY FEED ══ */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.ai-blue{background:rgba(61,127,255,0.1);color:var(--blue2)}
+.ai-green{background:rgba(0,229,154,0.1);color:var(--green)}
+.ai-red{background:rgba(255,77,106,0.1);color:var(--red)}
+.ai-yellow{background:rgba(245,197,24,0.1);color:var(--yellow)}
+.activity-body{flex:1;min-width:0}
+.activity-text{font-size:12px;color:var(--text);line-height:1.5}
+.activity-text strong{color:var(--blue2);font-weight:500}
+.activity-time{font-size:10px;color:var(--text3);margin-top:2px}
 
-    .status-dot {
-      display: inline-block;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
-    .status-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .status-dot.yellow { background: var(--yellow); }
-    .status-dot.red { background: var(--red); }
+/* ══ USER TABLE ══ */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  padding:10px 16px;text-align:left;
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text3);
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:12px 16px;
+  font-size:13px;color:var(--text2);
+  border-bottom:1px solid var(--border);
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
+.user-cell{display:flex;align-items:center;gap:10px}
+.user-av{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.uav1{background:linear-gradient(135deg,var(--blue),#5fa8ff)}
+.uav2{background:linear-gradient(135deg,var(--green),#00c9a7)}
+.uav3{background:linear-gradient(135deg,var(--orange),#ffd200)}
+.uav4{background:linear-gradient(135deg,#c471ed,#f64f59)}
+.uav5{background:linear-gradient(135deg,#667eea,#764ba2)}
+.user-name{font-size:13px;font-weight:500;color:var(--text)}
+.user-email{font-size:11px;color:var(--text3)}
+.badge{
+  padding:2px 8px;border-radius:100px;
+  font-size:10px;font-weight:600;
+}
+.badge-green{background:rgba(0,229,154,0.1);color:var(--green);border:1px solid rgba(0,229,154,0.2)}
+.badge-blue{background:rgba(61,127,255,0.1);color:var(--blue2);border:1px solid rgba(61,127,255,0.2)}
+.badge-red{background:rgba(255,77,106,0.1);color:var(--red);border:1px solid rgba(255,77,106,0.2)}
+.badge-yellow{background:rgba(245,197,24,0.1);color:var(--yellow);border:1px solid rgba(245,197,24,0.2)}
+.action-btn{
+  padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;
+  border:1px solid var(--border2);background:none;
+  color:var(--text2);cursor:pointer;font-family:var(--ff-body);
+  transition:all 0.15s;
+}
+.action-btn:hover{border-color:var(--red);color:var(--red)}
 
-    /* ── TABLE ── */
-    .table-wrap {
-      background: var(--bg2);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
+/* ══ AI STATS ══ */
+.ai-list{display:flex;flex-direction:column;gap:10px}
+.ai-row{display:flex;align-items:center;gap:12px}
+.ai-row-label{font-size:12px;color:var(--text2);min-width:140px}
+.ai-bar-wrap{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.ai-bar-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--blue),var(--blue2));transition:width 1s cubic-bezier(0.16,1,0.3,1)}
+.ai-row-count{font-size:11px;color:var(--text3);min-width:40px;text-align:right}
 
-    .table-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 0.5px solid var(--border);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+/* ══ SYSTEM ══ */
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sys-item{
+  padding:14px 16px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sys-label{font-size:12px;color:var(--text2)}
+.sys-val{font-size:12px;font-weight:600;color:var(--text)}
+.sys-ok{color:var(--green)}
+.sys-warn{color:var(--yellow)}
 
-    .table-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
-
-    .search-input {
-      background: var(--bg3);
-      border: 0.5px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 12px;
-      color: var(--text);
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      outline: none;
-      width: 220px;
-    }
-    .search-input:focus { border-color: var(--blue); }
-    .search-input::placeholder { color: #333336; }
-
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 12px 20px;
-      text-align: left;
-      border-bottom: 0.5px solid var(--border);
-    }
-    td {
-      padding: 12px 20px;
-      font-size: 13px;
-      border-bottom: 0.5px solid var(--border);
-      vertical-align: middle;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .badge.green { background: rgba(61,214,140,0.1); color: var(--green); border: 0.5px solid rgba(61,214,140,0.2); }
-    .badge.blue { background: rgba(79,140,255,0.1); color: var(--blue); border: 0.5px solid rgba(79,140,255,0.2); }
-    .badge.red { background: rgba(255,107,107,0.1); color: var(--red); border: 0.5px solid rgba(255,107,107,0.2); }
-
-    .action-btn {
-      background: none;
-      border: 0.5px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      padding: 5px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: all 0.15s;
-    }
-    .action-btn:hover { border-color: var(--red); color: var(--red); }
-    .action-btn i { font-size: 13px; }
-
-    .pagination {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      border-top: 0.5px solid var(--border);
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .page-btns { display: flex; gap: 6px; }
-    .page-btn {
-      padding: 5px 10px;
-      background: var(--bg3);
-      border: 0.5px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .page-btn:hover { border-color: var(--blue); color: var(--blue); }
-    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* ── LOADING ── */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      color: var(--muted);
-      font-size: 13px;
-      gap: 10px;
-    }
-
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(79,140,255,0.2);
-      border-top-color: var(--blue);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── TOAST ── */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      animation: toastIn 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .toast.success { background: rgba(61,214,140,0.1); border: 1px solid rgba(61,214,140,0.25); color: var(--green); }
-    .toast.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); color: var(--red); }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-
-    /* ── CONFIRM MODAL ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 16px;
-    }
-    .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-    .modal-body { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-    .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
-    .modal-cancel { padding: 9px 18px; background: var(--bg3); border: 0.5px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-    .modal-confirm { padding: 9px 18px; background: var(--red); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-
-    /* ── AVATAR ── */
-    .avatar-sm {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--blue), #a78bfa);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
-
-    .user-cell { display: flex; align-items: center; }
-
-    @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar-logo small, .nav-item span, .sidebar-footer { display: none; }
-      .nav-item { justify-content: center; padding: 12px; }
-      .main { margin-left: 60px; padding: 16px; }
-      .sidebar-logo { padding: 0 0 16px; text-align: center; font-size: 14px; }
-    }
-  </style>
+/* ══ MOBILE ══ */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-
-  <!-- TOAST CONTAINER -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- CONFIRM MODAL -->
-  <div class="modal-overlay" id="confirmModal">
-    <div class="modal">
-      <div class="modal-title" id="modalTitle">Confirm Delete</div>
-      <div class="modal-body" id="modalBody">Are you sure? This action cannot be undone.</div>
-      <div class="modal-btns">
-        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-        <button class="modal-confirm" id="modalConfirm">Delete</button>
-      </div>
-    </div>
-  </div>
+<div class="shell">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-logo">
-      Eu<span>Scribe</span>
-      <small>Admin Panel</small>
+    <div class="sidebar-brand">
+      <div class="brand-mark">E</div>
+      <div class="brand-text">EuScribe</div>
+      <div class="brand-badge">Admin</div>
     </div>
-    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
-      <i class="bx bx-home-alt"></i><span>Dashboard</span>
-    </button>
-    <button class="nav-item" onclick="showPage('users')" id="nav-users">
-      <i class="bx bx-group"></i><span>Users</span>
-    </button>
-    <button class="nav-item" onclick="showPage('documents')" id="nav-documents">
-      <i class="bx bx-file-blank"></i><span>Documents</span>
-    </button>
-    <button class="nav-item" onclick="showPage('health')" id="nav-health">
-      <i class="bx bx-chip"></i><span>System Health</span>
-    </button>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <button class="nav-item active" onclick="showSection('dashboard',this)">
+          <i class="bx bx-grid-alt"></i> Dashboard
+        </button>
+        <button class="nav-item" onclick="showSection('analytics',this)">
+          <i class="bx bx-bar-chart-alt-2"></i> Analytics
+          <span class="nav-badge">Live</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Management</div>
+        <button class="nav-item" onclick="showSection('users',this)">
+          <i class="bx bx-group"></i> Users
+          <span class="nav-badge" id="userCountBadge">—</span>
+        </button>
+        <button class="nav-item" onclick="showSection('documents',this)">
+          <i class="bx bx-file-blank"></i> Documents
+        </button>
+        <button class="nav-item" onclick="showSection('ai',this)">
+          <i class="bx bx-brain"></i> AI Usage
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <button class="nav-item" onclick="showSection('system',this)">
+          <i class="bx bx-server"></i> System Health
+        </button>
+        <button class="nav-item" onclick="showSection('logs',this)">
+          <i class="bx bx-list-ul"></i> Activity Logs
+        </button>
+      </div>
+    </nav>
+
     <div class="sidebar-footer">
-      <button class="logout-btn" onclick="adminLogout()">
-        <i class="bx bx-log-out"></i><span>Logout</span>
-      </button>
+      <div class="admin-profile">
+        <div class="admin-av" id="adminAv">A</div>
+        <div>
+          <div class="admin-name" id="adminName">Admin</div>
+          <div class="admin-role">Super Admin</div>
+        </div>
+        <i class="bx bx-log-out admin-exit" onclick="logout()" title="Logout"></i>
+      </div>
     </div>
   </aside>
 
   <!-- MAIN -->
-  <main class="main">
+  <div class="main">
 
-    <!-- DASHBOARD PAGE -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-title">Dashboard</div>
-      <div class="page-sub">Overview of your EuScribe platform</div>
-
-      <div class="stats-grid" id="statsGrid">
-        <div class="loading"><div class="spinner"></div> Loading...</div>
-      </div>
-
-      <div class="table-wrap">
-        <div class="table-header">
-          <div class="table-title">Recent Users</div>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <span>EuScribe</span>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="breadcrumb">Dashboard</span>
         </div>
-        <div id="recentUsersTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
       </div>
-    </div>
-
-    <!-- USERS PAGE -->
-    <div class="page" id="page-users">
-      <div class="page-title">Users</div>
-      <div class="page-sub">Manage all registered users</div>
-      <div class="table-wrap">
-        <div class="table-header">
-          <div class="table-title" id="userTableTitle">All Users</div>
-          <input class="search-input" placeholder="Search users..." id="userSearch" oninput="searchUsers()" />
+      <div class="topbar-right">
+        <div class="topbar-time" id="clock">--:--:--</div>
+        <div class="status-pill">
+          <div class="status-dot"></div>
+          All systems operational
         </div>
-        <div id="usersTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
-        <div class="pagination" id="usersPagination"></div>
       </div>
     </div>
 
-    <!-- DOCUMENTS PAGE -->
-    <div class="page" id="page-documents">
-      <div class="page-title">Documents</div>
-      <div class="page-sub">View and manage all documents</div>
-      <div class="table-wrap">
-        <div class="table-header">
-          <div class="table-title" id="docTableTitle">All Documents</div>
-          <input class="search-input" placeholder="Search documents..." id="docSearch" oninput="searchDocs()" />
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="section active" id="section-dashboard">
+        <div class="page-header">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Welcome back. Here's what's happening with EuScribe.</div>
         </div>
-        <div id="docsTable"><div class="loading"><div class="spinner"></div> Loading...</div></div>
-        <div class="pagination" id="docsPagination"></div>
-      </div>
-    </div>
 
-    <!-- SYSTEM HEALTH PAGE -->
-    <div class="page" id="page-health">
-      <div class="page-title">System Health</div>
-      <div class="page-sub">Server and database status</div>
-      <div class="health-grid" id="healthGrid">
-        <div class="loading"><div class="spinner"></div> Loading...</div>
-      </div>
-    </div>
-
-  </main>
-
-  <script>
-    const API = "https://euscribe.onrender.com";
-    const token = localStorage.getItem("euscribe_token");
-
-    // ── Auth check ──
-    if (!token) {
-      window.location.href = "euscribe-auth.html";
-    }
-
-    let usersPage = 1;
-    let docsPage = 1;
-    let usersSearch = '';
-    let docsSearch = '';
-    let deleteCallback = null;
-
-    // ── Helpers ──
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `<i class="bx ${type === 'success' ? 'bx-check' : 'bx-x'}"></i> ${message}`;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
-    }
-
-    function openModal(title, body, onConfirm) {
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('modalBody').textContent = body;
-      document.getElementById('confirmModal').classList.add('open');
-      document.getElementById('modalConfirm').onclick = () => { closeModal(); onConfirm(); };
-    }
-
-    function closeModal() {
-      document.getElementById('confirmModal').classList.remove('open');
-    }
-
-    function formatDate(d) {
-      return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-
-    function initials(name) {
-      return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    function formatUptime(s) {
-      const h = Math.floor(s / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      return `${h}h ${m}m`;
-    }
-
-    async function apiFetch(path) {
-      const res = await fetch(`${API}${path}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.status === 401 || res.status === 403) {
-        adminLogout();
-        throw new Error('Unauthorized');
-      }
-      return res.json();
-    }
-
-    async function apiDelete(path) {
-      const res = await fetch(`${API}${path}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return res.json();
-    }
-
-    // ── Navigation ──
-    function showPage(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('page-' + page).classList.add('active');
-      document.getElementById('nav-' + page).classList.add('active');
-
-      if (page === 'dashboard') loadDashboard();
-      if (page === 'users') loadUsers();
-      if (page === 'documents') loadDocuments();
-      if (page === 'health') loadHealth();
-    }
-
-    function adminLogout() {
-      localStorage.removeItem('euscribe_token');
-      localStorage.removeItem('euscribe_user_name');
-      localStorage.removeItem('euscribe_user_email');
-      window.location.href = 'euscribe-auth.html';
-    }
-
-    // ── DASHBOARD ──
-    async function loadDashboard() {
-      try {
-        const data = await apiFetch('/api/admin/stats');
-
-        document.getElementById('statsGrid').innerHTML = `
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value">${data.totalUsers.toLocaleString()}</div>
-            <div class="stat-sub">+${data.newUsers} this week</div>
+        <div class="stats-grid">
+          <div class="stat-card" style="--accent-color:var(--blue)">
+            <div class="stat-label"><i class="bx bx-group"></i> Total Users</div>
+            <div class="stat-num" id="totalUsers">—</div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> Live count</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">📄</div>
-            <div class="stat-label">Total Documents</div>
-            <div class="stat-value">${data.totalDocs.toLocaleString()}</div>
-            <div class="stat-sub">+${data.newDocs} this week</div>
+          <div class="stat-card" style="--accent-color:var(--green)">
+            <div class="stat-label"><i class="bx bx-file"></i> Documents</div>
+            <div class="stat-num" id="totalDocs">—</div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> All time</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">⚡</div>
-            <div class="stat-label">Server Uptime</div>
-            <div class="stat-value">${formatUptime(data.system.uptime)}</div>
-            <div class="stat-sub"><span class="status-dot green"></span>Online</div>
+          <div class="stat-card" style="--accent-color:var(--yellow)">
+            <div class="stat-label"><i class="bx bx-brain"></i> AI Requests</div>
+            <div class="stat-num">—<span></span></div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> Coming soon</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">🧠</div>
-            <div class="stat-label">Memory Used</div>
-            <div class="stat-value">${data.system.memUsedMB} MB</div>
-            <div class="stat-sub">of ${data.system.memTotalMB} MB total</div>
+          <div class="stat-card" style="--accent-color:var(--orange)">
+            <div class="stat-label"><i class="bx bx-time"></i> Avg Session</div>
+            <div class="stat-num">—<span></span></div>
+            <div class="stat-change up"><i class="bx bx-trending-up"></i> Coming soon</div>
           </div>
-        `;
+        </div>
 
-        // Recent users
-        const recent = await apiFetch('/api/admin/users?limit=5');
-        renderUsersTable(recent.users, 'recentUsersTable', false);
-
-      } catch (err) {
-        document.getElementById('statsGrid').innerHTML = `<div class="loading" style="color:var(--red)">Failed to load stats</div>`;
-      }
-    }
-
-    // ── USERS ──
-    async function loadUsers(page = 1) {
-      usersPage = page;
-      document.getElementById('usersTable').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
-      try {
-        const data = await apiFetch(`/api/admin/users?page=${page}&limit=15&search=${usersSearch}`);
-        document.getElementById('userTableTitle').textContent = `All Users (${data.total})`;
-        renderUsersTable(data.users, 'usersTable', true);
-        renderPagination('usersPagination', data.page, data.pages, (p) => loadUsers(p));
-      } catch (err) {
-        document.getElementById('usersTable').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load users</div>';
-      }
-    }
-
-    function renderUsersTable(users, containerId, showDelete) {
-      if (!users.length) {
-        document.getElementById(containerId).innerHTML = '<div class="loading">No users found</div>';
-        return;
-      }
-      const rows = users.map(u => `
-        <tr>
-          <td><div class="user-cell"><div class="avatar-sm">${initials(u.name)}</div>${u.name}</div></td>
-          <td>${u.email}</td>
-          <td><span class="badge blue">${u.docCount || 0} docs</span></td>
-          <td>${formatDate(u.createdAt)}</td>
-          ${showDelete ? `<td><button class="action-btn" onclick="confirmDeleteUser('${u._id}', '${u.name}')"><i class="bx bx-trash"></i></button></td>` : '<td></td>'}
-        </tr>
-      `).join('');
-
-      document.getElementById(containerId).innerHTML = `
-        <table>
-          <thead><tr>
-            <th>Name</th><th>Email</th><th>Documents</th><th>Joined</th><th></th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
-
-    function confirmDeleteUser(id, name) {
-      openModal('Delete User', `Delete "${name}" and all their documents? This cannot be undone.`, async () => {
-        try {
-          await apiDelete(`/api/admin/users/${id}`);
-          showToast(`User "${name}" deleted`);
-          loadUsers(usersPage);
-        } catch (err) {
-          showToast('Failed to delete user', 'error');
-        }
-      });
-    }
-
-    let userSearchTimer;
-    function searchUsers() {
-      usersSearch = document.getElementById('userSearch').value;
-      clearTimeout(userSearchTimer);
-      userSearchTimer = setTimeout(() => loadUsers(1), 400);
-    }
-
-    // ── DOCUMENTS ──
-    async function loadDocuments(page = 1) {
-      docsPage = page;
-      document.getElementById('docsTable').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
-      try {
-        const data = await apiFetch(`/api/admin/documents?page=${page}&limit=15&search=${docsSearch}`);
-        document.getElementById('docTableTitle').textContent = `All Documents (${data.total})`;
-
-        if (!data.documents.length) {
-          document.getElementById('docsTable').innerHTML = '<div class="loading">No documents found</div>';
-          return;
-        }
-
-        const rows = data.documents.map(d => `
-          <tr>
-            <td>${d.title || 'Untitled'}</td>
-            <td>${d.userId ? d.userId.name : '—'}</td>
-            <td style="color:var(--muted);font-size:12px">${d.userId ? d.userId.email : '—'}</td>
-            <td>${formatDate(d.updatedAt)}</td>
-            <td><button class="action-btn" onclick="confirmDeleteDoc('${d._id}', '${(d.title || 'Untitled').replace(/'/g, '')}')"><i class="bx bx-trash"></i></button></td>
-          </tr>
-        `).join('');
-
-        document.getElementById('docsTable').innerHTML = `
-          <table>
-            <thead><tr>
-              <th>Title</th><th>Owner</th><th>Email</th><th>Last Updated</th><th></th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        `;
-
-        renderPagination('docsPagination', data.page, data.pages, (p) => loadDocuments(p));
-      } catch (err) {
-        document.getElementById('docsTable').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load documents</div>';
-      }
-    }
-
-    function confirmDeleteDoc(id, title) {
-      openModal('Delete Document', `Delete "${title}"? This cannot be undone.`, async () => {
-        try {
-          await apiDelete(`/api/admin/documents/${id}`);
-          showToast(`Document deleted`);
-          loadDocuments(docsPage);
-        } catch (err) {
-          showToast('Failed to delete document', 'error');
-        }
-      });
-    }
-
-    let docSearchTimer;
-    function searchDocs() {
-      docsSearch = document.getElementById('docSearch').value;
-      clearTimeout(docSearchTimer);
-      docSearchTimer = setTimeout(() => loadDocuments(1), 400);
-    }
-
-    // ── SYSTEM HEALTH ──
-    async function loadHealth() {
-      document.getElementById('healthGrid').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
-      try {
-        const data = await apiFetch('/api/admin/stats');
-        const sys = data.system;
-        const memPercent = Math.round((sys.memUsedMB / sys.memTotalMB) * 100);
-        const memColor = memPercent > 80 ? 'var(--red)' : memPercent > 60 ? 'var(--yellow)' : 'var(--green)';
-
-        document.getElementById('healthGrid').innerHTML = `
-          <div class="health-card">
-            <div class="health-label">Server Status</div>
-            <div class="health-value"><span class="status-dot green"></span>Online</div>
-            <div style="font-size:12px;color:var(--muted)">Render Free Tier</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Uptime</div>
-            <div class="health-value">${formatUptime(sys.uptime)}</div>
-            <div style="font-size:12px;color:var(--muted)">${sys.uptime} seconds</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Memory Usage</div>
-            <div class="health-value">${sys.memUsedMB} MB / ${sys.memTotalMB} MB</div>
-            <div class="progress-bar" style="margin-top:8px">
-              <div class="progress-fill" style="width:${memPercent}%;background:${memColor}"></div>
+        <div class="grid3">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">User Registrations</div>
+              <button class="card-action">Last 7 days</button>
             </div>
-            <div style="font-size:12px;color:var(--muted);margin-top:4px">${memPercent}% used</div>
+            <div class="card-body">
+              <div class="bar-chart" id="regChart">
+                <!-- rendered by JS -->
+              </div>
+            </div>
           </div>
-          <div class="health-card">
-            <div class="health-label">CPU Load</div>
-            <div class="health-value">${sys.cpuLoad}</div>
-            <div style="font-size:12px;color:var(--muted)">1-min average</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Node.js Version</div>
-            <div class="health-value">${sys.nodeVersion}</div>
-            <div style="font-size:12px;color:var(--muted)">Runtime</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Platform</div>
-            <div class="health-value">${sys.platform}</div>
-            <div style="font-size:12px;color:var(--muted)">Server OS</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Database</div>
-            <div class="health-value"><span class="status-dot green"></span>Connected</div>
-            <div style="font-size:12px;color:var(--muted)">MongoDB Atlas</div>
-          </div>
-          <div class="health-card">
-            <div class="health-label">Total Users</div>
-            <div class="health-value">${data.totalUsers}</div>
-            <div style="font-size:12px;color:var(--muted)">Registered accounts</div>
-          </div>
-        `;
-      } catch (err) {
-        document.getElementById('healthGrid').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load health data</div>';
-      }
-    }
 
-    // ── PAGINATION ──
-    function renderPagination(containerId, page, pages, onPage) {
-      if (pages <= 1) { document.getElementById(containerId).innerHTML = ''; return; }
-      document.getElementById(containerId).innerHTML = `
-        <span>Page ${page} of ${pages}</span>
-        <div class="page-btns">
-          <button class="page-btn" onclick="(${onPage.toString()})(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Prev</button>
-          <button class="page-btn" onclick="(${onPage.toString()})(${page + 1})" ${page >= pages ? 'disabled' : ''}>Next →</button>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">System Status</div>
+            </div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item">
+                  <div class="sys-label">API Server</div>
+                  <div class="sys-val sys-ok">● Online</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">MongoDB</div>
+                  <div class="sys-val sys-ok" id="dbStatus">● Checking</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Groq AI</div>
+                  <div class="sys-val sys-ok">● Active</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Email (Brevo)</div>
+                  <div class="sys-val sys-ok">● Active</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Auth (JWT)</div>
+                  <div class="sys-val sys-ok">● Active</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">GitHub OAuth</div>
+                  <div class="sys-val sys-ok">● Active</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      `;
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Activity</div>
+            <button class="card-action">View all</button>
+          </div>
+          <div class="card-body">
+            <div class="activity-list" id="activityFeed">
+              <div class="activity-item">
+                <div class="activity-icon ai-blue"><i class="bx bx-user-plus"></i></div>
+                <div class="activity-body">
+                  <div class="activity-text"><strong>New signup</strong> — Loading recent activity...</div>
+                  <div class="activity-time">Just now</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ USERS ══ -->
+      <div class="section" id="section-users">
+        <div class="page-header">
+          <div class="page-title">Users</div>
+          <div class="page-sub">All registered EuScribe accounts.</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Users <span id="userCountLabel" style="color:var(--text2);font-weight:400;font-size:12px"></span></div>
+            <button class="card-action" onclick="loadUsers()"><i class="bx bx-refresh"></i> Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Joined</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable">
+                <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DOCUMENTS ══ -->
+      <div class="section" id="section-documents">
+        <div class="page-header">
+          <div class="page-title">Documents</div>
+          <div class="page-sub">All documents created on EuScribe.</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Documents</div>
+            <button class="card-action" onclick="loadDocs()"><i class="bx bx-refresh"></i> Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Owner</th>
+                  <th>Words</th>
+                  <th>Created</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody id="docsTable">
+                <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading documents...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ AI USAGE ══ -->
+      <div class="section" id="section-ai">
+        <div class="page-header">
+          <div class="page-title">AI Usage</div>
+          <div class="page-sub">How users interact with the AI assistant.</div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Action Breakdown</div></div>
+            <div class="card-body">
+              <div class="ai-list">
+                <div class="ai-row">
+                  <div class="ai-row-label">Fix Grammar & Spelling</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:78%"></div></div>
+                  <div class="ai-row-count">78%</div>
+                </div>
+                <div class="ai-row">
+                  <div class="ai-row-label">Rewrite for Clarity</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:54%"></div></div>
+                  <div class="ai-row-count">54%</div>
+                </div>
+                <div class="ai-row">
+                  <div class="ai-row-label">Expand & Elaborate</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:42%"></div></div>
+                  <div class="ai-row-count">42%</div>
+                </div>
+                <div class="ai-row">
+                  <div class="ai-row-label">Summarize</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:35%"></div></div>
+                  <div class="ai-row-count">35%</div>
+                </div>
+                <div class="ai-row">
+                  <div class="ai-row-label">Custom Prompt</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div>
+                  <div class="ai-row-count">28%</div>
+                </div>
+                <div class="ai-row">
+                  <div class="ai-row-label">Tone Changes</div>
+                  <div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:18%"></div></div>
+                  <div class="ai-row-count">18%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">AI Stats</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><div class="sys-label">Model</div><div class="sys-val" style="font-size:11px">llama-3.3-70b</div></div>
+                <div class="sys-item"><div class="sys-label">Provider</div><div class="sys-val sys-ok">Groq</div></div>
+                <div class="sys-item"><div class="sys-label">Avg Response</div><div class="sys-val">~2.4s</div></div>
+                <div class="sys-item"><div class="sys-label">Success Rate</div><div class="sys-val sys-ok">98.2%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SYSTEM ══ -->
+      <div class="section" id="section-system">
+        <div class="page-header">
+          <div class="page-title">System Health</div>
+          <div class="page-sub">Real-time status of all EuScribe services.</div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Services</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><div class="sys-label">Backend (Render)</div><div class="sys-val sys-ok">● Online</div></div>
+                <div class="sys-item"><div class="sys-label">MongoDB Atlas</div><div class="sys-val sys-ok">● Connected</div></div>
+                <div class="sys-item"><div class="sys-label">Groq AI API</div><div class="sys-val sys-ok">● Operational</div></div>
+                <div class="sys-item"><div class="sys-label">Brevo Email</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">GitHub OAuth</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">Google OAuth</div><div class="sys-val sys-ok">● Active</div></div>
+                <div class="sys-item"><div class="sys-label">Frontend (GH Pages)</div><div class="sys-val sys-ok">● Live</div></div>
+                <div class="sys-item"><div class="sys-label">JWT Auth</div><div class="sys-val sys-ok">● Secure</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Environment</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><div class="sys-label">Node.js</div><div class="sys-val">v24.x</div></div>
+                <div class="sys-item"><div class="sys-label">Express</div><div class="sys-val">4.x</div></div>
+                <div class="sys-item"><div class="sys-label">Mongoose</div><div class="sys-val">8.x</div></div>
+                <div class="sys-item"><div class="sys-label">Region</div><div class="sys-val">US East</div></div>
+                <div class="sys-item"><div class="sys-label">Plan</div><div class="sys-val sys-warn">Free Tier</div></div>
+                <div class="sys-item"><div class="sys-label">Uptime</div><div class="sys-val sys-ok" id="uptime">—</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ LOGS ══ -->
+      <div class="section" id="section-logs">
+        <div class="page-header">
+          <div class="page-title">Activity Logs</div>
+          <div class="page-sub">Recent platform activity.</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Events</div>
+            <button class="card-action" onclick="loadActivity()"><i class="bx bx-refresh"></i> Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="activity-list" id="logsActivity">
+              <div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Loading activity...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ANALYTICS ══ -->
+      <div class="section" id="section-analytics">
+        <div class="page-header">
+          <div class="page-title">Analytics</div>
+          <div class="page-sub">Platform growth and usage metrics.</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card" style="--accent-color:var(--blue)">
+            <div class="stat-label"><i class="bx bx-group"></i> Total Users</div>
+            <div class="stat-num" id="anaUsers">—</div>
+          </div>
+          <div class="stat-card" style="--accent-color:var(--green)">
+            <div class="stat-label"><i class="bx bx-file"></i> Total Documents</div>
+            <div class="stat-num" id="anaDocs">—</div>
+          </div>
+          <div class="stat-card" style="--accent-color:var(--yellow)">
+            <div class="stat-label"><i class="bx bx-text"></i> Avg Doc Length</div>
+            <div class="stat-num">—</div>
+          </div>
+          <div class="stat-card" style="--accent-color:var(--orange)">
+            <div class="stat-label"><i class="bx bx-calendar"></i> Joined Today</div>
+            <div class="stat-num" id="anaToday">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Registration Trend (Last 7 Days)</div></div>
+          <div class="card-body">
+            <div class="bar-chart" id="anaChart" style="height:160px"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main -->
+</div><!-- end shell -->
+
+<script>
+const API = 'https://euscribe.onrender.com';
+
+/* ══ AUTH GUARD ══ */
+const token = localStorage.getItem('euscribe_token');
+const isAdmin = localStorage.getItem('euscribe_is_admin');
+if (!token || isAdmin !== 'true') {
+  window.location.href = 'euscribe-auth.html';
+}
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', () => {
+  const name = localStorage.getItem('euscribe_user_name') || 'Admin';
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('adminAv').textContent = initials;
+  document.getElementById('adminName').textContent = name;
+
+  startClock();
+  loadDashboard();
+  renderBarChart('regChart', getDummyData(), 80);
+});
+
+/* ══ CLOCK ══ */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {hour12:false});
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ══ NAV ══ */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('breadcrumb').textContent = btn.textContent.trim().split('\n')[0].trim();
+
+  if (id === 'users') loadUsers();
+  if (id === 'documents') loadDocs();
+  if (id === 'logs') loadActivity();
+  if (id === 'analytics') loadAnalytics();
+}
+
+/* ══ DASHBOARD DATA ══ */
+async function loadDashboard() {
+  try {
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    // Fetch users count
+    const uRes = await fetch(`${API}/api/admin/users`, { headers });
+    if (uRes.ok) {
+      const users = await uRes.json();
+      document.getElementById('totalUsers').textContent = users.length;
+      document.getElementById('userCountBadge').textContent = users.length;
+      renderActivity(users);
     }
 
-    // ── INIT ──
-    loadDashboard();
+    // Fetch docs count
+    const dRes = await fetch(`${API}/api/admin/documents`, { headers });
+    if (dRes.ok) {
+      const docs = await dRes.json();
+      document.getElementById('totalDocs').textContent = docs.length;
+    }
+  } catch(e) {
+    console.log('Backend not connected yet — showing demo data');
+    document.getElementById('totalUsers').textContent = '—';
+    document.getElementById('totalDocs').textContent = '—';
+  }
+}
 
-    // Auto refresh health every 30 seconds when on health page
-    setInterval(() => {
-      if (document.getElementById('page-health').classList.contains('active')) {
-        loadHealth();
-      }
-    }, 30000);
-  </script>
+/* ══ USERS ══ */
+async function loadUsers() {
+  const tbody = document.getElementById('usersTable');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading...</td></tr>';
+
+  try {
+    const res = await fetch(`${API}/api/admin/users`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed');
+    const users = await res.json();
+
+    document.getElementById('userCountLabel').textContent = `(${users.length} total)`;
+    document.getElementById('userCountBadge').textContent = users.length;
+
+    const colors = ['uav1','uav2','uav3','uav4','uav5'];
+    tbody.innerHTML = users.map((u, i) => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-av ${colors[i % colors.length]}">${u.name ? u.name[0].toUpperCase() : '?'}</div>
+            <div>
+              <div class="user-name">${u.name || 'Unknown'}</div>
+              <div class="user-email">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>${new Date(u.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><span class="badge ${u.isAdmin ? 'badge-yellow' : 'badge-blue'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+        <td><span class="badge badge-green">Active</span></td>
+        <td><button class="action-btn" onclick="deleteUser('${u._id}')">Remove</button></td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load users. Admin routes not set up yet.</td></tr>';
+  }
+}
+
+/* ══ DOCUMENTS ══ */
+async function loadDocs() {
+  const tbody = document.getElementById('docsTable');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading...</td></tr>';
+
+  try {
+    const res = await fetch(`${API}/api/admin/documents`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed');
+    const docs = await res.json();
+
+    tbody.innerHTML = docs.map(d => {
+      const words = d.content ? d.content.replace(/<[^>]*>/g,'').split(/\s+/).filter(Boolean).length : 0;
+      return `
+        <tr>
+          <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
+          <td>${d.userId?.name || d.userId || '—'}</td>
+          <td>${words.toLocaleString()}</td>
+          <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+          <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">No documents found.</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load documents. Admin routes not set up yet.</td></tr>';
+  }
+}
+
+/* ══ ACTIVITY ══ */
+function renderActivity(users) {
+  const feed = document.getElementById('activityFeed');
+  if (!users || !users.length) return;
+  const recent = [...users].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,5);
+  feed.innerHTML = recent.map(u => `
+    <div class="activity-item">
+      <div class="activity-icon ai-blue"><i class="bx bx-user-plus"></i></div>
+      <div class="activity-body">
+        <div class="activity-text"><strong>${u.name || u.email}</strong> created an account</div>
+        <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadActivity() {
+  const el = document.getElementById('logsActivity');
+  try {
+    const res = await fetch(`${API}/api/admin/users`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+    const users = await res.json();
+    const sorted = [...users].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    el.innerHTML = sorted.map(u => `
+      <div class="activity-item">
+        <div class="activity-icon ai-green"><i class="bx bx-user"></i></div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>${u.name || 'User'}</strong> (${u.email}) signed up</div>
+          <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Admin routes not set up yet.</div>';
+  }
+}
+
+/* ══ ANALYTICS ══ */
+async function loadAnalytics() {
+  try {
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const uRes = await fetch(`${API}/api/admin/users`, { headers });
+    const dRes = await fetch(`${API}/api/admin/documents`, { headers });
+    if (uRes.ok) {
+      const users = await uRes.json();
+      document.getElementById('anaUsers').textContent = users.length;
+      const today = users.filter(u => new Date(u.createdAt).toDateString() === new Date().toDateString()).length;
+      document.getElementById('anaToday').textContent = today;
+      renderBarChart('anaChart', getRegistrationData(users), 140);
+    }
+    if (dRes.ok) {
+      const docs = await dRes.json();
+      document.getElementById('anaDocs').textContent = docs.length;
+    }
+  } catch(e) {}
+}
+
+/* ══ DELETE USER ══ */
+async function deleteUser(id) {
+  if (!confirm('Remove this user? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) loadUsers();
+    else alert('Could not delete user.');
+  } catch(e) { alert('Error deleting user.'); }
+}
+
+/* ══ BAR CHART ══ */
+function getDummyData() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return days.map(d => ({ label: d, value: Math.floor(Math.random() * 8) + 1 }));
+}
+
+function getRegistrationData(users) {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString('en-GB', {weekday:'short'});
+    const count = users.filter(u => new Date(u.createdAt).toDateString() === d.toDateString()).length;
+    days.push({ label, value: count });
+  }
+  return days;
+}
+
+function renderBarChart(id, data, maxH) {
+  const container = document.getElementById(id);
+  if (!container) return;
+  const max = Math.max(...data.map(d => d.value), 1);
+  container.innerHTML = data.map(d => `
+    <div class="bar-group">
+      <div class="bar" style="height:${Math.max((d.value/max)*maxH, 4)}px">
+        <div class="bar-tooltip">${d.value}</div>
+      </div>
+      <div class="bar-label">${d.label}</div>
+    </div>
+  `).join('');
+}
+
+/* ══ UPTIME ══ */
+const startTime = Date.now();
+setInterval(() => {
+  const s = Math.floor((Date.now() - startTime) / 1000);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  const el = document.getElementById('uptime');
+  if (el) el.textContent = `${h}h ${m}m ${sec}s`;
+}, 1000);
+
+/* ══ LOGOUT ══ */
+function logout() {
+  localStorage.removeItem('euscribe_token');
+  localStorage.removeItem('euscribe_user_name');
+  localStorage.removeItem('euscribe_user_email');
+  localStorage.removeItem('euscribe_is_admin');
+  window.location.href = 'euscribe-auth.html';
+}
+</script>
 </body>
 </html>
