@@ -76,35 +76,40 @@ function loadDocument(id) {
 /* ===================================================
    SAVE CURRENT DOCUMENT
 =================================================== */
+const saveStatus = document.getElementById("saveStatus");
+
+let typingTimer;
+const typingDelay = 1000;
+
 function saveCurrentDocument() {
   if (!currentDocId) return;
+
   const doc = documents.find((item) => item.id === currentDocId);
   if (!doc) return;
+
   doc.content = content.innerHTML;
   doc.name = topFileTitle.value.trim() || "Untitled Document";
+
   filename.value = doc.name;
+
   saveToStorage();
-
-  /* ===================================================
-  SAVED OR SAVING
-=================================================== */
-  const saveStatus = document.getElementById("saveStatus");
-
-  let typingTimer;
-  const typingDelay = 1000;
-
-  content.addEventListener("input", () => {
-    saveStatus.textContent = "Saving...";
-    saveStatus.classList.add("saving");
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      saveCurrentDocument();
-      saveStatus.textContent = "Saved";
-      saveStatus.classList.remove("saving");
-    }, typingDelay);
-  });
 }
 
+content.addEventListener("input", () => {
+  saveStatus.textContent = "Saving...";
+  saveStatus.classList.add("saving");
+
+  clearTimeout(typingTimer);
+
+  typingTimer = setTimeout(() => {
+    saveCurrentDocument();
+
+    saveStatus.textContent = "Saved";
+    saveStatus.classList.remove("saving");
+  }, typingDelay);
+
+  updateDocStats();
+});
 /* ===================================================
    RENAME DOCUMENT
 =================================================== */
@@ -208,13 +213,6 @@ function fileHandle(value) {
   }
 }
 
-/* ===================================================
-   AUTO SAVE
-=================================================== */
-content.addEventListener("input", () => {
-  saveCurrentDocument();
-  updateDocStats();
-});
 
 /* ===================================================
    TITLE EDITING
@@ -245,15 +243,6 @@ if (documents.length === 0) {
   loadDocument(documents[0].id);
 }
 renderDocuments();
-
-/*=========================================
-    ACTIVE BUTTONS
-  =========================================*/
-document.querySelectorAll(".tool-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    btn.classList.toggle("active");
-  });
-});
 
 /* ============================================================
    AI TABS
