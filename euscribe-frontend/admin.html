@@ -756,7 +756,10 @@ const API = 'https://euscribe.onrender.com';
 /* ══ AUTH GUARD ══ */
 const token = localStorage.getItem('euscribe_token');
 const isAdmin = localStorage.getItem('euscribe_is_admin');
-if (!token || isAdmin !== 'true') {
+if (!token) {
+  window.location.href = 'euscribe-auth.html';
+} else if (isAdmin !== 'true') {
+  alert('Admin access required. Please log in with an admin account.');
   window.location.href = 'euscribe-auth.html';
 }
 
