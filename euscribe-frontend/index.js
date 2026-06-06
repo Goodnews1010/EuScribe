@@ -18,17 +18,17 @@ const searchInput = document.getElementById("searchInput");
 /* ===================================================
    LINK HOVER FIX
 =================================================== */
-content.addEventListener("mouseenter", function () {
-  content.querySelectorAll("a").forEach((item) => {
-    item.addEventListener("mouseenter", function () {
-      content.setAttribute("contenteditable", false);
-      item.target = "_blank";
-    });
-    item.addEventListener("mouseleave", function () {
-      content.setAttribute("contenteditable", true);
-      item.target = "_blank";
-    });
-  });
+content.addEventListener("mouseover", (e) => {
+  if (e.target.tagName === "A") {
+    content.setAttribute("contenteditable", false);
+    e.target.target = "_blank";
+  }
+});
+
+content.addEventListener("mouseout", (e) => {
+  if (e.target.tagName === "A") {
+    content.setAttribute("contenteditable", true);
+  }
 });
 
 /* ===================================================
@@ -212,7 +212,6 @@ function fileHandle(value) {
       });
   }
 }
-
 
 /* ===================================================
    TITLE EDITING
