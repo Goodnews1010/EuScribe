@@ -265,9 +265,6 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 </style>
 </head>
 <body>
-<button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
-  <span></span><span></span><span></span>
-</button>
 <!-- USER PROFILE MODAL -->
 <div class="modal-overlay hidden" id="profileModal" onclick="if(event.target===this)closeProfile()">
   <div class="modal">
@@ -361,11 +358,11 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   <div class="main">
     <div class="topbar">
       <div class="topbar-left">
-        <div class="breadcrumb"><span>EuScribe</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-current" id="breadcrumb">Dashboard</span></div>
-        <button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+  <button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="breadcrumb">...</div>
+</div>
       
       <div class="topbar-right">
         <div class="topbar-time" id="clock">--:--:--</div>
