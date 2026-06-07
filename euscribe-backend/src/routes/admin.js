@@ -75,16 +75,24 @@ router.patch('/users/:id/ban', auth, adminOnly, async (req, res) => {
 // POST /api/admin/broadcast
 router.post('/broadcast', auth, adminOnly, async (req, res) => {
   try {
-    const { subject, message } = req.body;
+    const { subject, message, targetEmails } = req.body;
     if (!subject || !message) {
       return res.status(400).json({ message: 'Subject and message are required' });
     }
-    const users = await User.find({ isBanned: { $ne: true } }).select('email name');
-    if (!users.length) return res.status(400).json({ message: 'No users to send to' });
+
+    let toList;
+    if (targetEmails && targetEmails.length > 0) {
+      toList = targetEmails.map(email => ({ email }));
+    } else {
+      const users = await User.find({ isBanned: { $ne: true } }).select('email name');
+      toList = users.map(u => ({ email: u.email, name: u.name || 'EuScribe User' }));
+    }
+
+    if (!toList.length) return res.status(400).json({ message: 'No recipients found' });
 
     await axios.post('https://api.brevo.com/v3/smtp/email', {
       sender: { name: 'EuScribe', email: 'aarongoodnews01@gmail.com' },
-      to: users.map(u => ({ email: u.email, name: u.name || 'EuScribe User' })),
+      to: toList,
       subject,
       htmlContent: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0e0e0f;color:#e6edf3;padding:32px;border-radius:12px">
@@ -99,31 +107,43 @@ router.post('/broadcast', auth, adminOnly, async (req, res) => {
       headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' }
     });
 
-    res.json({ message: `Broadcast sent to ${users.length} users`, count: users.length });
+    res.json({ message: `Broadcast sent to ${toList.length} users`, count: toList.length });
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ message: 'Failed to send broadcast' });
   }
 });
 
-// ── ANNOUNCEMENTS ──
-
-// POST /api/admin/announcement — create/replace active announcement
+// POST /api/admin/announcement
 router.post('/announcement', auth, adminOnly, async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, targetMode, targetUserIds } = req.body;
     if (!message) return res.status(400).json({ message: 'Message is required' });
+
+    const mode = targetMode || 'all';
+    const validModes = ['all', 'admins', 'custom'];
+    if (!validModes.includes(mode)) {
+      return res.status(400).json({ message: 'Invalid targetMode' });
+    }
+
     // Deactivate all previous announcements
     await Announcement.updateMany({}, { active: false });
+
     // Create new one
-    const ann = await Announcement.create({ message, createdBy: req.user.id });
+    const ann = await Announcement.create({
+      message,
+      createdBy: req.user.id,
+      targetMode: mode,
+      targetUserIds: mode === 'custom' ? (targetUserIds || []) : [],
+    });
+
     res.json(ann);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// DELETE /api/admin/announcement — clear active announcement
+// DELETE /api/admin/announcement
 router.delete('/announcement', auth, adminOnly, async (req, res) => {
   try {
     await Announcement.updateMany({}, { active: false });

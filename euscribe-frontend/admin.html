@@ -414,11 +414,24 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
             <div id="noAnnouncementMsg" style="font-size:13px;color:var(--text3);margin-bottom:16px">No active announcement.</div>
             <div class="broadcast-form">
               <div class="form-group">
+                <label class="form-label">Send To</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                  <button class="action-btn" onclick="setAnnMode('all')" id="ann-rg-all" style="border-color:var(--blue2);color:var(--blue2)">All Users</button>
+                  <button class="action-btn" onclick="setAnnMode('admins')" id="ann-rg-admins">Admins Only</button>
+                  <button class="action-btn" onclick="setAnnMode('custom')" id="ann-rg-custom">Custom Selection</button>
+                </div>
+                <div id="annCustomWrap" style="display:none;margin-top:6px">
+                  <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Selected users (check users in the Users tab to add them):</div>
+                  <div class="recipient-pills" id="annRecipientPills"><span class="recipient-hint">No users selected</span></div>
+                </div>
+                <div id="annModeLabel" style="font-size:11px;color:var(--text3);margin-top:6px">Posting to: all users</div>
+              </div>
+              <div class="form-group">
                 <label class="form-label">Announcement Message</label>
                 <textarea class="form-textarea" id="announcementMessage" placeholder="e.g. 🎉 Version history is now live!" style="min-height:90px"></textarea>
               </div>
               <div class="broadcast-result" id="announcementResult"></div>
-              <button class="send-btn" id="postAnnouncementBtn" onclick="postAnnouncement()"><i class="bx bx-broadcast"></i> Post to All Users</button>
+              <button class="send-btn" id="postAnnouncementBtn" onclick="postAnnouncement()"><i class="bx bx-broadcast"></i> Post Announcement</button>
             </div>
           </div>
         </div>
@@ -665,9 +678,13 @@ function updateSelectBtn() {
 
 function broadcastToSelected() {
   setRecipientGroup('custom');
+  setAnnMode('custom');
   selectedUserIds.forEach(id => {
     const u = allUsers.find(u => u._id === id);
-    if (u) addRecipientPill(u);
+    if (u) {
+      addRecipientPill(u);
+      addAnnRecipient(u);
+    }
   });
   // Switch to broadcast section
   document.querySelectorAll('.nav-item').forEach(b => { if (b.textContent.includes('Broadcast')) b.click(); });
@@ -964,24 +981,75 @@ async function loadCurrentAnnouncement() {
   } catch(e) {}
 }
 
+/* ══ ANNOUNCEMENT TARGETING ══ */
+let annMode = 'all';
+let annCustomRecipients = [];
+
+function setAnnMode(mode) {
+  annMode = mode;
+  ['all','admins','custom'].forEach(m => {
+    const btn = document.getElementById(`ann-rg-${m}`);
+    if (btn) { btn.style.borderColor = ''; btn.style.color = ''; }
+  });
+  const active = document.getElementById(`ann-rg-${mode}`);
+  if (active) { active.style.borderColor = 'var(--blue2)'; active.style.color = 'var(--blue2)'; }
+  document.getElementById('annCustomWrap').style.display = mode === 'custom' ? 'block' : 'none';
+  const labels = { all: 'all users', admins: 'admins only', custom: `${annCustomRecipients.length} selected user(s)` };
+  document.getElementById('annModeLabel').textContent = `Posting to: ${labels[mode]}`;
+}
+
+function addAnnRecipient(user) {
+  if (annCustomRecipients.find(u => u._id === user._id)) return;
+  annCustomRecipients.push(user);
+  renderAnnPills();
+  if (annMode === 'custom') document.getElementById('annModeLabel').textContent = `Posting to: ${annCustomRecipients.length} selected user(s)`;
+}
+
+function removeAnnRecipient(id) {
+  annCustomRecipients = annCustomRecipients.filter(u => u._id !== id);
+  renderAnnPills();
+  document.getElementById('annModeLabel').textContent = `Posting to: ${annCustomRecipients.length} selected user(s)`;
+}
+
+function renderAnnPills() {
+  const container = document.getElementById('annRecipientPills');
+  if (!container) return;
+  if (!annCustomRecipients.length) {
+    container.innerHTML = '<span class="recipient-hint">No users selected</span>';
+    return;
+  }
+  container.innerHTML = annCustomRecipients.map(u => `
+    <div class="pill">${u.name || u.email}<button onclick="removeAnnRecipient('${u._id}')">×</button></div>
+  `).join('');
+}
+
 async function postAnnouncement() {
   const message = document.getElementById('announcementMessage').value.trim();
   if (!message) { showAnnouncementResult('Please enter a message.', false); return; }
+  if (annMode === 'custom' && !annCustomRecipients.length) {
+    showAnnouncementResult('Please select at least one user for custom targeting.', false); return;
+  }
   const btn = document.getElementById('postAnnouncementBtn');
   btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Posting...';
   try {
+    const body = {
+      message,
+      targetMode: annMode,
+      targetUserIds: annMode === 'custom' ? annCustomRecipients.map(u => u._id) : []
+    };
     const res = await fetch(`${API}/api/admin/announcement`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
-    showAnnouncementResult('✓ Announcement posted! All users will see it in the editor.', true);
+    const modeText = annMode === 'all' ? 'all users' : annMode === 'admins' ? 'admins only' : `${annCustomRecipients.length} user(s)`;
+    showAnnouncementResult(`✓ Announcement posted to ${modeText}!`, true);
     document.getElementById('announcementMessage').value = '';
     loadCurrentAnnouncement();
   } catch(e) { showAnnouncementResult(`✕ Failed: ${e.message}`, false); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="bx bx-broadcast"></i> Post to All Users'; }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="bx bx-broadcast"></i> Post Announcement'; }
 }
 
 async function clearAnnouncement() {
