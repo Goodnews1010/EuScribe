@@ -217,54 +217,11 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .ai-bar-wrap{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
 .ai-bar-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--blue),var(--blue2));transition:width 1s cubic-bezier(0.16,1,0.3,1)}
 .ai-row-count{font-size:11px;color:var(--text3);min-width:40px;text-align:right}
-@media(max-width:768px){
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .grid2,.grid3{grid-template-columns:1fr}
-  /* Hamburger button */
-  .ham-btn{
-    display:flex;flex-direction:column;justify-content:center;gap:5px;
-    width:36px;height:36px;padding:6px;
-    background:var(--surface2);border:1px solid var(--border2);
-    border-radius:8px;cursor:pointer;margin-right:8px;flex-shrink:0;
-  }
-  .ham-btn span{
-    display:block;height:2px;border-radius:2px;
-    background:var(--text2);transition:all 0.25s ease;
-  }
-  .ham-btn.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-  .ham-btn.open span:nth-child(2){opacity:0}
-  .ham-btn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-  /* Sidebar becomes a drawer */
-  .sidebar{
-    position:fixed;top:0;left:0;
-    width:240px;height:100vh;
-    transform:translateX(-100%);
-    transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-    z-index:200;
-    display:flex; /* override the display:none */
-  }
-  .sidebar.open{transform:translateX(0)}
-  /* Overlay */
-  .admin-overlay{
-    display:none;position:fixed;inset:0;
-    background:rgba(0,0,0,0.6);z-index:199;
-    backdrop-filter:blur(2px);
-  }
-  .admin-overlay.visible{display:block}
-  /* Main content fills full width */
-  .main{width:100%}
-  /* Topbar padding tighter */
-  .topbar{padding:0 12px}
-  .status-pill span:not(.status-dot){display:none} /* hide text, keep dot */
-}
-/* Hide hamburger on desktop */
-@media(min-width:769px){
-  .ham-btn{display:none}
-  .admin-overlay{display:none !important}
-}
+@media(max-width:768px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
 <!-- USER PROFILE MODAL -->
 <div class="modal-overlay hidden" id="profileModal" onclick="if(event.target===this)closeProfile()">
   <div class="modal">
@@ -319,7 +276,7 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
     </div>
   </div>
 </div>
-<div class="admin-overlay" id="adminOverlay" onclick="closeAdminSidebar()"></div>
+
 <div class="shell">
   <aside class="sidebar">
     <div class="sidebar-brand">
@@ -357,22 +314,9 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 
   <div class="main">
     <div class="topbar">
-  <div class="topbar-left">
-    <button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="breadcrumb">
-      <span>EuScribe</span>
-      <span class="breadcrumb-sep">/</span>
-      <span class="breadcrumb-current" id="breadcrumb">Dashboard</span>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="topbar-time" id="clock">--:--:--</div>
-    <div class="status-pill"><div class="status-dot"></div>All systems operational</div>
-  </div>
-</div>
-      
+      <div class="topbar-left">
+        <div class="breadcrumb"><span>EuScribe</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-current" id="breadcrumb">Dashboard</span></div>
+      </div>
       <div class="topbar-right">
         <div class="topbar-time" id="clock">--:--:--</div>
         <div class="status-pill"><div class="status-dot"></div>All systems operational</div>
@@ -596,20 +540,7 @@ let allUsers = [];
 let selectedUserIds = new Set();
 let currentProfileUser = null;
 let recipientMode = 'all'; // 'all', 'admins', 'custom'
-/*  ==  HAMBURGER  ==*/
-function toggleAdminSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.getElementById('adminOverlay');
-  const btn = document.getElementById('hamBtn');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('visible');
-  btn.classList.toggle('open');
-}
-function closeAdminSidebar() {
-  document.querySelector('.sidebar').classList.remove('open');
-  document.getElementById('adminOverlay').classList.remove('visible');
-  document.getElementById('hamBtn').classList.remove('open');
-}
+
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('euscribe_user_name') || 'Admin';
@@ -629,7 +560,6 @@ function startClock() {
 
 /* ══ NAV ══ */
 function showSection(id, btn) {
-  closeAdminSidebar();
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + id).classList.add('active');
