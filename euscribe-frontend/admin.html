@@ -357,11 +357,20 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 
   <div class="main">
     <div class="topbar">
-      <div class="topbar-left">
-  <button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="breadcrumb">...</div>
+  <div class="topbar-left">
+    <button class="ham-btn" id="hamBtn" onclick="toggleAdminSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="breadcrumb">
+      <span>EuScribe</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current" id="breadcrumb">Dashboard</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-time" id="clock">--:--:--</div>
+    <div class="status-pill"><div class="status-dot"></div>All systems operational</div>
+  </div>
 </div>
       
       <div class="topbar-right">
