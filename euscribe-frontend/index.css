@@ -1051,17 +1051,17 @@ body.light .sidebar   { background: var(--surface-alt); }
 
   /* ── BOTTOM NAV ───────────────────────────────────────── */
   .mobile-bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: var(--bottom-nav-h);
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    z-index: 970;
-    align-items: stretch;
-  }
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  z-index: 970;
+}
 
   .mob-nav-btn {
     flex: 1;
