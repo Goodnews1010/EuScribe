@@ -154,19 +154,29 @@
       position: fixed;
       inset: 0;
       z-index: 9990;
-      pointer-events: none;
+      background: rgba(0,0,0,0.72);
+      pointer-events: all;
       transition: opacity 0.3s;
     }
+    #eu-tour-backdrop.done {
+      pointer-events: none;
+      opacity: 0;
+    }
 
-    /* ── Spotlight cutout via clip-path + box-shadow trick ── */
+    /* ── Spotlight cutout ── */
     #eu-tour-spotlight {
       position: fixed;
       z-index: 9991;
       border-radius: 10px;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.72);
       pointer-events: none;
       transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
       border: 1.5px solid rgba(79,140,255,0.5);
+      background: transparent;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.72);
+    }
+    #eu-tour-spotlight.done {
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* ── Tooltip card ── */
@@ -490,8 +500,9 @@
       `;
     }
 
-    // Wire buttons
-    card.querySelector(".eu-tour-skip").addEventListener("click", endTour);
+    // Wire buttons (skip only exists on non-welcome-note steps)
+    const skipBtn = card.querySelector(".eu-tour-skip");
+    if (skipBtn) skipBtn.addEventListener("click", endTour);
     card.querySelector(".eu-tour-back").addEventListener("click", () => {
       if (current > 0) { current--; render(current); }
     });
@@ -513,17 +524,22 @@
 
   /* ── End tour ────────────────────────────────────────── */
   function endTour() {
-    card.classList.remove("visible");
-    spotlight.style.opacity = "0";
+    localStorage.setItem(STORAGE_KEY, "1");
+
+    // Immediately stop blocking interaction
+    backdrop.classList.add("done");
+    spotlight.classList.add("done");
+    card.style.pointerEvents = "none";
     arrow.style.opacity = "0";
+    card.classList.remove("visible");
+
+    // Clean up DOM after fade
     setTimeout(() => {
       backdrop.remove();
       spotlight.remove();
       arrow.remove();
       card.remove();
-      style.remove();
-    }, 350);
-    localStorage.setItem(STORAGE_KEY, "1");
+    }, 400);
   }
 
   /* ── Keyboard nav ────────────────────────────────────── */
