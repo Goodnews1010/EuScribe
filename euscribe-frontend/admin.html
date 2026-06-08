@@ -148,7 +148,8 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .recipient-hint{font-size:11px;color:var(--text3);align-self:center}
 
 /* MODAL OVERLAY */
-.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;}
+.modal-overlay:not(.hidden){animation:fadeIn 0.2s ease;}
 .modal-overlay.hidden{display:none}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease;}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -266,18 +267,7 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   .action-btn{font-size:10px;padding:3px 8px}
   /* Modal full screen */
   .modal{width:100%;max-width:100%;max-height:100vh;border-radius:0;margin:0}
-  /* REMOVE animation from base rule */
-.modal-overlay{
-  position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,0.7);
-  display:flex;align-items:center;justify-content:center;
-  /* no animation here */
-}
-/* ADD animation only when shown */
-.modal-overlay:not(.hidden){
-  animation:fadeIn 0.2s ease;
-}
-.modal-overlay.hidden{display:none}
+  
   /* Profile stats */
   .profile-stats{grid-template-columns:1fr 1fr 1fr}
   /* Forms */
