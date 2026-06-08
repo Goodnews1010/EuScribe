@@ -231,8 +231,9 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   .sidebar-overlay{
     display:none;position:fixed;inset:0;z-index:199;
     background:rgba(0,0,0,0.6);
+    pointer-events:none;
   }
-  .sidebar-overlay.show{display:block}
+  .sidebar-overlay.show{display:block;pointer-events:all }
 
   /* Main takes full width */
   .main{width:100%}
@@ -393,7 +394,7 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
           padding:6px;border-radius:6px;color:var(--text2);
           font-size:20px;line-height:1;margin-right:8px;
           transition:background 0.15s;
-        " onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='none'">
+        " >
           <i class="bx bx-menu"></i>
         </button>
         <div class="breadcrumb"><span>EuScribe</span><span class="breadcrumb-sep">/</span><span class="breadcrumb-current" id="breadcrumb">Dashboard</span></div>
@@ -659,6 +660,7 @@ function showSection(id, btn) {
   document.getElementById('section-' + id).classList.add('active');
   btn.classList.add('active');
   document.getElementById('breadcrumb').textContent = btn.textContent.trim().split('\n')[0].trim();
+  if (window.innerWidth <= 768) closeSidebar();
   if (id === 'users') loadUsers();
   if (id === 'documents') loadDocs();
   if (id === 'logs') loadActivity();
@@ -1271,13 +1273,7 @@ window.addEventListener('resize', handleResize);
 handleResize();
 
 // Close sidebar when a nav item is clicked on mobile
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeSidebar();
-    });
-  });
-});
+
 
 /* ══ LOGOUT ══ */
 function logout() {
