@@ -261,29 +261,33 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   /* Tables scroll */
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   td,th{padding:10px 12px;white-space:nowrap}
-
   /* Actions stack */
   .actions-cell{flex-wrap:wrap;gap:4px}
   .action-btn{font-size:10px;padding:3px 8px}
-
   /* Modal full screen */
   .modal{width:100%;max-width:100%;max-height:100vh;border-radius:0;margin:0}
-  .modal-overlay{align-items:flex-end}
-
+  /* REMOVE animation from base rule */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,0.7);
+  display:flex;align-items:center;justify-content:center;
+  /* no animation here */
+}
+/* ADD animation only when shown */
+.modal-overlay:not(.hidden){
+  animation:fadeIn 0.2s ease;
+}
+.modal-overlay.hidden{display:none}
   /* Profile stats */
   .profile-stats{grid-template-columns:1fr 1fr 1fr}
-
   /* Forms */
   .send-btn{width:100%;justify-content:center}
   .broadcast-form .send-btn{align-self:stretch}
-
   /* Recipient pills wrap */
   .recipient-pills{flex-wrap:wrap}
-
   /* Page title smaller */
   .page-title{font-size:20px}
 }
-
 @media(max-width:420px){
   .stats-grid{grid-template-columns:1fr}
   .profile-stats{grid-template-columns:1fr 1fr}
