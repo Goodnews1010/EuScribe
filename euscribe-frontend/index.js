@@ -93,6 +93,9 @@ function saveCurrentDocument() {
   filename.value = doc.name;
 
   saveToStorage();
+
+  // Sync to MongoDB
+  if (typeof syncToBackend === "function") syncToBackend(doc);
 }
 
 content.addEventListener("input", () => {
