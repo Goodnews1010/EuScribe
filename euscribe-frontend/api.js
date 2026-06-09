@@ -89,10 +89,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (typeof renderDocuments === "function") renderDocuments();
 
       // Always load first MongoDB doc regardless of fallback
-      if (localDocs.length > 0 && typeof loadDocument === "function") {
-        loadDocument(localDocs[0].id);
-      } else if (localDocs.length === 0) {
-        if (typeof createNewDocument === "function") createNewDocument();
+      // SAFE: only auto-load if nothing is open yet
+      if (!currentDocId) {
+        if (localDocs.length > 0 && typeof loadDocument === "function") {
+          loadDocument(localDocs[0].id);
+        } else if (localDocs.length === 0) {
+          if (typeof createNewDocument === "function") createNewDocument();
+        }
       }
     } catch (err) {
       console.warn("Could not load documents from backend:", err.message);
