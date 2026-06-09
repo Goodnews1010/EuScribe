@@ -240,15 +240,14 @@ newDocBtn.addEventListener("click", createNewDocument);
 // Only fall back to localStorage/new doc if the backend fetch doesn't come back.
 renderDocuments();
 
-// Fallback: if backend hasn't responded in 4 seconds, load what we have locally
+// Fallback: 60s to account for Render cold start (~50s)
 window._mongoLoadFallback = setTimeout(() => {
   if (documents.length === 0) {
     createNewDocument();
   } else {
     if (!window.currentDocId) loadDocument(documents[0].id);
   }
-}, 4000);
-
+}, 60000);
 /* ============================================================
    AI TABS
    ============================================================ */

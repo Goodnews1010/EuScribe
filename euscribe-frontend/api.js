@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       if (!res.ok) return;
       const backendDocs = await res.json();
-      if (!backendDocs.length) return;
+
       const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
       const localDocs = backendDocs.map((doc) => {
         let localId =
@@ -77,23 +77,19 @@ document.addEventListener("DOMContentLoaded", function () {
           content: doc.content || "",
         };
       });
+
       localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
       localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
 
-      // Cancel the localStorage fallback — MongoDB data is here
       clearTimeout(window._mongoLoadFallback);
 
-      // Replace the in-memory documents array that index.js uses
       window.documents = localDocs;
       documents = localDocs;
 
-      if (typeof renderDocuments === "function") renderD;
-      // Load first doc only if nothing is already open
-      if (
-        localDocs.length > 0 &&
-        typeof loadDocument === "function" &&
-        !window.currentDocId
-      ) {
+      if (typeof renderDocuments === "function") renderDocuments();
+
+      // Always load first MongoDB doc regardless of fallback
+      if (localDocs.length > 0 && typeof loadDocument === "function") {
         loadDocument(localDocs[0].id);
       } else if (localDocs.length === 0) {
         if (typeof createNewDocument === "function") createNewDocument();
