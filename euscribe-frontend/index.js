@@ -236,12 +236,18 @@ newDocBtn.addEventListener("click", createNewDocument);
 /* ===================================================
    INITIAL LOAD
 =================================================== */
-if (documents.length === 0) {
-  createNewDocument();
-} else {
-  loadDocument(documents[0].id);
-}
+// Don't load from localStorage on startup — api.js will fetch from MongoDB.
+// Only fall back to localStorage/new doc if the backend fetch doesn't come back.
 renderDocuments();
+
+// Fallback: if backend hasn't responded in 4 seconds, load what we have locally
+window._mongoLoadFallback = setTimeout(() => {
+  if (documents.length === 0) {
+    createNewDocument();
+  } else {
+    if (!window.currentDocId) loadDocument(documents[0].id);
+  }
+}, 4000);
 
 /* ============================================================
    AI TABS

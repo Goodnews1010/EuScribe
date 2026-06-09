@@ -68,14 +68,36 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!backendDocs.length) return;
       const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
       const localDocs = backendDocs.map((doc) => {
-        let localId = Object.keys(idMap).find((k) => idMap[k] === doc._id) || doc._id;
+        let localId =
+          Object.keys(idMap).find((k) => idMap[k] === doc._id) || doc._id;
         idMap[localId] = doc._id;
-        return { id: localId, name: doc.title || "Untitled Document", content: doc.content || "" };
+        return {
+          id: localId,
+          name: doc.title || "Untitled Document",
+          content: doc.content || "",
+        };
       });
       localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
       localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
-      if (typeof renderDocuments === "function") renderDocuments();
-      if (localDocs.length > 0 && typeof loadDocument === "function") loadDocument(localDocs[0].id);
+
+      // Cancel the localStorage fallback — MongoDB data is here
+      clearTimeout(window._mongoLoadFallback);
+
+      // Replace the in-memory documents array that index.js uses
+      window.documents = localDocs;
+      documents = localDocs;
+
+      if (typeof renderDocuments === "function") renderD;
+      // Load first doc only if nothing is already open
+      if (
+        localDocs.length > 0 &&
+        typeof loadDocument === "function" &&
+        !window.currentDocId
+      ) {
+        loadDocument(localDocs[0].id);
+      } else if (localDocs.length === 0) {
+        if (typeof createNewDocument === "function") createNewDocument();
+      }
     } catch (err) {
       console.warn("Could not load documents from backend:", err.message);
     }
@@ -230,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (doc) syncToBackend(doc);
     };
   }
-}); 
+});
 
 /* ============================================================
    ANNOUNCEMENT BANNER — add this inside DOMContentLoaded in api.js
@@ -241,7 +263,7 @@ async function loadAnnouncement() {
   if (!token) return;
   try {
     const res = await fetch(`${API}/api/announcement`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       // Retry once after 55 seconds (Render cold start)
@@ -250,7 +272,7 @@ async function loadAnnouncement() {
     }
     const ann = await res.json();
     if (!ann) return;
-    const dismissed = localStorage.getItem('euscribe_dismissed_ann');
+    const dismissed = localStorage.getItem("euscribe_dismissed_ann");
     if (dismissed === ann._id) return;
     showAnnouncementBanner(ann);
   } catch (err) {
@@ -261,11 +283,11 @@ async function loadAnnouncement() {
 
 function showAnnouncementBanner(ann) {
   // Remove existing banner if any
-  const existing = document.getElementById('euscribe-announcement');
+  const existing = document.getElementById("euscribe-announcement");
   if (existing) existing.remove();
 
-  const banner = document.createElement('div');
-  banner.id = 'euscribe-announcement';
+  const banner = document.createElement("div");
+  banner.id = "euscribe-announcement";
   banner.style.cssText = `
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -306,19 +328,22 @@ function showAnnouncementBanner(ann) {
   document.body.prepend(banner);
 
   // Push page content down
-  document.body.style.paddingTop = (parseInt(document.body.style.paddingTop) || 0) + banner.offsetHeight + 'px';
+  document.body.style.paddingTop =
+    (parseInt(document.body.style.paddingTop) || 0) +
+    banner.offsetHeight +
+    "px";
 }
 
 function dismissAnnouncement(id) {
-  localStorage.setItem('euscribe_dismissed_ann', id);
-  const banner = document.getElementById('euscribe-announcement');
+  localStorage.setItem("euscribe_dismissed_ann", id);
+  const banner = document.getElementById("euscribe-announcement");
   if (banner) {
-    banner.style.animation = 'none';
-    banner.style.transition = 'opacity 0.2s, transform 0.2s';
-    banner.style.opacity = '0';
-    banner.style.transform = 'translateY(-100%)';
+    banner.style.animation = "none";
+    banner.style.transition = "opacity 0.2s, transform 0.2s";
+    banner.style.opacity = "0";
+    banner.style.transform = "translateY(-100%)";
     setTimeout(() => {
-      document.body.style.paddingTop = '';
+      document.body.style.paddingTop = "";
       banner.remove();
     }, 200);
   }
