@@ -242,10 +242,11 @@ renderDocuments();
 
 // Fallback: 60s to account for Render cold start (~50s)
 window._mongoLoadFallback = setTimeout(() => {
+  if (window.currentDocId) return; // MongoDB already loaded, do nothing
   if (documents.length === 0) {
     createNewDocument();
   } else {
-    if (!window.currentDocId) loadDocument(documents[0].id);
+    loadDocument(documents[0].id);
   }
 }, 60000);
 /* ============================================================
