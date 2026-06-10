@@ -7,79 +7,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════
-   RESET & TOKENS
-═══════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  /* base surfaces */
   --bg:         #060810;
   --surface:    #0b0e1a;
   --surface2:   #0f1220;
   --surface3:   #141828;
   --surface4:   #1a1f30;
 
-  /* borders */
   --border:     rgba(255,255,255,0.055);
   --border2:    rgba(255,255,255,0.1);
   --border3:    rgba(255,255,255,0.15);
 
-  /* text */
   --text:       #dde4f0;
   --text2:      #5e6f96;
   --text3:      #333d58;
 
-  /* brand / accent */
   --blue:       #4f6ef7;
   --blue2:      #7d9bff;
-  --blue-glow:  rgba(79,110,247,0.18);
-
-  /* semantic */
   --green:      #00e59a;
   --red:        #ff4a6a;
   --yellow:     #f5c518;
   --orange:     #ff6b35;
   --purple:     #a855f7;
 
-  /* layout */
   --sidebar-w:  240px;
   --topbar-h:   56px;
 
-  /* type */
   --ff-head: 'Syne', sans-serif;
   --ff-body: 'Inter', sans-serif;
-
-  /* easing */
   --ease: cubic-bezier(0.16,1,0.3,1);
 }
 
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff-body);font-size:14px;overflow:hidden}
 
-/* noise overlay */
 body::before{
-  content:'';position:fixed;inset:0;z-index:0;
-  opacity:0.018;
+  content:'';position:fixed;inset:0;z-index:0;opacity:0.018;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:200px;pointer-events:none;
 }
 
-/* ambient glow top-left */
-body::after{
-  content:'';position:fixed;top:-120px;left:-80px;
-  width:500px;height:500px;border-radius:50%;
-  background:radial-gradient(circle, rgba(79,110,247,0.07) 0%, transparent 70%);
-  pointer-events:none;z-index:0;
-}
-
-/* ═══════════════════════════════════════════
-   SHELL
-═══════════════════════════════════════════ */
 .shell{position:fixed;inset:0;z-index:1;display:flex}
 
-/* ═══════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════ */
+/* ── SIDEBAR ── */
 .sidebar{
   width:var(--sidebar-w);flex-shrink:0;
   background:var(--surface);
@@ -88,36 +59,22 @@ body::after{
   position:relative;z-index:10;
 }
 
-/* inner glow strip */
-.sidebar::after{
-  content:'';position:absolute;top:0;left:0;bottom:0;width:1px;
-  background:linear-gradient(to bottom, transparent, rgba(79,110,247,0.3) 30%, rgba(79,110,247,0.15) 70%, transparent);
-  pointer-events:none;
-}
-
 .sidebar-brand{
   height:var(--topbar-h);
   display:flex;align-items:center;padding:0 18px;
   border-bottom:1px solid var(--border);flex-shrink:0;gap:10px;
 }
-
 .brand-mark{
   width:30px;height:30px;border-radius:8px;
-  background:linear-gradient(135deg,var(--blue),#7d9bff);
+  background:linear-gradient(135deg,#4a5fc4,#6b84e8);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--ff-head);font-size:13px;font-weight:800;color:#fff;
   flex-shrink:0;
-  box-shadow:0 0 18px rgba(79,110,247,0.35),inset 0 1px 0 rgba(255,255,255,0.15);
 }
-
-.brand-text{
-  font-family:var(--ff-head);font-size:15px;font-weight:700;
-  color:var(--text);letter-spacing:-0.01em;
-}
-
+.brand-text{font-family:var(--ff-head);font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.01em;}
 .brand-badge{
   margin-left:auto;padding:2px 7px;
-  background:rgba(79,110,247,0.1);border:1px solid rgba(79,110,247,0.22);
+  background:rgba(79,110,247,0.08);border:1px solid rgba(79,110,247,0.18);
   border-radius:5px;font-size:9px;font-weight:700;
   letter-spacing:0.1em;color:var(--blue2);text-transform:uppercase;
 }
@@ -130,65 +87,48 @@ body::after{
   font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
   color:var(--text3);padding:0 12px;margin-bottom:4px;
 }
-
 .nav-item{
   display:flex;align-items:center;gap:9px;
   padding:8px 12px;border-radius:9px;
   color:var(--text2);font-size:13px;font-weight:500;
   cursor:pointer;border:none;background:none;
   width:100%;text-align:left;font-family:var(--ff-body);
-  transition:all 0.15s;position:relative;
-  letter-spacing:0.005em;
+  transition:all 0.15s;position:relative;letter-spacing:0.005em;
 }
 .nav-item i{font-size:15px;flex-shrink:0;transition:color 0.15s}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item:hover i{color:var(--blue2)}
-
-/* active state: bioluminescent left-strip + faint gradient sweep */
 .nav-item.active{
   color:var(--blue2);
-  background:linear-gradient(90deg, rgba(79,110,247,0.12) 0%, rgba(79,110,247,0.04) 100%);
+  background:rgba(79,110,247,0.08);
 }
 .nav-item.active::before{
   content:'';position:absolute;left:0;top:20%;bottom:20%;
   width:2.5px;border-radius:0 3px 3px 0;
-  background:linear-gradient(to bottom,var(--blue),var(--blue2));
-  box-shadow:0 0 8px rgba(79,110,247,0.7);
+  background:var(--blue2);
 }
 .nav-item.active i{color:var(--blue2)}
-
 .nav-badge{
   margin-left:auto;padding:1px 7px;border-radius:100px;
   font-size:10px;font-weight:600;
-  background:rgba(79,110,247,0.15);color:var(--blue2);
+  background:rgba(79,110,247,0.12);color:var(--blue2);
 }
 
-/* locked nav item (regular admin) */
-.nav-item.locked{opacity:0.35;cursor:not-allowed}
-.nav-item.locked:hover{background:none;color:var(--text2)}
-.nav-item.locked:hover i{color:var(--text2)}
-.lock-icon{margin-left:auto;font-size:12px;color:var(--text3)}
+.super-only-section{transition:opacity 0.2s}
+.super-only-section.hidden-section{display:none}
 
-/* sidebar footer */
 .sidebar-footer{padding:12px 10px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:6px}
 
 .back-to-app-btn{
   display:flex;align-items:center;gap:9px;
   padding:9px 12px;border-radius:9px;
-  background:rgba(79,110,247,0.08);
-  border:1px solid rgba(79,110,247,0.18);
+  background:rgba(79,110,247,0.06);
+  border:1px solid rgba(79,110,247,0.14);
   color:var(--blue2);font-size:13px;font-weight:500;
   cursor:pointer;font-family:var(--ff-body);
   transition:all 0.18s;width:100%;text-align:left;
-  letter-spacing:0.005em;
 }
 .back-to-app-btn i{font-size:15px;flex-shrink:0}
-.back-to-app-btn:hover{
-  background:rgba(79,110,247,0.15);
-  border-color:rgba(79,110,247,0.35);
-  color:#fff;
-  box-shadow:0 0 16px rgba(79,110,247,0.15);
-}
+.back-to-app-btn:hover{background:rgba(79,110,247,0.12);border-color:rgba(79,110,247,0.28);color:#fff;}
 
 .admin-profile{
   display:flex;align-items:center;gap:10px;
@@ -198,72 +138,49 @@ body::after{
 .admin-profile:hover{background:var(--surface2)}
 .admin-av{
   width:30px;height:30px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue),#7d9bff);
+  background:linear-gradient(135deg,#4a5fc4,#6b84e8);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--ff-head);font-size:11px;font-weight:700;color:#fff;
-  flex-shrink:0;box-shadow:0 0 10px rgba(79,110,247,0.3);
+  flex-shrink:0;
 }
 .admin-name{font-size:12px;font-weight:600;color:var(--text)}
-.admin-role{
-  font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px;
-}
-.role-dot{
-  width:5px;height:5px;border-radius:50%;
-  background:var(--green);display:inline-block;flex-shrink:0;
-}
+.admin-role{font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px;}
+.role-dot{width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0;}
 .admin-exit{margin-left:auto;color:var(--text3);font-size:15px;cursor:pointer;transition:color 0.15s}
 .admin-exit:hover{color:var(--red)}
 
-/* mobile overlay */
-.sidebar-overlay{display:none;}
-.sidebar-overlay.show{display:block;position:fixed;inset:0;z-index:9;background:rgba(0,0,0,0.6);pointer-events:all;backdrop-filter:blur(2px);}
+.sidebar-overlay{display:none}
+.sidebar-overlay.show{display:block;position:fixed;inset:0;z-index:9;background:rgba(0,0,0,0.55);pointer-events:all;}
 
-/* ═══════════════════════════════════════════
-   MAIN AREA
-═══════════════════════════════════════════ */
+/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
-/* ═══════════════════════════════════════════
-   TOPBAR
-═══════════════════════════════════════════ */
 .topbar{
   height:var(--topbar-h);flex-shrink:0;
-  background:rgba(11,14,26,0.85);
-  backdrop-filter:blur(12px);
+  background:rgba(11,14,26,0.9);
+  backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;
-  position:relative;z-index:5;
+  padding:0 24px;position:relative;z-index:5;
 }
-
 .topbar-left{display:flex;align-items:center;gap:10px}
-
-/* hamburger */
 .hamburger{
   display:none;background:none;border:none;
   color:var(--text2);cursor:pointer;font-size:20px;
-  padding:4px;border-radius:6px;
-  transition:color 0.15s;
+  padding:4px;border-radius:6px;transition:color 0.15s;
 }
 .hamburger:hover{color:var(--text)}
-
 .breadcrumb{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
 .breadcrumb-sep{color:var(--text3);font-size:10px}
 .breadcrumb-current{color:var(--text);font-weight:500}
-
 .topbar-right{display:flex;align-items:center;gap:12px}
-
-.topbar-time{
-  font-size:11px;color:var(--text3);
-  font-family:'Courier New',monospace;
-  letter-spacing:0.04em;
-}
+.topbar-time{font-size:11px;color:var(--text3);font-family:'Courier New',monospace;letter-spacing:0.04em;}
 
 .status-pill{
   display:flex;align-items:center;gap:6px;
   padding:4px 11px;border-radius:100px;
-  background:rgba(0,229,154,0.07);
-  border:1px solid rgba(0,229,154,0.14);
+  background:rgba(0,229,154,0.06);
+  border:1px solid rgba(0,229,154,0.12);
   font-size:11px;font-weight:500;color:var(--green);
 }
 .status-dot{
@@ -271,111 +188,82 @@ body::after{
   animation:pulse 2.4s ease-in-out infinite;
 }
 @keyframes pulse{
-  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,154,0.4)}
-  50%{opacity:0.7;box-shadow:0 0 0 5px rgba(0,229,154,0)}
+  0%,100%{opacity:1}50%{opacity:0.5}
 }
 
-/* topbar back button (alt placement, visible on mobile) */
+.role-indicator{
+  display:flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:100px;
+  font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+}
+.ri-super{background:rgba(168,85,247,0.08);color:var(--purple);border:1px solid rgba(168,85,247,0.2)}
+.ri-admin{background:rgba(79,110,247,0.08);color:var(--blue2);border:1px solid rgba(79,110,247,0.18)}
+
 .topbar-back{
-  display:none;
-  align-items:center;gap:6px;
+  display:none;align-items:center;gap:6px;
   padding:5px 12px;border-radius:8px;
-  background:rgba(79,110,247,0.08);border:1px solid rgba(79,110,247,0.2);
+  background:rgba(79,110,247,0.06);border:1px solid rgba(79,110,247,0.16);
   color:var(--blue2);font-size:12px;font-weight:500;
-  cursor:pointer;font-family:var(--ff-body);
-  transition:all 0.15s;
+  cursor:pointer;font-family:var(--ff-body);transition:all 0.15s;
 }
-.topbar-back:hover{background:rgba(79,110,247,0.15)}
+.topbar-back:hover{background:rgba(79,110,247,0.12)}
 
-/* ═══════════════════════════════════════════
-   CONTENT
-═══════════════════════════════════════════ */
+/* ── CONTENT ── */
 .content{flex:1;overflow-y:auto;padding:28px 28px 40px}
 .content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .content::-webkit-scrollbar-track{background:transparent}
 
-/* sections */
 .section{display:none}
-.section.active{display:block;animation:fadeIn 0.3s var(--ease)}
+.section.active{display:block;animation:fadeIn 0.28s var(--ease)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ═══════════════════════════════════════════
-   PAGE HEADER
-═══════════════════════════════════════════ */
+/* ── PAGE HEADER ── */
 .page-header{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.page-header-text{}
-.page-title{
-  font-family:var(--ff-head);font-size:22px;font-weight:700;
-  color:var(--text);letter-spacing:-0.025em;
-}
+.page-title{font-family:var(--ff-head);font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.025em;}
 .page-sub{margin-top:4px;font-size:13px;color:var(--text2);font-weight:300;line-height:1.5}
 
-/* ═══════════════════════════════════════════
-   STATS GRID
-═══════════════════════════════════════════ */
+/* ── STATS GRID ── */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-
 .stat-card{
   background:var(--surface);
   border:1px solid var(--border);border-radius:14px;
   padding:20px 20px 18px;
   position:relative;overflow:hidden;
-  transition:border-color 0.2s,transform 0.2s;
-  cursor:default;
+  transition:border-color 0.2s,transform 0.2s;cursor:default;
 }
 .stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
-
-/* top shimmer line colored per card */
 .stat-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(to right, transparent, var(--ac,var(--blue)) 50%, transparent);
-  opacity:0.45;
+  opacity:0.4;
 }
 .stat-card.ac-green{--ac:var(--green)}
 .stat-card.ac-blue{--ac:var(--blue)}
 .stat-card.ac-yellow{--ac:var(--yellow)}
 .stat-card.ac-purple{--ac:var(--purple)}
+.stat-card.ac-orange{--ac:var(--orange)}
 
-.stat-icon{
-  width:32px;height:32px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:15px;margin-bottom:14px;
-}
-.si-blue{background:rgba(79,110,247,0.12);color:var(--blue2)}
-.si-green{background:rgba(0,229,154,0.1);color:var(--green)}
+.stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:14px;}
+.si-blue{background:rgba(79,110,247,0.1);color:var(--blue2)}
+.si-green{background:rgba(0,229,154,0.08);color:var(--green)}
 .si-yellow{background:rgba(245,197,24,0.1);color:var(--yellow)}
 .si-purple{background:rgba(168,85,247,0.1);color:var(--purple)}
+.si-orange{background:rgba(255,107,53,0.1);color:var(--orange)}
 
-.stat-label{
-  font-size:10px;font-weight:600;letter-spacing:0.12em;
-  text-transform:uppercase;color:var(--text2);margin-bottom:8px;
-}
-.stat-num{
-  font-family:var(--ff-head);font-size:30px;font-weight:700;
-  color:var(--text);letter-spacing:-0.03em;line-height:1;
-}
-.stat-change{
-  margin-top:8px;font-size:11px;font-weight:500;
-  display:flex;align-items:center;gap:3px;
-}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+.stat-num{font-family:var(--ff-head);font-size:30px;font-weight:700;color:var(--text);letter-spacing:-0.03em;line-height:1;}
+.stat-change{margin-top:8px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:3px;}
 .stat-change.up{color:var(--green)}
-.stat-change.down{color:var(--red)}
+.stat-change.neutral{color:var(--text3)}
 
-/* ═══════════════════════════════════════════
-   GRID HELPERS
-═══════════════════════════════════════════ */
+/* ── GRID HELPERS ── */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
 .grid3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:22px}
 .mb{margin-bottom:22px}
 
-/* ═══════════════════════════════════════════
-   CARD
-═══════════════════════════════════════════ */
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;
-}
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 .card-header{
   padding:15px 20px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
@@ -386,16 +274,13 @@ body::after{
   color:var(--text);letter-spacing:-0.01em;
   display:flex;align-items:center;gap:8px;
 }
-.card-title-icon{
-  width:22px;height:22px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;
-}
-.cti-blue{background:rgba(79,110,247,0.12);color:var(--blue2)}
-.cti-green{background:rgba(0,229,154,0.1);color:var(--green)}
+.card-title-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.cti-blue{background:rgba(79,110,247,0.1);color:var(--blue2)}
+.cti-green{background:rgba(0,229,154,0.08);color:var(--green)}
 .cti-yellow{background:rgba(245,197,24,0.1);color:var(--yellow)}
 .cti-purple{background:rgba(168,85,247,0.1);color:var(--purple)}
-.cti-red{background:rgba(255,74,106,0.1);color:var(--red)}
+.cti-red{background:rgba(255,74,106,0.08);color:var(--red)}
+.cti-orange{background:rgba(255,107,53,0.08);color:var(--orange)}
 
 .card-action{
   font-size:12px;color:var(--blue2);cursor:pointer;
@@ -406,7 +291,7 @@ body::after{
 .card-action:hover{opacity:0.7}
 .card-body{padding:20px}
 
-/* search & filter toolbar */
+/* ── TOOLBAR ── */
 .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:180px;max-width:300px;}
 .search-input{
@@ -417,7 +302,6 @@ body::after{
 }
 .search-input:focus{border-color:var(--blue);background:var(--surface3)}
 .search-input::placeholder{color:var(--text3)}
-
 .filter-select{
   background:var(--surface2);border:1px solid var(--border2);
   border-radius:9px;padding:7px 10px;color:var(--text2);
@@ -426,9 +310,7 @@ body::after{
 }
 .filter-select:focus{border-color:var(--blue)}
 
-/* ═══════════════════════════════════════════
-   TABLE
-═══════════════════════════════════════════ */
+/* ── TABLE ── */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th{
@@ -438,14 +320,13 @@ th{
   border-bottom:1px solid var(--border);
   background:var(--surface2);
 }
-th:first-child{border-radius:0}
 td{
   padding:11px 16px;font-size:13px;color:var(--text2);
   border-bottom:1px solid var(--border);
   transition:background 0.1s,color 0.1s;
 }
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
+tr:hover td{background:rgba(255,255,255,0.015);color:var(--text)}
 
 .user-cell{display:flex;align-items:center;gap:10px;cursor:pointer}
 .user-cell:hover .user-name{color:var(--blue2)}
@@ -454,28 +335,24 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
   display:flex;align-items:center;justify-content:center;
   font-size:10px;font-weight:700;color:#fff;flex-shrink:0;
 }
-.uav1{background:linear-gradient(135deg,var(--blue),#7d9bff)}
-.uav2{background:linear-gradient(135deg,var(--green),#00c9a7)}
-.uav3{background:linear-gradient(135deg,var(--orange),#ffd200)}
-.uav4{background:linear-gradient(135deg,#c471ed,#f64f59)}
-.uav5{background:linear-gradient(135deg,#667eea,#764ba2)}
+.uav1{background:linear-gradient(135deg,#4a5fc4,#6b84e8)}
+.uav2{background:linear-gradient(135deg,#0fba80,#00c9a7)}
+.uav3{background:linear-gradient(135deg,#e06a35,#f5a623)}
+.uav4{background:linear-gradient(135deg,#b452c4,#e05080)}
+.uav5{background:linear-gradient(135deg,#5a6de8,#7a4bb2)}
 .user-name{font-size:13px;font-weight:500;color:var(--text);transition:color 0.15s}
 .user-email{font-size:11px;color:var(--text3)}
 
-/* ═══════════════════════════════════════════
-   BADGES
-═══════════════════════════════════════════ */
+/* ── BADGES ── */
 .badge{padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:0.02em}
-.badge-green{background:rgba(0,229,154,0.1);color:var(--green);border:1px solid rgba(0,229,154,0.2)}
-.badge-blue{background:rgba(79,110,247,0.1);color:var(--blue2);border:1px solid rgba(79,110,247,0.2)}
-.badge-red{background:rgba(255,74,106,0.1);color:var(--red);border:1px solid rgba(255,74,106,0.2)}
-.badge-yellow{background:rgba(245,197,24,0.1);color:var(--yellow);border:1px solid rgba(245,197,24,0.2)}
-.badge-gray{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border2)}
-.badge-purple{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2)}
+.badge-green{background:rgba(0,229,154,0.08);color:var(--green);border:1px solid rgba(0,229,154,0.18)}
+.badge-blue{background:rgba(79,110,247,0.08);color:var(--blue2);border:1px solid rgba(79,110,247,0.18)}
+.badge-red{background:rgba(255,74,106,0.08);color:var(--red);border:1px solid rgba(255,74,106,0.18)}
+.badge-yellow{background:rgba(245,197,24,0.08);color:var(--yellow);border:1px solid rgba(245,197,24,0.18)}
+.badge-gray{background:rgba(255,255,255,0.04);color:var(--text3);border:1px solid var(--border2)}
+.badge-purple{background:rgba(168,85,247,0.08);color:var(--purple);border:1px solid rgba(168,85,247,0.18)}
 
-/* ═══════════════════════════════════════════
-   ACTION BUTTONS
-═══════════════════════════════════════════ */
+/* ── ACTION BUTTONS ── */
 .actions-cell{display:flex;gap:5px;flex-wrap:wrap}
 .action-btn{
   padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;
@@ -484,36 +361,28 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
   transition:all 0.15s;
 }
 .action-btn:hover{border-color:var(--red);color:var(--red)}
-.action-btn.promote{color:var(--blue2);border-color:rgba(79,110,247,0.3)}
-.action-btn.promote:hover{background:rgba(79,110,247,0.1);border-color:var(--blue2)}
-.action-btn.ban{color:var(--yellow);border-color:rgba(245,197,24,0.3)}
-.action-btn.ban:hover{background:rgba(245,197,24,0.08);border-color:var(--yellow)}
-.action-btn.unban{color:var(--green);border-color:rgba(0,229,154,0.3)}
-.action-btn.unban:hover{background:rgba(0,229,154,0.08);border-color:var(--green)}
-.action-btn.view{color:var(--blue2);border-color:rgba(79,110,247,0.3)}
-.action-btn.view:hover{background:rgba(79,110,247,0.1);border-color:var(--blue2)}
+.action-btn.promote{color:var(--blue2);border-color:rgba(79,110,247,0.25)}
+.action-btn.promote:hover{background:rgba(79,110,247,0.08);border-color:var(--blue2)}
+.action-btn.ban{color:var(--yellow);border-color:rgba(245,197,24,0.25)}
+.action-btn.ban:hover{background:rgba(245,197,24,0.06);border-color:var(--yellow)}
+.action-btn.unban{color:var(--green);border-color:rgba(0,229,154,0.25)}
+.action-btn.unban:hover{background:rgba(0,229,154,0.06);border-color:var(--green)}
+.action-btn.view{color:var(--blue2);border-color:rgba(79,110,247,0.25)}
+.action-btn.view:hover{background:rgba(79,110,247,0.08);border-color:var(--blue2)}
+.action-btn.danger-btn{color:var(--red);border-color:rgba(255,74,106,0.25)}
+.action-btn.danger-btn:hover{background:rgba(255,74,106,0.06);border-color:var(--red)}
 
-/* disabled action for regular admin */
-.action-btn.super-only{position:relative}
-.action-btn.super-only.disabled-for-role{
-  opacity:0.3;cursor:not-allowed;pointer-events:none;
-}
+/* Role-restricted action states */
+.action-btn.disabled-for-role{opacity:0.3;cursor:not-allowed;pointer-events:none;}
 
-/* ═══════════════════════════════════════════
-   CHECKBOX
-═══════════════════════════════════════════ */
+/* ── CHECKBOX ── */
 .cb-wrap{display:flex;align-items:center;gap:8px}
 input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:pointer}
 
-/* ═══════════════════════════════════════════
-   BROADCAST FORM
-═══════════════════════════════════════════ */
+/* ── BROADCAST FORM ── */
 .broadcast-form{display:flex;flex-direction:column;gap:16px}
 .form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{
-  font-size:10px;font-weight:700;letter-spacing:0.1em;
-  text-transform:uppercase;color:var(--text2);
-}
+.form-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);}
 .form-input{
   background:var(--surface2);border:1px solid var(--border2);
   border-radius:9px;padding:10px 14px;
@@ -534,13 +403,12 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 
 .send-btn{
   padding:10px 22px;
-  background:linear-gradient(135deg,var(--blue),#7d9bff);
+  background:linear-gradient(135deg,#4a5fc4,#6b84e8);
   border:none;border-radius:9px;
   color:#fff;font-family:var(--ff-head);
   font-size:13px;font-weight:600;cursor:pointer;
   transition:opacity 0.2s,transform 0.15s;
   align-self:flex-start;display:flex;align-items:center;gap:8px;
-  box-shadow:0 4px 16px rgba(79,110,247,0.25);
 }
 .send-btn:hover{opacity:0.88;transform:translateY(-1px)}
 .send-btn:active{transform:translateY(0)}
@@ -550,16 +418,10 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   padding:11px 15px;border-radius:9px;
   font-size:13px;font-weight:500;display:none;
 }
-.broadcast-result.success{
-  background:rgba(0,229,154,0.07);
-  border:1px solid rgba(0,229,154,0.18);color:var(--green);
-}
-.broadcast-result.error{
-  background:rgba(255,74,106,0.07);
-  border:1px solid rgba(255,74,106,0.18);color:var(--red);
-}
+.broadcast-result.success{background:rgba(0,229,154,0.06);border:1px solid rgba(0,229,154,0.16);color:var(--green);}
+.broadcast-result.error{background:rgba(255,74,106,0.06);border:1px solid rgba(255,74,106,0.16);color:var(--red);}
 
-/* recipient pills */
+/* ── RECIPIENT PILLS ── */
 .recipient-pills{
   display:flex;flex-wrap:wrap;gap:6px;min-height:36px;
   padding:8px;background:var(--surface2);
@@ -568,23 +430,27 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .pill{
   display:flex;align-items:center;gap:5px;
   padding:3px 8px;
-  background:rgba(79,110,247,0.1);
-  border:1px solid rgba(79,110,247,0.2);
+  background:rgba(79,110,247,0.08);
+  border:1px solid rgba(79,110,247,0.18);
   border-radius:100px;font-size:11px;color:var(--blue2);
 }
-.pill button{
-  background:none;border:none;color:var(--blue2);
-  cursor:pointer;font-size:13px;line-height:1;padding:0;opacity:0.65;
-}
+.pill button{background:none;border:none;color:var(--blue2);cursor:pointer;font-size:13px;line-height:1;padding:0;opacity:0.65;}
 .pill button:hover{opacity:1}
 .recipient-hint{font-size:11px;color:var(--text3);align-self:center}
 
-/* ═══════════════════════════════════════════
-   MODAL
-═══════════════════════════════════════════ */
+/* ── RECIPIENT GROUP BTNS ── */
+.rg-btn{
+  padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;
+  border:1px solid var(--border2);background:none;
+  color:var(--text2);cursor:pointer;font-family:var(--ff-body);
+  transition:all 0.15s;
+}
+.rg-btn.active{color:var(--blue2);border-color:rgba(79,110,247,0.35);background:rgba(79,110,247,0.07);}
+
+/* ── MODAL ── */
 .modal-overlay{
   position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.72);
   display:flex;align-items:center;justify-content:center;
 }
 .modal-overlay.hidden{display:none}
@@ -611,7 +477,6 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   transition:color 0.15s,background 0.15s;
 }
 .modal-close:hover{color:var(--text);background:var(--surface2)}
-
 .modal-body{padding:24px}
 
 .profile-hero{
@@ -629,16 +494,13 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .profile-badges{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
 
 .profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
-.profile-stat{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:10px;padding:12px;text-align:center;
-}
+.profile-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
 .profile-stat-num{font-family:var(--ff-head);font-size:20px;font-weight:700;color:var(--text)}
 .profile-stat-label{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:0.07em}
 
 .profile-section{margin-bottom:16px}
 .profile-section-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.profile-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
 .profile-row:last-child{border-bottom:none}
 .profile-row-label{font-size:12px;color:var(--text2)}
 .profile-row-val{font-size:12px;color:var(--text);font-weight:500}
@@ -654,24 +516,19 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   transition:all 0.15s;display:flex;align-items:center;gap:5px;
 }
 .profile-btn:hover{background:var(--surface2)}
-.profile-btn.danger{color:var(--red);border-color:rgba(255,74,106,0.3)}
-.profile-btn.danger:hover{background:rgba(255,74,106,0.07)}
+.profile-btn.danger{color:var(--red);border-color:rgba(255,74,106,0.25)}
+.profile-btn.danger:hover{background:rgba(255,74,106,0.06)}
 .profile-btn.primary{
   color:#fff;
-  background:linear-gradient(135deg,var(--blue),#7d9bff);
+  background:linear-gradient(135deg,#4a5fc4,#6b84e8);
   border-color:transparent;
-  box-shadow:0 2px 10px rgba(79,110,247,0.25);
 }
 .profile-btn.primary:hover{opacity:0.85}
-.profile-btn.warn{color:var(--yellow);border-color:rgba(245,197,24,0.3)}
-.profile-btn.warn:hover{background:rgba(245,197,24,0.07)}
-.profile-btn.success{color:var(--green);border-color:rgba(0,229,154,0.3)}
-.profile-btn.success:hover{background:rgba(0,229,154,0.07)}
-
-/* disabled for regular admin */
-.profile-btn.super-only.disabled-for-role{
-  opacity:0.28;cursor:not-allowed;pointer-events:none;
-}
+.profile-btn.warn{color:var(--yellow);border-color:rgba(245,197,24,0.25)}
+.profile-btn.warn:hover{background:rgba(245,197,24,0.06)}
+.profile-btn.success{color:var(--green);border-color:rgba(0,229,154,0.25)}
+.profile-btn.success:hover{background:rgba(0,229,154,0.06)}
+.profile-btn.disabled-for-role{opacity:0.28;cursor:not-allowed;pointer-events:none;}
 
 .note-textarea{
   width:100%;background:var(--surface2);border:1px solid var(--border2);
@@ -683,39 +540,29 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .note-textarea:focus{border-color:var(--blue)}
 .note-textarea::placeholder{color:var(--text3)}
 
-/* ═══════════════════════════════════════════
-   ACTIVITY FEED
-═══════════════════════════════════════════ */
+/* ── ACTIVITY FEED ── */
 .activity-list{display:flex;flex-direction:column}
-.activity-item{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:12px 0;border-bottom:1px solid var(--border);
-}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
 .activity-item:last-child{border-bottom:none}
-.activity-icon{
-  width:30px;height:30px;border-radius:8px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-}
-.ai-blue{background:rgba(79,110,247,0.1);color:var(--blue2)}
-.ai-green{background:rgba(0,229,154,0.1);color:var(--green)}
-.ai-yellow{background:rgba(245,197,24,0.1);color:var(--yellow)}
-.ai-red{background:rgba(255,74,106,0.1);color:var(--red)}
+.activity-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.ai-blue{background:rgba(79,110,247,0.08);color:var(--blue2)}
+.ai-green{background:rgba(0,229,154,0.08);color:var(--green)}
+.ai-yellow{background:rgba(245,197,24,0.08);color:var(--yellow)}
+.ai-red{background:rgba(255,74,106,0.08);color:var(--red)}
 .activity-body{flex:1;min-width:0}
 .activity-text{font-size:12px;color:var(--text);line-height:1.55}
 .activity-text strong{color:var(--blue2);font-weight:500}
 .activity-time{font-size:10px;color:var(--text3);margin-top:2px}
 
-/* ═══════════════════════════════════════════
-   BAR CHART
-═══════════════════════════════════════════ */
+/* ── BAR CHART ── */
 .bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
 .bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
 .bar{
   width:100%;border-radius:5px 5px 0 0;
-  background:linear-gradient(to top,var(--blue),rgba(79,110,247,0.35));
+  background:linear-gradient(to top,var(--blue),rgba(79,110,247,0.3));
   transition:height 0.5s var(--ease);position:relative;cursor:pointer;
 }
-.bar:hover{filter:brightness(1.25)}
+.bar:hover{filter:brightness(1.2)}
 .bar-tooltip{
   position:absolute;top:-28px;left:50%;transform:translateX(-50%);
   background:var(--surface3);border:1px solid var(--border2);
@@ -725,85 +572,46 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 .bar:hover .bar-tooltip{opacity:1}
 .bar-label{font-size:9px;color:var(--text3);text-align:center;letter-spacing:0.04em}
 
-/* ═══════════════════════════════════════════
-   SYSTEM GRID & AI LIST
-═══════════════════════════════════════════ */
+/* ── SYSTEM GRID ── */
 .sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sys-item{
-  padding:13px 15px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:10px;
-  display:flex;align-items:center;justify-content:space-between;
-}
+.sys-item{padding:13px 15px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:space-between;}
 .sys-label{font-size:12px;color:var(--text2)}
 .sys-val{font-size:12px;font-weight:600;color:var(--text)}
 .sys-ok{color:var(--green)}
 .sys-warn{color:var(--yellow)}
 
+/* ── AI BAR LIST ── */
 .ai-list{display:flex;flex-direction:column;gap:11px}
 .ai-row{display:flex;align-items:center;gap:12px}
 .ai-row-label{font-size:12px;color:var(--text2);min-width:140px}
-.ai-bar-wrap{
-  flex:1;height:5px;background:var(--surface3);
-  border-radius:3px;overflow:hidden;
-}
-.ai-bar-fill{
-  height:100%;border-radius:3px;
-  background:linear-gradient(to right,var(--blue),var(--blue2));
-  transition:width 1.2s var(--ease);
-}
+.ai-bar-wrap{flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.ai-bar-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--blue),var(--blue2));transition:width 1.2s var(--ease);}
 .ai-row-count{font-size:11px;color:var(--text3);min-width:40px;text-align:right}
 
-/* ═══════════════════════════════════════════
-   ROLE RESTRICTION BANNER
-═══════════════════════════════════════════ */
+/* ── RESTRICTED BANNER ── */
 .role-restricted-banner{
   display:flex;align-items:center;gap:10px;
-  padding:11px 15px;background:rgba(245,197,24,0.06);
-  border:1px solid rgba(245,197,24,0.18);border-radius:10px;
+  padding:11px 15px;background:rgba(245,197,24,0.05);
+  border:1px solid rgba(245,197,24,0.15);border-radius:10px;
   margin-bottom:20px;
 }
 .role-restricted-banner i{color:var(--yellow);font-size:16px;flex-shrink:0}
 .role-restricted-banner p{font-size:12px;color:var(--text2);line-height:1.5}
 
-/* ═══════════════════════════════════════════
-   EMPTY STATE
-═══════════════════════════════════════════ */
-.empty-state{
-  text-align:center;padding:48px 20px;
+/* ── ANNOUNCEMENT CURRENT ── */
+.ann-current{
+  padding:12px 16px;
+  background:rgba(79,110,247,0.06);
+  border:1px solid rgba(79,110,247,0.16);
+  border-radius:8px;font-size:13px;color:var(--text);
+  line-height:1.6;display:flex;align-items:flex-start;gap:10px;
 }
-.empty-state i{font-size:36px;color:var(--text3);margin-bottom:12px;display:block}
-.empty-state p{font-size:13px;color:var(--text3)}
+.ann-current i{color:var(--blue2);font-size:16px;flex-shrink:0;margin-top:2px}
 
-/* ═══════════════════════════════════════════
-   ROLE SETTINGS SECTION (super-only)
-═══════════════════════════════════════════ */
-.super-only-section{transition:opacity 0.2s}
-.super-only-section.hidden-section{display:none}
-
-/* ═══════════════════════════════════════════
-   ROLE BADGE IN TOPBAR
-═══════════════════════════════════════════ */
-.role-indicator{
-  display:flex;align-items:center;gap:5px;
-  padding:3px 9px;border-radius:100px;
-  font-size:10px;font-weight:600;letter-spacing:0.06em;
-  text-transform:uppercase;
-}
-.ri-super{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.25)}
-.ri-admin{background:rgba(79,110,247,0.1);color:var(--blue2);border:1px solid rgba(79,110,247,0.22)}
-
-/* ═══════════════════════════════════════════
-   MOBILE RESPONSIVE
-═══════════════════════════════════════════ */
-@media(max-width:900px){
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-}
+/* ── MOBILE ── */
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){
-  .sidebar{
-    position:fixed;left:0;top:0;bottom:0;z-index:200;
-    transform:translateX(-100%);transition:transform 0.25s var(--ease);
-    width:260px;
-  }
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform 0.25s var(--ease);width:260px;}
   .sidebar.open{transform:translateX(0)}
   .main{width:100%}
   .hamburger{display:flex}
@@ -822,26 +630,23 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 </head>
 <body>
 
-<!-- ══════════════ MODAL: USER PROFILE ══════════════ -->
+<!-- MODAL: USER PROFILE -->
 <div class="modal-overlay hidden" id="profileModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">User Profile</div>
       <button class="modal-close" onclick="closeModal()"><i class='bx bx-x'></i></button>
     </div>
-    <div class="modal-body" id="modalBody"><!-- filled by JS --></div>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
 
-<!-- ══════════════ MAIN SHELL ══════════════ -->
 <div class="shell">
 
-  <!-- SIDEBAR OVERLAY (mobile) -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-  <!-- ─── SIDEBAR ─── -->
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-
     <div class="sidebar-brand">
       <div class="brand-mark">E</div>
       <div class="brand-text">EuScribe</div>
@@ -854,34 +659,36 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
         <button class="nav-item active" onclick="showSection('dashboard',this)">
           <i class='bx bxs-dashboard'></i> Dashboard
         </button>
-        <button class="nav-item" onclick="showSection('activity',this)">
-          <i class='bx bx-pulse'></i> Activity Log
-          <span class="nav-badge">12</span>
+        <button class="nav-item" onclick="showSection('analytics',this)">
+          <i class='bx bx-bar-chart-alt-2'></i> Analytics
+          <span class="nav-badge">Live</span>
         </button>
       </div>
-
       <div class="nav-section">
-        <div class="nav-section-label">Users</div>
+        <div class="nav-section-label">Management</div>
         <button class="nav-item" onclick="showSection('users',this)">
-          <i class='bx bxs-group'></i> All Users
+          <i class='bx bxs-group'></i> Users
+          <span class="nav-badge" id="userCountBadge">—</span>
         </button>
-        <button class="nav-item" onclick="showSection('reports',this)">
-          <i class='bx bxs-flag-alt'></i> Reports
-          <span class="nav-badge">3</span>
-        </button>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-label">Content</div>
         <button class="nav-item" onclick="showSection('documents',this)">
           <i class='bx bxs-file-doc'></i> Documents
         </button>
         <button class="nav-item" onclick="showSection('broadcast',this)">
           <i class='bx bxs-megaphone'></i> Broadcast
         </button>
+        <button class="nav-item" onclick="showSection('ai',this)">
+          <i class='bx bx-brain'></i> AI Usage
+        </button>
       </div>
-
-      <!-- Super-admin only nav items -->
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <button class="nav-item" onclick="showSection('system',this)">
+          <i class='bx bxs-server'></i> System Health
+        </button>
+        <button class="nav-item" onclick="showSection('logs',this)">
+          <i class='bx bx-list-ul'></i> Activity Logs
+        </button>
+      </div>
       <div class="nav-section super-only-section" id="navAdminSection">
         <div class="nav-section-label">Admin</div>
         <button class="nav-item" onclick="showSection('admins',this)">
@@ -894,32 +701,22 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
     </nav>
 
     <div class="sidebar-footer">
-      <!-- Back to App button -->
-      <button class="back-to-app-btn" onclick="backToApp()" title="Return to EuScribe editor">
-        <i class='bx bx-arrow-back'></i>
-        Back to App
+      <button class="back-to-app-btn" onclick="backToApp()">
+        <i class='bx bx-arrow-back'></i> Back to App
       </button>
-
-      <!-- Admin profile -->
       <div class="admin-profile">
-        <div class="admin-av" id="sidebarAvatar">SA</div>
+        <div class="admin-av" id="sidebarAvatar">A</div>
         <div>
-          <div class="admin-name" id="sidebarName">Super Admin</div>
-          <div class="admin-role">
-            <span class="role-dot"></span>
-            <span id="sidebarRole">Super Admin</span>
-          </div>
+          <div class="admin-name" id="sidebarName">Admin</div>
+          <div class="admin-role"><span class="role-dot"></span><span id="sidebarRole">Loading…</span></div>
         </div>
         <i class='bx bx-log-out admin-exit' title="Sign out" onclick="handleLogout()"></i>
       </div>
     </div>
-
   </aside>
 
-  <!-- ─── MAIN ─── -->
+  <!-- MAIN -->
   <div class="main">
-
-    <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
         <button class="hamburger" onclick="toggleSidebar()"><i class='bx bx-menu'></i></button>
@@ -935,52 +732,45 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
           <i class='bx bxs-crown' style="font-size:11px"></i>
           <span id="topbarRoleName">Super Admin</span>
         </div>
-        <div class="status-pill">
-          <span class="status-dot"></span> Live
-        </div>
-        <!-- Mobile: back to app in topbar -->
-        <button class="topbar-back" onclick="backToApp()">
-          <i class='bx bx-arrow-back'></i> App
-        </button>
+        <div class="status-pill"><span class="status-dot"></span> Live</div>
+        <button class="topbar-back" onclick="backToApp()"><i class='bx bx-arrow-back'></i> App</button>
       </div>
     </header>
 
-    <!-- CONTENT -->
     <div class="content">
 
-      <!-- ══════════ DASHBOARD ══════════ -->
+      <!-- ══ DASHBOARD ══ -->
       <div class="section active" id="section-dashboard">
         <div class="page-header">
           <div class="page-header-text">
             <h1 class="page-title">Dashboard</h1>
-            <p class="page-sub">Platform overview and key metrics at a glance.</p>
+            <p class="page-sub">Platform overview — live data from EuScribe.</p>
           </div>
         </div>
-
         <div class="stats-grid">
           <div class="stat-card ac-blue">
             <div class="stat-icon si-blue"><i class='bx bxs-group'></i></div>
             <div class="stat-label">Total Users</div>
-            <div class="stat-num">2,841</div>
-            <div class="stat-change up"><i class='bx bx-up-arrow-alt'></i> +148 this week</div>
+            <div class="stat-num" id="totalUsers">—</div>
+            <div class="stat-change up"><i class='bx bx-trending-up'></i> Live count</div>
           </div>
           <div class="stat-card ac-green">
             <div class="stat-icon si-green"><i class='bx bxs-file-doc'></i></div>
             <div class="stat-label">Documents</div>
-            <div class="stat-num">18,492</div>
-            <div class="stat-change up"><i class='bx bx-up-arrow-alt'></i> +2.3k this week</div>
+            <div class="stat-num" id="totalDocs">—</div>
+            <div class="stat-change up"><i class='bx bx-trending-up'></i> All time</div>
           </div>
           <div class="stat-card ac-yellow">
-            <div class="stat-icon si-yellow"><i class='bx bxs-zap'></i></div>
-            <div class="stat-label">AI Requests</div>
-            <div class="stat-num">94,201</div>
-            <div class="stat-change up"><i class='bx bx-up-arrow-alt'></i> +12k today</div>
+            <div class="stat-icon si-yellow"><i class='bx bxs-user-x'></i></div>
+            <div class="stat-label">Banned Users</div>
+            <div class="stat-num" id="totalBanned">—</div>
+            <div class="stat-change neutral">Live count</div>
           </div>
           <div class="stat-card ac-purple">
-            <div class="stat-icon si-purple"><i class='bx bxs-flag-alt'></i></div>
-            <div class="stat-label">Open Reports</div>
-            <div class="stat-num">3</div>
-            <div class="stat-change down"><i class='bx bx-down-arrow-alt'></i> Needs review</div>
+            <div class="stat-icon si-purple"><i class='bx bxs-shield-alt-2'></i></div>
+            <div class="stat-label">Admins</div>
+            <div class="stat-num" id="totalAdmins">—</div>
+            <div class="stat-change neutral">Live count</div>
           </div>
         </div>
 
@@ -989,35 +779,26 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
             <div class="card-header">
               <div class="card-title">
                 <span class="card-title-icon cti-blue"><i class='bx bx-bar-chart-alt-2'></i></span>
-                Weekly Signups
+                User Registrations
               </div>
-              <button class="card-action"><i class='bx bx-export'></i> Export</button>
+              <button class="card-action">Last 7 days</button>
             </div>
             <div class="card-body">
-              <div class="bar-chart">
-                <div class="bar-group"><div class="bar" style="height:55%"><div class="bar-tooltip">Mon: 34</div></div><div class="bar-label">Mon</div></div>
-                <div class="bar-group"><div class="bar" style="height:72%"><div class="bar-tooltip">Tue: 51</div></div><div class="bar-label">Tue</div></div>
-                <div class="bar-group"><div class="bar" style="height:48%"><div class="bar-tooltip">Wed: 29</div></div><div class="bar-label">Wed</div></div>
-                <div class="bar-group"><div class="bar" style="height:88%"><div class="bar-tooltip">Thu: 68</div></div><div class="bar-label">Thu</div></div>
-                <div class="bar-group"><div class="bar" style="height:65%"><div class="bar-tooltip">Fri: 44</div></div><div class="bar-label">Fri</div></div>
-                <div class="bar-group"><div class="bar" style="height:40%"><div class="bar-tooltip">Sat: 22</div></div><div class="bar-label">Sat</div></div>
-                <div class="bar-group"><div class="bar" style="height:30%"><div class="bar-tooltip">Sun: 17</div></div><div class="bar-label">Sun</div></div>
-              </div>
+              <div class="bar-chart" id="regChart"></div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title">
-                <span class="card-title-icon cti-green"><i class='bx bxs-server'></i></span>
-                System
-              </div>
+              <div class="card-title"><span class="card-title-icon cti-green"><i class='bx bxs-server'></i></span>System</div>
             </div>
             <div class="card-body">
               <div class="sys-grid">
                 <div class="sys-item"><span class="sys-label">API</span><span class="sys-val sys-ok">Online</span></div>
-                <div class="sys-item"><span class="sys-label">DB</span><span class="sys-val sys-ok">Online</span></div>
-                <div class="sys-item"><span class="sys-label">Auth</span><span class="sys-val sys-ok">Online</span></div>
-                <div class="sys-item"><span class="sys-label">Email</span><span class="sys-val sys-warn">Slow</span></div>
+                <div class="sys-item"><span class="sys-label">MongoDB</span><span class="sys-val sys-ok">Online</span></div>
+                <div class="sys-item"><span class="sys-label">Groq AI</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">Brevo</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">GitHub OAuth</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">Google OAuth</span><span class="sys-val sys-ok">Active</span></div>
               </div>
             </div>
           </div>
@@ -1025,177 +806,224 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
 
         <div class="card mb">
           <div class="card-header">
-            <div class="card-title">
-              <span class="card-title-icon cti-yellow"><i class='bx bxs-zap'></i></span>
-              AI Feature Usage
+            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-user-plus'></i></span>Recent Signups</div>
+          </div>
+          <div class="card-body" style="padding:8px 20px">
+            <div class="activity-list" id="activityFeed">
+              <div class="activity-item">
+                <div class="activity-icon ai-blue"><i class='bx bx-loader-alt bx-spin'></i></div>
+                <div class="activity-body"><div class="activity-text">Loading recent activity…</div></div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div class="card mb">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-zap'></i></span>AI Feature Usage</div>
           </div>
           <div class="card-body">
             <div class="ai-list">
-              <div class="ai-row"><span class="ai-row-label">Grammar & Style Fix</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:84%"></div></div><span class="ai-row-count">38.4k</span></div>
-              <div class="ai-row"><span class="ai-row-label">AI Write / Continue</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:67%"></div></div><span class="ai-row-count">30.1k</span></div>
-              <div class="ai-row"><span class="ai-row-label">Summarise</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:45%"></div></div><span class="ai-row-count">20.7k</span></div>
-              <div class="ai-row"><span class="ai-row-label">Rephrase</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div><span class="ai-row-count">12.9k</span></div>
-              <div class="ai-row"><span class="ai-row-label">Tone Shift</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:12%"></div></div><span class="ai-row-count">5.6k</span></div>
+              <div class="ai-row"><span class="ai-row-label">Fix Grammar & Spelling</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:78%"></div></div><span class="ai-row-count">78%</span></div>
+              <div class="ai-row"><span class="ai-row-label">Rewrite for Clarity</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:54%"></div></div><span class="ai-row-count">54%</span></div>
+              <div class="ai-row"><span class="ai-row-label">Expand & Elaborate</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:42%"></div></div><span class="ai-row-count">42%</span></div>
+              <div class="ai-row"><span class="ai-row-label">Summarise</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:35%"></div></div><span class="ai-row-count">35%</span></div>
+              <div class="ai-row"><span class="ai-row-label">Custom Prompt</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div><span class="ai-row-count">28%</span></div>
+              <div class="ai-row"><span class="ai-row-label">Tone Shift</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:18%"></div></div><span class="ai-row-count">18%</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ ACTIVITY LOG ══════════ -->
-      <div class="section" id="section-activity">
+      <!-- ══ ANALYTICS ══ -->
+      <div class="section" id="section-analytics">
         <div class="page-header">
           <div class="page-header-text">
-            <h1 class="page-title">Activity Log</h1>
-            <p class="page-sub">All recent platform events and admin actions.</p>
+            <h1 class="page-title">Analytics</h1>
+            <p class="page-sub">Platform growth and usage metrics.</p>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card ac-blue">
+            <div class="stat-icon si-blue"><i class='bx bxs-group'></i></div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-num" id="anaUsers">—</div>
+          </div>
+          <div class="stat-card ac-green">
+            <div class="stat-icon si-green"><i class='bx bxs-file-doc'></i></div>
+            <div class="stat-label">Total Documents</div>
+            <div class="stat-num" id="anaDocs">—</div>
+          </div>
+          <div class="stat-card ac-yellow">
+            <div class="stat-icon si-yellow"><i class='bx bxs-calendar'></i></div>
+            <div class="stat-label">Joined Today</div>
+            <div class="stat-num" id="anaToday">—</div>
+          </div>
+          <div class="stat-card ac-purple">
+            <div class="stat-icon si-purple"><i class='bx bxs-user-badge'></i></div>
+            <div class="stat-label">Active (Not Banned)</div>
+            <div class="stat-num" id="anaActive">—</div>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bx-pulse'></i></span>Recent Events</div>
-            <button class="card-action"><i class='bx bx-filter'></i> Filter</button>
+            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bx-bar-chart-alt-2'></i></span>Registration Trend (Last 7 Days)</div>
+            <button class="card-action" onclick="loadAnalytics()"><i class='bx bx-refresh'></i> Refresh</button>
           </div>
-          <div class="card-body" style="padding:8px 20px">
-            <div class="activity-list">
-              <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-user-plus'></i></div><div class="activity-body"><div class="activity-text">New user <strong>sarah.okonkwo@gmail.com</strong> registered via Google OAuth</div><div class="activity-time">2 min ago</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-green"><i class='bx bxs-zap'></i></div><div class="activity-body"><div class="activity-text"><strong>AI write</strong> feature used 48 times in the last hour</div><div class="activity-time">Just now</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-yellow"><i class='bx bxs-flag-alt'></i></div><div class="activity-body"><div class="activity-text">New report filed against user <strong>troll_acc_992</strong> — inappropriate content</div><div class="activity-time">11 min ago</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-file-doc'></i></div><div class="activity-body"><div class="activity-text"><strong>1,204 documents</strong> created today across all users</div><div class="activity-time">30 min ago</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-red"><i class='bx bxs-user-x'></i></div><div class="activity-body"><div class="activity-text">User <strong>spammer_007</strong> suspended by admin</div><div class="activity-time">1 hr ago</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-envelope'></i></div><div class="activity-body"><div class="activity-text">Broadcast email sent to <strong>2,841 users</strong> — subject: New AI features</div><div class="activity-time">3 hr ago</div></div></div>
-              <div class="activity-item"><div class="activity-icon ai-green"><i class='bx bxs-shield-alt-2'></i></div><div class="activity-body"><div class="activity-text">Admin <strong>james.eze@euscribe.app</strong> promoted by Super Admin</div><div class="activity-time">Yesterday</div></div></div>
-            </div>
+          <div class="card-body">
+            <div class="bar-chart" id="anaChart" style="height:140px"></div>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ ALL USERS ══════════ -->
+      <!-- ══ USERS ══ -->
       <div class="section" id="section-users">
         <div class="page-header">
           <div class="page-header-text">
-            <h1 class="page-title">All Users</h1>
+            <h1 class="page-title">Users</h1>
             <p class="page-sub">View, moderate, and manage platform users.</p>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-group'></i></span>User Registry</div>
+            <div class="card-title">
+              <span class="card-title-icon cti-blue"><i class='bx bxs-group'></i></span>
+              User Registry
+              <span id="userCountLabel" style="color:var(--text2);font-weight:400;font-size:12px"></span>
+            </div>
             <div class="toolbar">
               <div class="search-wrap">
-                <input class="search-input" type="text" placeholder="Search users…" oninput="filterUsers(this.value)"/>
+                <input class="search-input" id="userSearch" type="text" placeholder="Search users…" oninput="filterUsers()"/>
               </div>
-              <select class="filter-select" onchange="filterUserStatus(this.value)">
-                <option value="">All</option>
+              <select class="filter-select" id="userFilter" onchange="filterUsers()">
+                <option value="all">All</option>
+                <option value="admin">Admins</option>
+                <option value="banned">Banned</option>
                 <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-                <option value="admin">Admin</option>
               </select>
+              <button class="card-action" onclick="selectAllUsers()" id="selectAllBtn">☐ Select All</button>
+              <button class="card-action" style="color:var(--green);display:none" id="broadcastSelectedBtn" onclick="broadcastToSelected()">✉ Message Selected</button>
+              <button class="card-action" onclick="loadUsers()"><i class='bx bx-refresh'></i> Refresh</button>
             </div>
           </div>
           <div class="table-wrap">
             <table id="usersTable">
               <thead><tr>
-                <th><div class="cb-wrap"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/>User</div></th>
-                <th>Status</th><th>Role</th><th>Joined</th><th>Documents</th><th>Actions</th>
+                <th style="width:32px"></th>
+                <th>User</th><th>Joined</th><th>Role</th><th>Status</th><th>Actions</th>
               </tr></thead>
               <tbody id="usersBody">
-                <!-- rows injected by JS -->
+                <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:32px">Loading users…</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ REPORTS ══════════ -->
-      <div class="section" id="section-reports">
-        <div class="page-header">
-          <div class="page-header-text">
-            <h1 class="page-title">Reports</h1>
-            <p class="page-sub">User-submitted reports waiting for review.</p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><span class="card-title-icon cti-red"><i class='bx bxs-flag-alt'></i></span>Open Reports</div>
-            <span class="badge badge-yellow">3 pending</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Reported User</th><th>Reason</th><th>Reported By</th><th>Date</th><th>Actions</th></tr></thead>
-              <tbody>
-                <tr><td><div class="user-cell"><div class="user-av uav4">T</div><div><div class="user-name">troll_acc_992</div><div class="user-email">troll992@mail.com</div></div></div></td><td>Inappropriate content</td><td>3 users</td><td>Today</td><td><div class="actions-cell"><button class="action-btn ban">Suspend</button><button class="action-btn view" onclick="openProfile(3)">View</button></div></td></tr>
-                <tr><td><div class="user-cell"><div class="user-av uav3">S</div><div><div class="user-name">spam_bot_44</div><div class="user-email">spambot@mail.com</div></div></div></td><td>Spam / Bot activity</td><td>7 users</td><td>Yesterday</td><td><div class="actions-cell"><button class="action-btn ban">Suspend</button><button class="action-btn view" onclick="openProfile(4)">View</button></div></td></tr>
-                <tr><td><div class="user-cell"><div class="user-av uav2">M</div><div><div class="user-name">mike_test123</div><div class="user-email">miketest@gmail.com</div></div></div></td><td>Abusive language</td><td>1 user</td><td>2 days ago</td><td><div class="actions-cell"><button class="action-btn ban">Suspend</button><button class="action-btn view">View</button></div></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══════════ DOCUMENTS ══════════ -->
+      <!-- ══ DOCUMENTS ══ -->
       <div class="section" id="section-documents">
         <div class="page-header">
           <div class="page-header-text">
             <h1 class="page-title">Documents</h1>
-            <p class="page-sub">Browse all user-created documents on the platform.</p>
+            <p class="page-sub">All documents created on EuScribe.</p>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-title-icon cti-green"><i class='bx bxs-file-doc'></i></span>All Documents</div>
-            <div class="toolbar">
-              <div class="search-wrap"><input class="search-input" type="text" placeholder="Search documents…"/></div>
-              <select class="filter-select"><option>All Types</option><option>Essay</option><option>Report</option><option>Story</option></select>
-            </div>
+            <button class="card-action" onclick="loadDocs()"><i class='bx bx-refresh'></i> Refresh</button>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Title</th><th>Owner</th><th>Type</th><th>Words</th><th>Created</th><th>Actions</th></tr></thead>
-              <tbody>
-                <tr><td><strong style="color:var(--text)">The History of AI Writing</strong></td><td><span style="color:var(--blue2)">sarah.ok</span></td><td><span class="badge badge-blue">Essay</span></td><td>1,420</td><td>Today</td><td><div class="actions-cell"><button class="action-btn view">View</button><button class="action-btn super-only" id="deleteDocBtn1">Delete</button></div></td></tr>
-                <tr><td><strong style="color:var(--text)">Q3 Market Analysis</strong></td><td><span style="color:var(--blue2)">james.eze</span></td><td><span class="badge badge-yellow">Report</span></td><td>3,108</td><td>Yesterday</td><td><div class="actions-cell"><button class="action-btn view">View</button><button class="action-btn super-only" id="deleteDocBtn2">Delete</button></div></td></tr>
-                <tr><td><strong style="color:var(--text)">Midnight in Lagos</strong></td><td><span style="color:var(--blue2)">amara.chi</span></td><td><span class="badge badge-purple">Story</span></td><td>876</td><td>2 days ago</td><td><div class="actions-cell"><button class="action-btn view">View</button><button class="action-btn super-only" id="deleteDocBtn3">Delete</button></div></td></tr>
+              <thead><tr><th>Title</th><th>Owner</th><th>Words</th><th>Created</th><th>Updated</th></tr></thead>
+              <tbody id="docsTable">
+                <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading documents…</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ BROADCAST ══════════ -->
+      <!-- ══ BROADCAST ══ -->
       <div class="section" id="section-broadcast">
         <div class="page-header">
           <div class="page-header-text">
             <h1 class="page-title">Broadcast</h1>
-            <p class="page-sub">Send announcements or emails to all users or specific groups.</p>
+            <p class="page-sub">Post announcements or send targeted emails to users.</p>
           </div>
         </div>
+
+        <!-- In-App Announcement -->
+        <div class="card mb">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-megaphone'></i></span>In-App Announcement Banner</div>
+            <div style="display:flex;gap:8px">
+              <button class="card-action" onclick="loadCurrentAnnouncement()"><i class='bx bx-refresh'></i> Refresh</button>
+              <button class="card-action" style="color:var(--red)" onclick="clearAnnouncement()"><i class='bx bx-x'></i> Clear</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="currentAnnouncementWrap" style="margin-bottom:16px;display:none">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:8px">Currently Active</div>
+              <div class="ann-current"><i class='bx bx-info-circle'></i><span id="currentAnnouncementText"></span></div>
+            </div>
+            <div id="noAnnouncementMsg" style="font-size:13px;color:var(--text3);margin-bottom:16px">No active announcement.</div>
+            <div class="broadcast-form">
+              <div class="form-group">
+                <label class="form-label">Send To</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                  <button class="rg-btn active" onclick="setAnnMode('all')" id="ann-rg-all">All Users</button>
+                  <button class="rg-btn" onclick="setAnnMode('admins')" id="ann-rg-admins">Admins Only</button>
+                  <button class="rg-btn" onclick="setAnnMode('custom')" id="ann-rg-custom">Custom</button>
+                </div>
+                <div id="annCustomWrap" style="display:none;margin-top:6px">
+                  <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Selected users (select in the Users tab first):</div>
+                  <div class="recipient-pills" id="annRecipientPills"><span class="recipient-hint">No users selected</span></div>
+                </div>
+                <div id="annModeLabel" style="font-size:11px;color:var(--text3);margin-top:6px">Posting to: all users</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Message</label>
+                <textarea class="form-textarea" id="announcementMessage" placeholder="e.g. 🎉 Version history is now live!" style="min-height:90px"></textarea>
+              </div>
+              <div class="broadcast-result" id="announcementResult"></div>
+              <button class="send-btn" id="postAnnouncementBtn" onclick="postAnnouncement()"><i class='bx bx-broadcast'></i> Post Announcement</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Broadcast -->
         <div class="grid2">
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-megaphone'></i></span>Compose Message</div>
+              <div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-envelope'></i></span>Email Broadcast</div>
             </div>
             <div class="card-body">
               <div class="broadcast-form">
                 <div class="form-group">
-                  <label class="form-label">Recipients</label>
-                  <div class="recipient-pills" id="recipientPills">
-                    <span class="pill">All Users <button onclick="removePill(this)">×</button></span>
-                    <span class="recipient-hint" id="pillHint" style="display:none">Add recipients…</span>
+                  <label class="form-label">Send To</label>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                    <button class="rg-btn active" onclick="setRecipientGroup('all')" id="rg-all">All Active</button>
+                    <button class="rg-btn" onclick="setRecipientGroup('admins')" id="rg-admins">Admins Only</button>
+                    <button class="rg-btn" onclick="setRecipientGroup('custom')" id="rg-custom">Custom</button>
                   </div>
+                  <div id="customRecipientWrap" style="display:none">
+                    <div class="recipient-pills" id="recipientPills">
+                      <span class="recipient-hint">Select users in the Users tab to add them here</span>
+                    </div>
+                  </div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:6px" id="recipientCountLabel">Sending to: all active users</div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Subject</label>
-                  <input class="form-input" type="text" id="broadcastSubject" placeholder="e.g. New feature just dropped 🚀"/>
+                  <input class="form-input" type="text" id="broadcastSubject" placeholder="e.g. New features just dropped 🚀"/>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Message Body</label>
-                  <textarea class="form-textarea" id="broadcastBody" placeholder="Write your message here…"></textarea>
+                  <label class="form-label">Message</label>
+                  <textarea class="form-textarea" id="broadcastMessage" placeholder="Write your message here…"></textarea>
                 </div>
-                <div class="form-group">
-                  <label class="form-label"><input type="checkbox" id="sendEmailCb" style="margin-right:6px"/>Also send as email (Brevo)</label>
-                </div>
-                <button class="send-btn" onclick="sendBroadcast()"><i class='bx bx-send'></i> Send Broadcast</button>
                 <div class="broadcast-result" id="broadcastResult"></div>
+                <button class="send-btn" id="sendBroadcastBtn" onclick="sendBroadcast()"><i class='bx bx-send'></i> Send Email</button>
               </div>
             </div>
           </div>
@@ -1206,7 +1034,7 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
             <div class="card-body" style="padding:8px 20px">
               <div class="activity-list">
                 <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-envelope'></i></div><div class="activity-body"><div class="activity-text">New AI features — <strong>All Users</strong></div><div class="activity-time">3 hr ago · 2,841 recipients</div></div></div>
-                <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-envelope'></i></div><div class="activity-body"><div class="activity-text">Scheduled maintenance notice — <strong>All Users</strong></div><div class="activity-time">2 days ago · 2,693 recipients</div></div></div>
+                <div class="activity-item"><div class="activity-icon ai-blue"><i class='bx bxs-envelope'></i></div><div class="activity-body"><div class="activity-text">Scheduled maintenance — <strong>All Users</strong></div><div class="activity-time">2 days ago · 2,693 recipients</div></div></div>
                 <div class="activity-item"><div class="activity-icon ai-green"><i class='bx bxs-envelope'></i></div><div class="activity-body"><div class="activity-text">Welcome to EuScribe Beta — <strong>New Users</strong></div><div class="activity-time">Last week · 148 recipients</div></div></div>
               </div>
             </div>
@@ -1214,21 +1042,115 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
         </div>
       </div>
 
-      <!-- ══════════ MANAGE ADMINS (Super-Admin only) ══════════ -->
+      <!-- ══ AI USAGE ══ -->
+      <div class="section" id="section-ai">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">AI Usage</h1>
+            <p class="page-sub">How users interact with the AI assistant.</p>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-zap'></i></span>Action Breakdown</div></div>
+            <div class="card-body">
+              <div class="ai-list">
+                <div class="ai-row"><span class="ai-row-label">Fix Grammar & Spelling</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:78%"></div></div><span class="ai-row-count">78%</span></div>
+                <div class="ai-row"><span class="ai-row-label">Rewrite for Clarity</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:54%"></div></div><span class="ai-row-count">54%</span></div>
+                <div class="ai-row"><span class="ai-row-label">Expand & Elaborate</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:42%"></div></div><span class="ai-row-count">42%</span></div>
+                <div class="ai-row"><span class="ai-row-label">Summarise</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:35%"></div></div><span class="ai-row-count">35%</span></div>
+                <div class="ai-row"><span class="ai-row-label">Custom Prompt</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:28%"></div></div><span class="ai-row-count">28%</span></div>
+                <div class="ai-row"><span class="ai-row-label">Tone Shift</span><div class="ai-bar-wrap"><div class="ai-bar-fill" style="width:18%"></div></div><span class="ai-row-count">18%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-data'></i></span>AI Stats</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><span class="sys-label">Model</span><span class="sys-val" style="font-size:11px">llama-3.3-70b</span></div>
+                <div class="sys-item"><span class="sys-label">Provider</span><span class="sys-val sys-ok">Groq</span></div>
+                <div class="sys-item"><span class="sys-label">Avg Response</span><span class="sys-val">~2.4s</span></div>
+                <div class="sys-item"><span class="sys-label">Success Rate</span><span class="sys-val sys-ok">98.2%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SYSTEM ══ -->
+      <div class="section" id="section-system">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">System Health</h1>
+            <p class="page-sub">Real-time status of all EuScribe services.</p>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="card-title-icon cti-green"><i class='bx bxs-server'></i></span>Services</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><span class="sys-label">Backend (Render)</span><span class="sys-val sys-ok">Online</span></div>
+                <div class="sys-item"><span class="sys-label">MongoDB Atlas</span><span class="sys-val sys-ok">Connected</span></div>
+                <div class="sys-item"><span class="sys-label">Groq AI API</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">Brevo Email</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">GitHub OAuth</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">Google OAuth</span><span class="sys-val sys-ok">Active</span></div>
+                <div class="sys-item"><span class="sys-label">Frontend (GH Pages)</span><span class="sys-val sys-ok">Live</span></div>
+                <div class="sys-item"><span class="sys-label">JWT Auth</span><span class="sys-val sys-ok">Secure</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-chip'></i></span>Environment</div></div>
+            <div class="card-body">
+              <div class="sys-grid">
+                <div class="sys-item"><span class="sys-label">Node.js</span><span class="sys-val">v24.x</span></div>
+                <div class="sys-item"><span class="sys-label">Express</span><span class="sys-val">4.x</span></div>
+                <div class="sys-item"><span class="sys-label">Mongoose</span><span class="sys-val">8.x</span></div>
+                <div class="sys-item"><span class="sys-label">Region</span><span class="sys-val">US East</span></div>
+                <div class="sys-item"><span class="sys-label">Plan</span><span class="sys-val sys-warn">Free Tier</span></div>
+                <div class="sys-item"><span class="sys-label">Session</span><span class="sys-val sys-ok" id="uptime">0s</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ACTIVITY LOGS ══ -->
+      <div class="section" id="section-logs">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Activity Logs</h1>
+            <p class="page-sub">Recent platform activity and user signups.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bx-list-ul'></i></span>Recent Events</div>
+            <button class="card-action" onclick="loadActivity()"><i class='bx bx-refresh'></i> Refresh</button>
+          </div>
+          <div class="card-body" style="padding:8px 20px">
+            <div class="activity-list" id="logsActivity">
+              <div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Loading activity…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MANAGE ADMINS (super only) ══ -->
       <div class="section" id="section-admins">
         <div class="page-header">
           <div class="page-header-text">
             <h1 class="page-title">Manage Admins</h1>
-            <p class="page-sub">Create regular admins and control their access level.</p>
+            <p class="page-sub">Create regular admins and control their access.</p>
           </div>
         </div>
-
-        <!-- Non-super-admin sees restricted banner; super-admin sees full content -->
         <div class="role-restricted-banner hidden" id="adminsSectionBanner">
           <i class='bx bxs-lock-alt'></i>
-          <p>This section is restricted to the <strong>Super Admin</strong> only. You do not have permission to manage admin roles.</p>
+          <p>This section is restricted to the <strong>Super Admin</strong> only.</p>
         </div>
-
         <div class="super-only-section" id="adminsContent">
           <div class="card mb">
             <div class="card-header">
@@ -1237,35 +1159,15 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Admin</th><th>Role Level</th><th>Added</th><th>Last Active</th><th>Actions</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td><div class="user-cell"><div class="user-av uav1">SA</div><div><div class="user-name">You (Super Admin)</div><div class="user-email">superadmin@euscribe.app</div></div></div></td>
-                    <td><span class="badge badge-purple">Super Admin</span></td>
-                    <td>Origin</td><td>Now</td>
-                    <td><span style="font-size:11px;color:var(--text3)">— cannot be modified</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="user-cell"><div class="user-av uav5">JE</div><div><div class="user-name">James Eze</div><div class="user-email">james.eze@euscribe.app</div></div></div></td>
-                    <td><span class="badge badge-blue">Regular Admin</span></td>
-                    <td>Jun 1, 2025</td><td>2 hr ago</td>
-                    <td><div class="actions-cell"><button class="action-btn promote" onclick="promoteAdmin('James Eze')">Promote</button><button class="action-btn" style="color:var(--red);border-color:rgba(255,74,106,0.3)" onclick="removeAdmin('James Eze')">Remove</button></div></td>
-                  </tr>
-                  <tr>
-                    <td><div class="user-cell"><div class="user-av uav2">AC</div><div><div class="user-name">Amara Chisom</div><div class="user-email">amara.chi@euscribe.app</div></div></div></td>
-                    <td><span class="badge badge-blue">Regular Admin</span></td>
-                    <td>May 14, 2025</td><td>Yesterday</td>
-                    <td><div class="actions-cell"><button class="action-btn promote" onclick="promoteAdmin('Amara Chisom')">Promote</button><button class="action-btn" style="color:var(--red);border-color:rgba(255,74,106,0.3)" onclick="removeAdmin('Amara Chisom')">Remove</button></div></td>
-                  </tr>
+                <thead><tr><th>Admin</th><th>Role Level</th><th>Actions</th></tr></thead>
+                <tbody id="adminsTableBody">
+                  <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:32px">Loading admins…</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
-
           <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-info-circle'></i></span>Regular Admin Permissions</div>
-            </div>
+            <div class="card-header"><div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-info-circle'></i></span>Regular Admin Permissions</div></div>
             <div class="card-body">
               <div class="grid2" style="margin-bottom:0">
                 <div>
@@ -1273,8 +1175,8 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
                   <div class="activity-list">
                     <div class="activity-item" style="padding:7px 0"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">View all users</div></div></div>
                     <div class="activity-item" style="padding:7px 0"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">Suspend / unsuspend users</div></div></div>
-                    <div class="activity-item" style="padding:7px 0"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">View & resolve reports</div></div></div>
-                    <div class="activity-item" style="padding:7px 0;border-bottom:none"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">View activity log</div></div></div>
+                    <div class="activity-item" style="padding:7px 0"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">View activity log</div></div></div>
+                    <div class="activity-item" style="padding:7px 0;border-bottom:none"><div class="activity-icon ai-green" style="width:22px;height:22px;font-size:11px"><i class='bx bx-check'></i></div><div class="activity-body"><div class="activity-text" style="font-size:12px">Send broadcasts</div></div></div>
                   </div>
                 </div>
                 <div>
@@ -1292,62 +1194,38 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
         </div>
       </div>
 
-      <!-- ══════════ SETTINGS (Super-Admin only) ══════════ -->
+      <!-- ══ SETTINGS (super only) ══ -->
       <div class="section" id="section-settings">
         <div class="page-header">
           <div class="page-header-text">
             <h1 class="page-title">Settings</h1>
-            <p class="page-sub">Platform configuration and API management.</p>
+            <p class="page-sub">Platform configuration and API key management.</p>
           </div>
         </div>
-
         <div class="role-restricted-banner hidden" id="settingsSectionBanner">
           <i class='bx bxs-lock-alt'></i>
-          <p>This section is restricted to the <strong>Super Admin</strong> only. You do not have permission to access platform settings.</p>
+          <p>This section is restricted to the <strong>Super Admin</strong> only.</p>
         </div>
-
         <div class="super-only-section" id="settingsContent">
           <div class="grid2">
             <div class="card">
-              <div class="card-header">
-                <div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-cog'></i></span>General</div>
-              </div>
+              <div class="card-header"><div class="card-title"><span class="card-title-icon cti-blue"><i class='bx bxs-cog'></i></span>General</div></div>
               <div class="card-body">
                 <div class="broadcast-form">
-                  <div class="form-group">
-                    <label class="form-label">Platform Name</label>
-                    <input class="form-input" type="text" value="EuScribe"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Support Email</label>
-                    <input class="form-input" type="email" value="support@euscribe.app"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Max AI Requests / Day (per user)</label>
-                    <input class="form-input" type="number" value="100"/>
-                  </div>
+                  <div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" type="text" value="EuScribe"/></div>
+                  <div class="form-group"><label class="form-label">Support Email</label><input class="form-input" type="email" value="support@euscribe.app"/></div>
+                  <div class="form-group"><label class="form-label">Max AI Requests / Day</label><input class="form-input" type="number" value="100"/></div>
                   <button class="send-btn"><i class='bx bx-save'></i> Save Changes</button>
                 </div>
               </div>
             </div>
             <div class="card">
-              <div class="card-header">
-                <div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-key'></i></span>API Keys</div>
-              </div>
+              <div class="card-header"><div class="card-title"><span class="card-title-icon cti-yellow"><i class='bx bxs-key'></i></span>API Keys</div></div>
               <div class="card-body">
                 <div class="broadcast-form">
-                  <div class="form-group">
-                    <label class="form-label">Groq API Key</label>
-                    <input class="form-input" type="password" value="gsk_••••••••••••••••••••"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Brevo API Key</label>
-                    <input class="form-input" type="password" value="xkeysib-••••••••••••••••"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">JWT Secret</label>
-                    <input class="form-input" type="password" value="••••••••••••••••••••••••"/>
-                  </div>
+                  <div class="form-group"><label class="form-label">Groq API Key</label><input class="form-input" type="password" value="gsk_••••••••••••••••••••"/></div>
+                  <div class="form-group"><label class="form-label">Brevo API Key</label><input class="form-input" type="password" value="xkeysib-••••••••••••••••"/></div>
+                  <div class="form-group"><label class="form-label">JWT Secret</label><input class="form-input" type="password" value="••••••••••••••••••••••••"/></div>
                   <button class="send-btn"><i class='bx bx-save'></i> Update Keys</button>
                 </div>
               </div>
@@ -1360,72 +1238,65 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
   </div><!-- /main -->
 </div><!-- /shell -->
 
-<!-- ══════════════ SCRIPTS ══════════════ -->
 <script>
-/* ═══════════════════════════════════════════
-   ROLE SYSTEM
-   Change CURRENT_ROLE to 'admin' to simulate a regular admin
-═══════════════════════════════════════════ */
-const CURRENT_ROLE = 'super_admin'; // 'super_admin' | 'admin'
-const IS_SUPER = CURRENT_ROLE === 'super_admin';
+const API = 'https://euscribe.onrender.com';
 
+/* ── AUTH GUARD ── */
+const token = localStorage.getItem('euscribe_token');
+const isAdminLS = localStorage.getItem('euscribe_is_admin');
+if (!token) { window.location.href = 'euscribe-auth.html'; }
+else if (isAdminLS !== 'true') { alert('Admin access required.'); window.location.href = 'euscribe-auth.html'; }
+
+/* ── ROLE SYSTEM ── */
+// IS_SUPER can be set based on your backend's response. Default true if logged in as admin.
+// To support a real super-admin flag, store it in localStorage during login.
+const IS_SUPER = localStorage.getItem('euscribe_is_super') !== 'false'; // defaults to true unless explicitly false
+
+let allUsers = [];
+let selectedUserIds = new Set();
+let currentProfileUser = null;
+let recipientMode = 'all';
+let annMode = 'all';
+let customRecipients = [];
+let annCustomRecipients = [];
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const name = localStorage.getItem('euscribe_user_name') || 'Admin';
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('sidebarAvatar').textContent = initials;
+  document.getElementById('sidebarName').textContent = name;
+  document.getElementById('sidebarRole').textContent = IS_SUPER ? 'Super Admin' : 'Moderator';
+
+  applyRoleRestrictions();
+  startClock();
+  startUptime();
+  loadDashboard();
+  renderBarChart('regChart', getDummyData(), 80);
+});
+
+/* ── ROLE RESTRICTIONS ── */
 function applyRoleRestrictions() {
-  // Sidebar nav items hidden for regular admin
-  const adminNavSection = document.getElementById('navAdminSection');
   if (!IS_SUPER) {
-    adminNavSection.classList.add('hidden-section');
-  }
-
-  // Settings / Admins sections: show banners, hide content
-  ['settings','admins'].forEach(sec => {
-    const banner = document.getElementById(sec + 'SectionBanner');
-    const content = document.getElementById(sec + 'Content');
-    if (!IS_SUPER) {
+    document.getElementById('navAdminSection').classList.add('hidden-section');
+    ['settings','admins'].forEach(sec => {
+      const banner = document.getElementById(sec + 'SectionBanner');
+      const content = document.getElementById(sec + 'Content');
       if (banner) banner.classList.remove('hidden');
       if (content) content.classList.add('hidden-section');
-    }
-  });
-
-  // Delete document buttons (super-only destructive actions)
-  document.querySelectorAll('.action-btn.super-only').forEach(btn => {
-    if (!IS_SUPER) btn.classList.add('disabled-for-role');
-  });
-
-  // Profile modal buttons (handled at open time)
-
-  // Topbar role indicator
-  const ri = document.getElementById('topbarRoleIndicator');
-  const rn = document.getElementById('topbarRoleName');
-  if (!IS_SUPER) {
-    ri.className = 'role-indicator ri-admin';
-    ri.innerHTML = '<i class="bx bxs-shield-alt-2" style="font-size:11px"></i><span id="topbarRoleName">Admin</span>';
-  }
-
-  // Sidebar profile name and role
-  document.getElementById('sidebarName').textContent = IS_SUPER ? 'Super Admin' : 'Regular Admin';
-  document.getElementById('sidebarRole').textContent = IS_SUPER ? 'Super Admin' : 'Moderator';
-  document.getElementById('sidebarAvatar').textContent = IS_SUPER ? 'SA' : 'A';
-
-  // Promote action on locked nav items
-  if (!IS_SUPER) {
-    document.querySelectorAll('.action-btn.promote').forEach(btn => {
-      btn.classList.add('disabled-for-role');
     });
+    const ri = document.getElementById('topbarRoleIndicator');
+    ri.className = 'role-indicator ri-admin';
+    ri.innerHTML = '<i class="bx bxs-shield-alt-2" style="font-size:11px"></i><span>Admin</span>';
   }
 }
 
-/* ═══════════════════════════════════════════
-   NAV / SECTION SWITCHING
-═══════════════════════════════════════════ */
+/* ── NAV / SECTION SWITCHING ── */
 const sectionMeta = {
-  dashboard:  'Dashboard',
-  activity:   'Activity Log',
-  users:      'All Users',
-  reports:    'Reports',
-  documents:  'Documents',
-  broadcast:  'Broadcast',
-  admins:     'Manage Admins',
-  settings:   'Settings',
+  dashboard:'Dashboard', analytics:'Analytics', users:'Users',
+  documents:'Documents', broadcast:'Broadcast', ai:'AI Usage',
+  system:'System Health', logs:'Activity Logs',
+  admins:'Manage Admins', settings:'Settings',
 };
 
 function showSection(id, btn) {
@@ -1436,250 +1307,662 @@ function showSection(id, btn) {
   if (btn) btn.classList.add('active');
   document.getElementById('breadcrumbCurrent').textContent = sectionMeta[id] || id;
   closeSidebar();
+  if (id === 'users') loadUsers();
+  if (id === 'documents') loadDocs();
+  if (id === 'logs') loadActivity();
+  if (id === 'analytics') loadAnalytics();
+  if (id === 'broadcast') { loadCurrentAnnouncement(); }
+  if (id === 'admins' && IS_SUPER) loadAdmins();
 }
 
-/* ═══════════════════════════════════════════
-   MOBILE SIDEBAR
-═══════════════════════════════════════════ */
+/* ── SIDEBAR (mobile) ── */
 function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  const ov = document.getElementById('sidebarOverlay');
-  sb.classList.toggle('open');
-  ov.classList.toggle('show');
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
 
-/* ═══════════════════════════════════════════
-   BACK TO APP
-═══════════════════════════════════════════ */
-function backToApp() {
-  // Navigates back to the main EuScribe editor WITHOUT logging out.
-  // Session (JWT in localStorage / cookies) remains intact.
-  window.location.href = 'index.html';
+/* ── CLOCK ── */
+function startClock() {
+  function tick() { document.getElementById('topbarClock').textContent = new Date().toLocaleTimeString('en-US',{hour12:false}); }
+  tick(); setInterval(tick, 1000);
 }
 
-/* ═══════════════════════════════════════════
-   LOGOUT
-═══════════════════════════════════════════ */
+/* ── UPTIME ── */
+const sessionStart = Date.now();
+function startUptime() {
+  setInterval(() => {
+    const s = Math.floor((Date.now() - sessionStart) / 1000);
+    const el = document.getElementById('uptime');
+    if (el) el.textContent = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ${s%60}s`;
+  }, 1000);
+}
+
+/* ── NAVIGATION HELPERS ── */
+function backToApp() { window.location.href = 'index.html'; }
 function handleLogout() {
   if (confirm('Sign out of EuScribe Admin?')) {
-    // Clear session tokens if needed, then redirect
-    // localStorage.removeItem('eu_token');
-    window.location.href = 'login.html';
+    ['euscribe_token','euscribe_user_name','euscribe_user_email','euscribe_is_admin','euscribe_is_super'].forEach(k => localStorage.removeItem(k));
+    window.location.href = 'euscribe-auth.html';
   }
 }
 
-/* ═══════════════════════════════════════════
-   CLOCK
-═══════════════════════════════════════════ */
-function updateClock() {
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  const ss = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('topbarClock').textContent = `${hh}:${mm}:${ss}`;
+/* ── DASHBOARD ── */
+async function loadDashboard() {
+  try {
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const uRes = await fetch(`${API}/api/admin/users`, { headers });
+    if (uRes.ok) {
+      const users = await uRes.json();
+      allUsers = users;
+      document.getElementById('totalUsers').textContent = users.length;
+      document.getElementById('userCountBadge').textContent = users.length;
+      document.getElementById('totalBanned').textContent = users.filter(u => u.isBanned).length;
+      document.getElementById('totalAdmins').textContent = users.filter(u => u.isAdmin).length;
+      renderActivityFeed(users);
+      renderBarChart('regChart', getRegistrationData(users), 80);
+    }
+    const dRes = await fetch(`${API}/api/admin/documents`, { headers });
+    if (dRes.ok) {
+      const docs = await dRes.json();
+      document.getElementById('totalDocs').textContent = docs.length;
+    }
+  } catch(e) {
+    ['totalUsers','totalDocs','totalBanned','totalAdmins'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+  }
 }
-setInterval(updateClock, 1000);
-updateClock();
 
-/* ═══════════════════════════════════════════
-   USER TABLE DATA & RENDERING
-═══════════════════════════════════════════ */
-const USERS = [
-  { id:1, name:'Sarah Okonkwo',  email:'sarah.ok@gmail.com',    av:'uav1', initials:'SO', status:'active',    role:'user',  joined:'Jun 9, 2025',  docs:14 },
-  { id:2, name:'James Eze',      email:'james.eze@mail.com',    av:'uav5', initials:'JE', status:'active',    role:'admin', joined:'May 1, 2025',  docs:7  },
-  { id:3, name:'troll_acc_992',  email:'troll992@mail.com',     av:'uav4', initials:'T',  status:'suspended', role:'user',  joined:'Apr 20, 2025', docs:2  },
-  { id:4, name:'spam_bot_44',    email:'spambot@mail.com',      av:'uav3', initials:'S',  status:'suspended', role:'user',  joined:'Mar 3, 2025',  docs:0  },
-  { id:5, name:'Amara Chisom',   email:'amara.chi@yahoo.com',   av:'uav2', initials:'AC', status:'active',    role:'user',  joined:'Jan 15, 2025', docs:31 },
-  { id:6, name:'Dami Adeyemi',   email:'dami.adeyemi@gmail.com',av:'uav1', initials:'DA', status:'active',    role:'user',  joined:'Feb 28, 2025', docs:19 },
-];
-
-function renderUsers(data) {
+/* ── USERS ── */
+async function loadUsers() {
   const tbody = document.getElementById('usersBody');
-  tbody.innerHTML = data.map(u => {
-    const statusBadge = u.status === 'active'
-      ? `<span class="badge badge-green">Active</span>`
-      : `<span class="badge badge-red">Suspended</span>`;
-    const roleBadge = u.role === 'admin'
-      ? `<span class="badge badge-purple">Admin</span>`
-      : `<span class="badge badge-gray">User</span>`;
-    const banBtn = u.status === 'active'
-      ? `<button class="action-btn ban super-only ${!IS_SUPER?'disabled-for-role':''}" onclick="toggleSuspend(${u.id})">Suspend</button>`
-      : `<button class="action-btn unban" onclick="toggleSuspend(${u.id})">Unsuspend</button>`;
-    const promoteBtn = `<button class="action-btn promote super-only ${!IS_SUPER?'disabled-for-role':''}" onclick="openProfile(${u.id})">Promote</button>`;
-    return `<tr id="userRow${u.id}">
-      <td><div class="user-cell" onclick="openProfile(${u.id})"><div class="user-av ${u.av}">${u.initials}</div><div><div class="user-name">${u.name}</div><div class="user-email">${u.email}</div></div></div></td>
-      <td>${statusBadge}</td>
-      <td>${roleBadge}</td>
-      <td>${u.joined}</td>
-      <td>${u.docs}</td>
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:32px">Loading…</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error('Failed');
+    allUsers = await res.json();
+    document.getElementById('userCountLabel').textContent = `(${allUsers.length} total)`;
+    document.getElementById('userCountBadge').textContent = allUsers.length;
+    renderUsersTable(allUsers);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:32px">Could not load users.</td></tr>';
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersBody');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:32px">No users found.</td></tr>';
+    return;
+  }
+  const avColors = ['uav1','uav2','uav3','uav4','uav5'];
+  const myId = parseJwt(token)?.id;
+  tbody.innerHTML = users.map((u, i) => {
+    const isSelf = u._id === myId;
+    return `<tr>
+      <td><input type="checkbox" ${selectedUserIds.has(u._id) ? 'checked' : ''} onchange="toggleSelect('${u._id}',this.checked)" ${isSelf ? 'disabled' : ''}/></td>
+      <td>
+        <div class="user-cell" onclick="openProfile('${u._id}')">
+          <div class="user-av ${avColors[i % avColors.length]}">${(u.name||'?')[0].toUpperCase()}</div>
+          <div>
+            <div class="user-name">${u.name || 'Unknown'}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>${new Date(u.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+      <td><span class="badge ${u.isAdmin ? 'badge-purple' : 'badge-gray'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+      <td><span class="badge ${u.isBanned ? 'badge-red' : 'badge-green'}">${u.isBanned ? 'Banned' : 'Active'}</span></td>
       <td><div class="actions-cell">
-        <button class="action-btn view" onclick="openProfile(${u.id})">View</button>
-        ${banBtn}
-        ${promoteBtn}
+        ${isSelf ? '<span style="font-size:11px;color:var(--text3)">You</span>' : `
+          <button class="action-btn view" onclick="openProfile('${u._id}')">View</button>
+          <button class="action-btn promote" onclick="togglePromote('${u._id}')">${u.isAdmin ? 'Demote' : 'Promote'}</button>
+          <button class="action-btn ${u.isBanned ? 'unban' : 'ban'}" onclick="toggleBan('${u._id}')">${u.isBanned ? 'Unban' : 'Ban'}</button>
+          <button class="action-btn danger-btn" onclick="deleteUser('${u._id}')">Remove</button>
+        `}
       </div></td>
     </tr>`;
   }).join('');
+  updateSelectBtn();
 }
 
-function filterUsers(q) {
-  const filtered = USERS.filter(u =>
-    u.name.toLowerCase().includes(q.toLowerCase()) ||
-    u.email.toLowerCase().includes(q.toLowerCase())
-  );
-  renderUsers(filtered);
+/* ── SELECTION ── */
+function toggleSelect(id, checked) {
+  if (checked) selectedUserIds.add(id); else selectedUserIds.delete(id);
+  updateSelectBtn();
+}
+function selectAllUsers() {
+  const filtered = getFilteredUsers();
+  const myId = parseJwt(token)?.id;
+  const allSelected = filtered.every(u => u._id === myId || selectedUserIds.has(u._id));
+  filtered.forEach(u => { if (u._id !== myId) { if (allSelected) selectedUserIds.delete(u._id); else selectedUserIds.add(u._id); } });
+  renderUsersTable(filtered);
+}
+function updateSelectBtn() {
+  const count = selectedUserIds.size;
+  document.getElementById('selectAllBtn').textContent = count > 0 ? `☑ ${count} selected` : '☐ Select All';
+  document.getElementById('broadcastSelectedBtn').style.display = count > 0 ? 'inline' : 'none';
+}
+function broadcastToSelected() {
+  setRecipientGroup('custom');
+  setAnnMode('custom');
+  selectedUserIds.forEach(id => {
+    const u = allUsers.find(u => u._id === id);
+    if (u) { addRecipientPill(u); addAnnRecipient(u); }
+  });
+  document.querySelectorAll('.nav-item').forEach(b => { if (b.textContent.trim().startsWith('Broadcast')) b.click(); });
 }
 
-function filterUserStatus(status) {
-  const filtered = status ? USERS.filter(u => u.role === status || u.status === status) : USERS;
-  renderUsers(filtered);
+function getFilteredUsers() {
+  const q = (document.getElementById('userSearch')?.value || '').toLowerCase().trim();
+  const filter = document.getElementById('userFilter')?.value || 'all';
+  let filtered = allUsers;
+  if (q) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  if (filter === 'admin') filtered = filtered.filter(u => u.isAdmin);
+  if (filter === 'banned') filtered = filtered.filter(u => u.isBanned);
+  if (filter === 'active') filtered = filtered.filter(u => !u.isBanned);
+  return filtered;
+}
+function filterUsers() { renderUsersTable(getFilteredUsers()); }
+
+/* ── PROMOTE / BAN / DELETE ── */
+async function togglePromote(id) {
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/promote`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
+    const data = await res.json();
+    if (!res.ok) { alert(data.message); return; }
+    const u = allUsers.find(u => u._id === id);
+    if (u) u.isAdmin = data.isAdmin;
+    filterUsers();
+    if (currentProfileUser?._id === id) { currentProfileUser.isAdmin = data.isAdmin; refreshProfileActions(); }
+  } catch(e) { alert('Error updating user.'); }
 }
 
-function toggleAll(cb) {
-  document.querySelectorAll('#usersBody input[type=checkbox]').forEach(c => c.checked = cb.checked);
+async function toggleBan(id) {
+  const u = allUsers.find(u => u._id === id);
+  const action = u?.isBanned ? 'unban' : 'ban';
+  if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} this user?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/ban`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
+    const data = await res.json();
+    if (!res.ok) { alert(data.message); return; }
+    if (u) u.isBanned = data.isBanned;
+    filterUsers();
+    if (currentProfileUser?._id === id) { currentProfileUser.isBanned = data.isBanned; refreshProfileActions(); }
+  } catch(e) { alert('Error updating user.'); }
 }
 
-function toggleSuspend(id) {
-  const user = USERS.find(u => u.id === id);
-  if (!user) return;
-  user.status = user.status === 'active' ? 'suspended' : 'active';
-  renderUsers(USERS);
+async function deleteUser(id) {
+  if (!confirm('Remove this user permanently? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} });
+    if (res.ok) { allUsers = allUsers.filter(u => u._id !== id); filterUsers(); closeModal(); }
+    else alert('Could not remove user.');
+  } catch(e) { alert('Error removing user.'); }
 }
 
-/* ═══════════════════════════════════════════
-   USER PROFILE MODAL
-═══════════════════════════════════════════ */
-function openProfile(id) {
-  const user = USERS.find(u => u.id === id);
-  if (!user) return;
-
-  const promoteDisabled = !IS_SUPER ? 'disabled-for-role' : '';
-  const banLabel = user.status === 'active' ? 'Suspend User' : 'Unsuspend User';
-  const banClass = user.status === 'active' ? 'warn' : 'success';
+/* ── PROFILE MODAL ── */
+async function openProfile(id) {
+  const u = allUsers.find(u => u._id === id);
+  if (!u) return;
+  currentProfileUser = u;
+  const avColors = ['uav1','uav2','uav3','uav4','uav5'];
+  const avColor = avColors[allUsers.indexOf(u) % avColors.length];
+  const daysAgo = Math.floor((Date.now() - new Date(u.createdAt)) / 86400000);
+  const myId = parseJwt(token)?.id;
+  const isSelf = u._id === myId;
+  const notes = JSON.parse(localStorage.getItem('euscribe_admin_notes') || '{}');
 
   document.getElementById('modalTitle').textContent = 'User Profile';
   document.getElementById('modalBody').innerHTML = `
     <div class="profile-hero">
-      <div class="profile-av ${user.av}">${user.initials}</div>
+      <div class="profile-av ${avColor}">${(u.name||'?')[0].toUpperCase()}</div>
       <div>
-        <div class="profile-name">${user.name}</div>
-        <div class="profile-email">${user.email}</div>
+        <div class="profile-name">${u.name || 'Unknown'}</div>
+        <div class="profile-email">${u.email}</div>
         <div class="profile-badges">
-          ${user.status === 'active' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Suspended</span>'}
-          ${user.role === 'admin' ? '<span class="badge badge-purple">Admin</span>' : '<span class="badge badge-gray">User</span>'}
+          <span class="badge ${u.isAdmin ? 'badge-purple' : 'badge-gray'}">${u.isAdmin ? 'Admin' : 'User'}</span>
+          <span class="badge ${u.isBanned ? 'badge-red' : 'badge-green'}">${u.isBanned ? 'Banned' : 'Active'}</span>
         </div>
       </div>
     </div>
     <div class="profile-stats">
-      <div class="profile-stat"><div class="profile-stat-num">${user.docs}</div><div class="profile-stat-label">Docs</div></div>
-      <div class="profile-stat"><div class="profile-stat-num">—</div><div class="profile-stat-label">AI Calls</div></div>
-      <div class="profile-stat"><div class="profile-stat-num">—</div><div class="profile-stat-label">Reports</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="modalDocCount">…</div><div class="profile-stat-label">Documents</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">${daysAgo}</div><div class="profile-stat-label">Days Ago</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">${u.isBanned ? '🚫' : '✅'}</div><div class="profile-stat-label">Status</div></div>
     </div>
     <div class="profile-section">
       <div class="profile-section-title">Account Details</div>
-      <div class="profile-row"><span class="profile-row-label">Joined</span><span class="profile-row-val">${user.joined}</span></div>
-      <div class="profile-row"><span class="profile-row-label">Role</span><span class="profile-row-val">${user.role}</span></div>
-      <div class="profile-row"><span class="profile-row-label">Status</span><span class="profile-row-val">${user.status}</span></div>
+      <div class="profile-row"><span class="profile-row-label">User ID</span><span class="profile-row-val" style="font-size:10px;font-family:monospace;color:var(--text3)">${u._id}</span></div>
+      <div class="profile-row"><span class="profile-row-label">Joined</span><span class="profile-row-val">${new Date(u.createdAt).toLocaleString()}</span></div>
+      <div class="profile-row"><span class="profile-row-label">Role</span><span class="profile-row-val">${u.isAdmin ? 'Admin' : 'User'}</span></div>
+      <div class="profile-row"><span class="profile-row-label">Auth Method</span><span class="profile-row-val">${u.password ? 'Email / Password' : 'OAuth (Google / GitHub)'}</span></div>
     </div>
     <div class="profile-section">
       <div class="profile-section-title">Admin Note</div>
-      <textarea class="note-textarea" placeholder="Add a private note about this user…"></textarea>
+      <textarea class="note-textarea" id="profileNote" placeholder="Private note about this user…">${notes[id] || ''}</textarea>
+      <button class="profile-btn primary" style="margin-top:8px" onclick="saveNote('${id}')"><i class='bx bx-save'></i> Save Note</button>
     </div>
-    <div class="profile-actions">
-      <button class="profile-btn primary">Email User</button>
-      <button class="profile-btn ${banClass}" onclick="toggleSuspend(${user.id});closeModal()">${banLabel}</button>
-      <button class="profile-btn promote super-only ${promoteDisabled}" onclick="promoteUserModal('${user.name}')">
-        <i class='bx bxs-shield-alt-2'></i> Promote to Admin
-      </button>
-      <button class="profile-btn danger super-only ${promoteDisabled}">
-        <i class='bx bxs-trash'></i> Delete Account
-      </button>
-    </div>`;
+    <div class="profile-section">
+      <div class="profile-section-title">Send Direct Email</div>
+      <input class="form-input" id="dmSubject" placeholder="Subject" style="margin-bottom:8px"/>
+      <textarea class="note-textarea" id="dmMessage" placeholder="Write a message to send directly to this user…"></textarea>
+      <button class="profile-btn primary" style="margin-top:8px" onclick="sendDM('${u.email}','${u.name||u.email}')"><i class='bx bx-send'></i> Send Email</button>
+      <div class="broadcast-result" id="dmResult" style="margin-top:8px"></div>
+    </div>
+    <div class="profile-actions" id="profileActions"></div>
+  `;
+
+  // Load doc count async
+  fetch(`${API}/api/admin/documents`, { headers: { 'Authorization': `Bearer ${token}` } })
+    .then(r => r.json())
+    .then(docs => {
+      const count = docs.filter(d => d.userId?._id === id || d.userId === id).length;
+      const el = document.getElementById('modalDocCount');
+      if (el) el.textContent = count;
+    }).catch(() => { const el = document.getElementById('modalDocCount'); if (el) el.textContent = '—'; });
+
+  refreshProfileActions();
   document.getElementById('profileModal').classList.remove('hidden');
 }
 
-function promoteUserModal(name) {
-  if (!IS_SUPER) return;
-  if (confirm(`Promote ${name} to regular admin?`)) {
-    const user = USERS.find(u => u.name === name);
-    if (user) { user.role = 'admin'; renderUsers(USERS); }
-    closeModal();
-  }
+function refreshProfileActions() {
+  const u = currentProfileUser;
+  if (!u) return;
+  const myId = parseJwt(token)?.id;
+  const actions = document.getElementById('profileActions');
+  if (!actions) return;
+  if (u._id === myId) { actions.innerHTML = '<span style="font-size:12px;color:var(--text3)">This is your account.</span>'; return; }
+  actions.innerHTML = `
+    <button class="profile-btn ${u.isAdmin ? 'warn' : 'primary'}" onclick="togglePromote('${u._id}')"><i class='bx bx-crown'></i> ${u.isAdmin ? 'Demote to User' : 'Make Admin'}</button>
+    <button class="profile-btn ${u.isBanned ? 'success' : 'warn'}" onclick="toggleBan('${u._id}')"><i class='bx bx-${u.isBanned ? 'check' : 'block'}'></i> ${u.isBanned ? 'Unban User' : 'Ban User'}</button>
+    <button class="profile-btn danger" onclick="deleteUser('${u._id}')"><i class='bx bx-trash'></i> Remove Account</button>
+  `;
 }
 
 function closeModal() {
   document.getElementById('profileModal').classList.add('hidden');
+  currentProfileUser = null;
 }
-document.getElementById('profileModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+document.getElementById('profileModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-/* ═══════════════════════════════════════════
-   ADMIN MANAGEMENT (super admin only)
-═══════════════════════════════════════════ */
-function promoteAdmin(name) {
-  if (!IS_SUPER) return;
-  if (confirm(`Promote ${name} to Super Admin? This grants full platform access.`)) {
-    alert(`${name} has been promoted to Super Admin.`);
+function saveNote(id) {
+  const notes = JSON.parse(localStorage.getItem('euscribe_admin_notes') || '{}');
+  notes[id] = document.getElementById('profileNote').value;
+  localStorage.setItem('euscribe_admin_notes', JSON.stringify(notes));
+  const btn = event.target;
+  btn.innerHTML = '✓ Saved';
+  setTimeout(() => { btn.innerHTML = '<i class="bx bx-save"></i> Save Note'; }, 2000);
+}
+
+async function sendDM(email, name) {
+  const subject = document.getElementById('dmSubject').value.trim();
+  const message = document.getElementById('dmMessage').value.trim();
+  const resultEl = document.getElementById('dmResult');
+  if (!subject || !message) { showResult(resultEl, 'Please fill in subject and message.', false); return; }
+  const btn = event.target;
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Sending…';
+  try {
+    const res = await fetch(`${API}/api/admin/broadcast`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, message, targetEmails: [email] })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    showResult(resultEl, `✓ Message sent to ${name}`, true);
+    document.getElementById('dmSubject').value = '';
+    document.getElementById('dmMessage').value = '';
+  } catch(e) {
+    showResult(resultEl, `Failed: ${e.message}`, false);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="bx bx-send"></i> Send Email';
   }
 }
-function removeAdmin(name) {
-  if (!IS_SUPER) return;
-  if (confirm(`Remove ${name} as admin? They will revert to a regular user.`)) {
-    alert(`${name} has been removed as admin.`);
+
+/* ── MANAGE ADMINS ── */
+async function loadAdmins() {
+  const tbody = document.getElementById('adminsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:32px">Loading…</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error();
+    const users = await res.json();
+    const admins = users.filter(u => u.isAdmin);
+    const myId = parseJwt(token)?.id;
+    const avColors = ['uav1','uav2','uav3','uav4','uav5'];
+    tbody.innerHTML = admins.map((u, i) => {
+      const isSelf = u._id === myId;
+      return `<tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-av ${avColors[i % avColors.length]}">${(u.name||'?')[0].toUpperCase()}</div>
+            <div><div class="user-name">${u.name || 'Unknown'}</div><div class="user-email">${u.email}</div></div>
+          </div>
+        </td>
+        <td><span class="badge badge-purple">${isSelf ? 'Super Admin (You)' : 'Admin'}</span></td>
+        <td>
+          ${isSelf ? '<span style="font-size:11px;color:var(--text3)">— cannot be modified</span>' : `
+            <div class="actions-cell">
+              <button class="action-btn danger-btn" onclick="removeAdmin('${u._id}','${u.name||u.email}')">Remove</button>
+            </div>
+          `}
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:32px">No admins found.</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:32px">Could not load admins.</td></tr>';
   }
 }
+
+async function removeAdmin(id, name) {
+  if (!confirm(`Remove ${name} as admin? They will revert to a regular user.`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/promote`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
+    if (res.ok) { await loadAdmins(); }
+    else alert('Could not demote admin.');
+  } catch(e) { alert('Error removing admin.'); }
+}
+
 function openAddAdminModal() {
-  if (!IS_SUPER) return;
-  const email = prompt('Enter the email address of the user to make a Regular Admin:');
-  if (email) alert(`Admin invite sent to ${email}. They will receive an email to confirm.`);
-}
-
-/* ═══════════════════════════════════════════
-   BROADCAST
-═══════════════════════════════════════════ */
-function removePill(btn) {
-  btn.parentElement.remove();
-  const pills = document.getElementById('recipientPills');
-  if (!pills.querySelector('.pill')) {
-    document.getElementById('pillHint').style.display = 'inline';
+  const email = prompt('Enter the email of the user to make an Admin:');
+  if (email) {
+    const u = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (u) { togglePromote(u._id).then(() => loadAdmins()); }
+    else alert(`No user found with email: ${email}`);
   }
 }
 
+/* ── RECIPIENT GROUP ── */
+function setRecipientGroup(mode) {
+  recipientMode = mode;
+  ['all','admins','custom'].forEach(m => {
+    const btn = document.getElementById(`rg-${m}`);
+    if (btn) btn.className = `rg-btn${m === mode ? ' active' : ''}`;
+  });
+  document.getElementById('customRecipientWrap').style.display = mode === 'custom' ? 'block' : 'none';
+  updateRecipientLabel();
+}
+function updateRecipientLabel() {
+  const el = document.getElementById('recipientCountLabel');
+  if (!el) return;
+  if (recipientMode === 'all') el.textContent = 'Sending to: all active users';
+  else if (recipientMode === 'admins') el.textContent = 'Sending to: admins only';
+  else el.textContent = `Sending to: ${customRecipients.length} selected user${customRecipients.length !== 1 ? 's' : ''}`;
+}
+function addRecipientPill(user) {
+  if (customRecipients.find(u => u._id === user._id)) return;
+  customRecipients.push(user);
+  renderPills();
+  updateRecipientLabel();
+}
+function removeRecipientPill(id) {
+  customRecipients = customRecipients.filter(u => u._id !== id);
+  renderPills();
+  updateRecipientLabel();
+}
+function renderPills() {
+  const c = document.getElementById('recipientPills');
+  if (!c) return;
+  if (!customRecipients.length) { c.innerHTML = '<span class="recipient-hint">No users selected</span>'; return; }
+  c.innerHTML = customRecipients.map(u => `<div class="pill">${u.name||u.email}<button onclick="removeRecipientPill('${u._id}')">×</button></div>`).join('');
+}
+
+/* ── ANNOUNCEMENT TARGETING ── */
+function setAnnMode(mode) {
+  annMode = mode;
+  ['all','admins','custom'].forEach(m => {
+    const btn = document.getElementById(`ann-rg-${m}`);
+    if (btn) btn.className = `rg-btn${m === mode ? ' active' : ''}`;
+  });
+  document.getElementById('annCustomWrap').style.display = mode === 'custom' ? 'block' : 'none';
+  const labels = { all: 'all users', admins: 'admins only', custom: `${annCustomRecipients.length} selected user(s)` };
+  document.getElementById('annModeLabel').textContent = `Posting to: ${labels[mode]}`;
+}
+function addAnnRecipient(user) {
+  if (annCustomRecipients.find(u => u._id === user._id)) return;
+  annCustomRecipients.push(user);
+  renderAnnPills();
+}
+function removeAnnRecipient(id) {
+  annCustomRecipients = annCustomRecipients.filter(u => u._id !== id);
+  renderAnnPills();
+}
+function renderAnnPills() {
+  const c = document.getElementById('annRecipientPills');
+  if (!c) return;
+  if (!annCustomRecipients.length) { c.innerHTML = '<span class="recipient-hint">No users selected</span>'; return; }
+  c.innerHTML = annCustomRecipients.map(u => `<div class="pill">${u.name||u.email}<button onclick="removeAnnRecipient('${u._id}')">×</button></div>`).join('');
+}
+
+/* ── BROADCAST (email) ── */
 async function sendBroadcast() {
   const subject = document.getElementById('broadcastSubject').value.trim();
-  const body = document.getElementById('broadcastBody').value.trim();
-  const res = document.getElementById('broadcastResult');
-  res.style.display = 'none';
+  const message = document.getElementById('broadcastMessage').value.trim();
+  const btn = document.getElementById('sendBroadcastBtn');
+  const resultEl = document.getElementById('broadcastResult');
+  if (!subject || !message) { showResult(resultEl, 'Please fill in both subject and message.', false); return; }
 
-  if (!subject || !body) {
-    res.className = 'broadcast-result error';
-    res.textContent = '⚠ Please fill in both the subject and message body.';
-    res.style.display = 'block';
-    return;
+  let targetEmails = null;
+  let confirmMsg = '';
+  if (recipientMode === 'all') {
+    confirmMsg = `Send to all active users?\n\nSubject: ${subject}`;
+  } else if (recipientMode === 'admins') {
+    const admins = allUsers.filter(u => u.isAdmin && !u.isBanned);
+    targetEmails = admins.map(u => u.email);
+    confirmMsg = `Send to ${admins.length} admin(s)?\n\nSubject: ${subject}`;
+  } else {
+    if (!customRecipients.length) { showResult(resultEl, 'No recipients selected.', false); return; }
+    targetEmails = customRecipients.map(u => u.email);
+    confirmMsg = `Send to ${customRecipients.length} selected user(s)?\n\nSubject: ${subject}`;
   }
+  if (!confirm(confirmMsg)) return;
 
-  const btn = document.querySelector('.send-btn');
   btn.disabled = true;
   btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Sending…';
-
-  // Simulate send (replace with actual API call)
-  await new Promise(r => setTimeout(r, 1600));
-  btn.disabled = false;
-  btn.innerHTML = '<i class="bx bx-send"></i> Send Broadcast';
-  res.className = 'broadcast-result success';
-  res.textContent = `✓ Broadcast sent to all recipients. Subject: "${subject}"`;
-  res.style.display = 'block';
+  try {
+    const body = { subject, message };
+    if (targetEmails) body.targetEmails = targetEmails;
+    const res = await fetch(`${API}/api/admin/broadcast`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    showResult(resultEl, `✓ Sent to ${data.count} user${data.count !== 1 ? 's' : ''}`, true);
+    document.getElementById('broadcastSubject').value = '';
+    document.getElementById('broadcastMessage').value = '';
+  } catch(e) {
+    showResult(resultEl, `Failed: ${e.message}`, false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bx bx-send"></i> Send Email';
+  }
 }
 
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
-renderUsers(USERS);
-applyRoleRestrictions();
+/* ── ANNOUNCEMENT (post/clear) ── */
+async function loadCurrentAnnouncement() {
+  try {
+    const res = await fetch(`${API}/api/announcement`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const ann = await res.json();
+    const wrap = document.getElementById('currentAnnouncementWrap');
+    const noMsg = document.getElementById('noAnnouncementMsg');
+    if (ann && ann.active) {
+      document.getElementById('currentAnnouncementText').textContent = ann.message;
+      wrap.style.display = 'block'; noMsg.style.display = 'none';
+    } else { wrap.style.display = 'none'; noMsg.style.display = 'block'; }
+  } catch(e) {}
+}
+
+async function postAnnouncement() {
+  const message = document.getElementById('announcementMessage').value.trim();
+  const resultEl = document.getElementById('announcementResult');
+  if (!message) { showResult(resultEl, 'Please enter a message.', false); return; }
+  if (annMode === 'custom' && !annCustomRecipients.length) { showResult(resultEl, 'No users selected for custom targeting.', false); return; }
+
+  const btn = document.getElementById('postAnnouncementBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Posting…';
+  try {
+    const body = { message, targetMode: annMode, targetUserIds: annMode === 'custom' ? annCustomRecipients.map(u => u._id) : [] };
+    const res = await fetch(`${API}/api/admin/announcement`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    const modeText = annMode === 'all' ? 'all users' : annMode === 'admins' ? 'admins only' : `${annCustomRecipients.length} user(s)`;
+    showResult(resultEl, `✓ Posted to ${modeText}`, true);
+    document.getElementById('announcementMessage').value = '';
+    loadCurrentAnnouncement();
+  } catch(e) {
+    showResult(resultEl, `Failed: ${e.message}`, false);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="bx bx-broadcast"></i> Post Announcement';
+  }
+}
+
+async function clearAnnouncement() {
+  if (!confirm('Remove the active announcement?')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/announcement`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} });
+    if (res.ok) { showResult(document.getElementById('announcementResult'), '✓ Announcement cleared.', true); loadCurrentAnnouncement(); }
+  } catch(e) {}
+}
+
+/* ── DOCUMENTS ── */
+async function loadDocs() {
+  const tbody = document.getElementById('docsTable');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading…</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/admin/documents`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error('Failed');
+    const docs = await res.json();
+    tbody.innerHTML = docs.map(d => {
+      const words = d.content ? d.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
+      return `<tr>
+        <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
+        <td style="color:var(--blue2)">${d.userId?.name || d.userId || '—'}</td>
+        <td>${words.toLocaleString()}</td>
+        <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">No documents found.</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load documents.</td></tr>';
+  }
+}
+
+/* ── ACTIVITY ── */
+function renderActivityFeed(users) {
+  const feed = document.getElementById('activityFeed');
+  if (!users || !users.length) { feed.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px;font-size:13px">No recent activity.</div>'; return; }
+  feed.innerHTML = [...users]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 6)
+    .map(u => `
+      <div class="activity-item">
+        <div class="activity-icon ai-blue"><i class='bx bx-user-plus'></i></div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>${u.name || u.email}</strong> created an account</div>
+          <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+async function loadActivity() {
+  const el = document.getElementById('logsActivity');
+  el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Loading…</div>';
+  try {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error();
+    const users = await res.json();
+    el.innerHTML = [...users]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .map(u => `
+        <div class="activity-item">
+          <div class="activity-icon ai-green"><i class='bx bxs-user'></i></div>
+          <div class="activity-body">
+            <div class="activity-text">
+              <strong>${u.name || 'User'}</strong> (${u.email}) signed up
+              ${u.isBanned ? '<span class="badge badge-red" style="margin-left:6px">Banned</span>' : ''}
+              ${u.isAdmin ? '<span class="badge badge-purple" style="margin-left:4px">Admin</span>' : ''}
+            </div>
+            <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Could not load activity.</div>';
+  }
+}
+
+/* ── ANALYTICS ── */
+async function loadAnalytics() {
+  try {
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const [uRes, dRes] = await Promise.all([
+      fetch(`${API}/api/admin/users`, { headers }),
+      fetch(`${API}/api/admin/documents`, { headers })
+    ]);
+    if (uRes.ok) {
+      const users = await uRes.json();
+      document.getElementById('anaUsers').textContent = users.length;
+      document.getElementById('anaToday').textContent = users.filter(u => new Date(u.createdAt).toDateString() === new Date().toDateString()).length;
+      document.getElementById('anaActive').textContent = users.filter(u => !u.isBanned).length;
+      renderBarChart('anaChart', getRegistrationData(users), 130);
+    }
+    if (dRes.ok) {
+      const docs = await dRes.json();
+      document.getElementById('anaDocs').textContent = docs.length;
+    }
+  } catch(e) {}
+}
+
+/* ── CHARTS ── */
+function getDummyData() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return days.map(d => ({ label: d, value: Math.floor(Math.random() * 8) + 1 }));
+}
+function getRegistrationData(users) {
+  const result = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    result.push({ label: d.toLocaleDateString('en-GB',{weekday:'short'}), value: users.filter(u => new Date(u.createdAt).toDateString() === d.toDateString()).length });
+  }
+  return result;
+}
+function renderBarChart(id, data, maxH) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const max = Math.max(...data.map(d => d.value), 1);
+  c.innerHTML = data.map(d => `
+    <div class="bar-group">
+      <div class="bar" style="height:${Math.max((d.value / max) * maxH, 4)}px">
+        <div class="bar-tooltip">${d.value}</div>
+      </div>
+      <div class="bar-label">${d.label}</div>
+    </div>
+  `).join('');
+}
+
+/* ── HELPERS ── */
+function showResult(el, msg, success) {
+  el.textContent = msg;
+  el.className = `broadcast-result ${success ? 'success' : 'error'}`;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+function parseJwt(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
+}
 </script>
 </body>
 </html>
