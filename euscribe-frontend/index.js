@@ -3,8 +3,12 @@ function formatDoc(cmd, value = null) {
   saveCurrentDocument();
 }
 
-function addLink() {
-  const url = prompt("Insert url");
+async function addLink() {
+  const url = await euPrompt("Enter the URL you want to link to:", {
+    title: "Insert Link",
+    placeholder: "https://example.com",
+    confirmText: "Insert",
+  });
   if (url) formatDoc("createLink", url);
 }
 
@@ -113,6 +117,7 @@ content.addEventListener("input", () => {
 
   updateDocStats();
 });
+
 /* ===================================================
    RENAME DOCUMENT
 =================================================== */
@@ -130,8 +135,19 @@ function renameCurrentDocument(newName) {
 /* ===================================================
    DELETE DOCUMENT
 =================================================== */
-function deleteDocument(id) {
-  if (!confirm("Delete this document?")) return;
+async function deleteDocument(id) {
+  const doc = documents.find((d) => d.id === id);
+  const docName = doc ? doc.name : "this document";
+
+  const confirmed = await euConfirm(`"${docName}" will be permanently deleted.`, {
+    title: "Delete document?",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    type: "danger",
+  });
+
+  if (!confirmed) return;
+
   documents = documents.filter((doc) => doc.id !== id);
   if (documents.length === 0) {
     createNewDocument();
@@ -140,6 +156,7 @@ function deleteDocument(id) {
   if (currentDocId === id) loadDocument(documents[0].id);
   saveToStorage();
   renderDocuments();
+  euToast("Document deleted.", "error");
 }
 
 /* ===================================================
@@ -252,6 +269,7 @@ window._mongoLoadFallback = setTimeout(() => {
     loadDocument(documents[0].id);
   }
 }, 60000);
+
 /* ============================================================
    AI TABS
    ============================================================ */

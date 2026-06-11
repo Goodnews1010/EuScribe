@@ -31,7 +31,6 @@
         font-family: "DM Sans", sans-serif;
       }
 
-      /* ── Brand ── */
       .brand {
         display: flex;
         align-items: center;
@@ -51,7 +50,6 @@
         color: #e6edf3;
       }
 
-      /* ── Card ── */
       .card {
         background: #1a1a1c;
         border: 0.5px solid #2e2e30;
@@ -75,7 +73,6 @@
         margin-bottom: 1.75rem;
       }
 
-      /* ── Social buttons ── */
       .social-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -97,10 +94,7 @@
         font-family: "DM Sans", sans-serif;
         font-weight: 500;
         cursor: pointer;
-        transition:
-          background 0.15s,
-          border-color 0.15s,
-          color 0.15s;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
       }
 
       .social-btn:hover {
@@ -115,7 +109,6 @@
         flex-shrink: 0;
       }
 
-      /* ── Divider ── */
       .divider {
         display: flex;
         align-items: center;
@@ -136,7 +129,6 @@
         white-space: nowrap;
       }
 
-      /* ── Form fields ── */
       .field-label {
         display: block;
         font-size: 11px;
@@ -168,7 +160,6 @@
         color: #3e3e40;
       }
 
-      /* ── Primary button ── */
       .primary-btn {
         width: 100%;
         padding: 13px;
@@ -180,24 +171,53 @@
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
-        transition:
-          background 0.15s,
-          transform 0.1s;
+        transition: background 0.15s, transform 0.1s;
         margin-bottom: 1.25rem;
         letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
       }
 
-      .primary-btn:hover {
+      .primary-btn:hover:not(:disabled) {
         background: #4f8cff;
         color: #fff;
         border-color: #4f8cff;
         transform: scale(1.04);
       }
-      .primary-btn:active {
+      .primary-btn:active:not(:disabled) {
         transform: scale(0.99);
       }
+      .primary-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.75;
+      }
 
-      /* ── Switch line ── */
+      /* Spinner */
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .btn-spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(79, 140, 255, 0.3);
+        border-top-color: #4f8cff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
+      }
+      .primary-btn.loading .btn-spinner {
+        display: inline-block;
+      }
+      .primary-btn.loading:hover {
+        background: #161b22;
+        color: #4f8cff;
+        border-color: #9aa4b2;
+        transform: none;
+      }
+
       .switch-line {
         text-align: center;
         font-size: 13.5px;
@@ -222,6 +242,7 @@
       .hidden {
         display: none;
       }
+
       .toast {
         display: none;
         align-items: center;
@@ -251,17 +272,10 @@
         flex-shrink: 0;
       }
       @keyframes toastIn {
-        from {
-          opacity: 0;
-          transform: translateY(-6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
 
-      /* ── Forgot link ── */
       .forgot-link {
         color: #4f8cff;
         cursor: pointer;
@@ -274,7 +288,6 @@
       }
       .forgot-link:hover { text-decoration: underline; }
 
-      /* ── Eye toggle (ADDED) ── */
       .pw-wrap {
         position: relative;
         margin-bottom: 1rem;
@@ -305,15 +318,9 @@
         pointer-events: none;
       }
 
-      /* ── Responsive ── */
       @media (max-width: 480px) {
-        .card {
-          padding: 1.75rem 1.25rem;
-        }
-        .social-btn {
-          font-size: 12px;
-          gap: 5px;
-        }
+        .card { padding: 1.75rem 1.25rem; }
+        .social-btn { font-size: 12px; gap: 5px; }
       }
     </style>
   </head>
@@ -322,6 +329,7 @@
       <span class="brand-name">Eu<span>Scribe</span></span>
     </a>
 
+    <!-- LOGIN CARD -->
     <div class="card" id="login-card">
       <div class="card-title">Welcome back</div>
       <div class="card-sub">Sign in to your writing space</div>
@@ -361,31 +369,20 @@
       </div>
       <form onsubmit="handleSignIn(event)">
         <label class="field-label" for="login-email">Email</label>
-        <input
-          class="field-input"
-          id="login-email"
-          type="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        />
+        <input class="field-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email" required />
 
         <label class="field-label" for="login-password">Password</label>
         <div class="pw-wrap">
-          <input
-            class="field-input"
-            id="login-password"
-            type="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            required
-          />
+          <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
           <button type="button" class="eye-btn" onclick="togglePw('login-password', this)" aria-label="Show password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
 
-        <button class="primary-btn" type="submit">Sign In</button>
+        <button class="primary-btn" type="submit" id="login-btn">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Sign In</span>
+        </button>
       </form>
 
       <p class="switch-line" style="display:flex;justify-content:space-between;align-items:center">
@@ -394,7 +391,7 @@
       </p>
     </div>
 
-    <!-- ── FORGOT PASSWORD CARD ── -->
+    <!-- FORGOT PASSWORD CARD -->
     <div class="card hidden" id="forgot-card">
       <div class="card-title">Reset password</div>
       <div class="card-sub">Enter your email and we'll send a reset link</div>
@@ -405,14 +402,17 @@
       <form onsubmit="handleForgot(event)">
         <label class="field-label" for="forgot-email">Email Address</label>
         <input class="field-input" id="forgot-email" type="email" placeholder="you@example.com" autocomplete="email" required />
-        <button class="primary-btn" type="submit" id="forgot-btn">Send Reset Link</button>
+        <button class="primary-btn" type="submit" id="forgot-btn">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Send Reset Link</span>
+        </button>
       </form>
       <p class="switch-line">
         Remember it? <button class="switch-link" type="button" onclick="toggle('login')">Back to Sign In</button>
       </p>
     </div>
 
-    <!-- ── RESET PASSWORD CARD ── -->
+    <!-- RESET PASSWORD CARD -->
     <div class="card hidden" id="reset-card">
       <div class="card-title">New password</div>
       <div class="card-sub">Enter your new password below</div>
@@ -435,10 +435,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
-        <button class="primary-btn" type="submit" id="reset-btn">Reset Password</button>
+        <button class="primary-btn" type="submit" id="reset-btn">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Reset Password</span>
+        </button>
       </form>
     </div>
 
+    <!-- SIGNUP CARD -->
     <div class="card hidden" id="signup-card">
       <div class="card-title">Create account</div>
       <div class="card-sub">Start writing with AI at your side</div>
@@ -478,55 +482,34 @@
       </div>
       <form onsubmit="handleSignUp(event)">
         <label class="field-label" for="signup-name">Your Name</label>
-        <input
-          class="field-input"
-          id="signup-name"
-          type="text"
-          placeholder="Ada Lovelace"
-          autocomplete="name"
-          required
-        />
+        <input class="field-input" id="signup-name" type="text" placeholder="Ada Lovelace" autocomplete="name" required />
 
         <label class="field-label" for="signup-email">Email</label>
-        <input
-          class="field-input"
-          id="signup-email"
-          type="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        />
+        <input class="field-input" id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required />
 
         <label class="field-label" for="signup-password">Password</label>
         <div class="pw-wrap">
-          <input
-            class="field-input"
-            id="signup-password"
-            type="password"
-            placeholder="Min. 6 characters"
-            autocomplete="new-password"
-            required
-          />
+          <input class="field-input" id="signup-password" type="password" placeholder="Min. 6 characters" autocomplete="new-password" required />
           <button type="button" class="eye-btn" onclick="togglePw('signup-password', this)" aria-label="Show password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
 
-        <button class="primary-btn" type="submit">Create Account</button>
+        <button class="primary-btn" type="submit" id="signup-btn">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Create Account</span>
+        </button>
       </form>
 
       <p class="switch-line">
         Already have one?
-        <button class="switch-link" type="button" onclick="toggle('login')">
-          Sign in
-        </button>
+        <button class="switch-link" type="button" onclick="toggle('login')">Sign in</button>
       </p>
     </div>
 
     <script>
       const API = "https://euscribe.onrender.com";
 
-      // ── Eye toggle (ADDED) ──
       const eyeOpen = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
       const eyeClosed = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
@@ -540,18 +523,32 @@
 
       function showToast(cardPrefix, message, type = "error") {
         const toast = document.getElementById(cardPrefix + "-toast");
-        const msg = document.getElementById(cardPrefix + "-toast-msg");
-        const icon = document.getElementById(cardPrefix + "-toast-icon");
+        const msg   = document.getElementById(cardPrefix + "-toast-msg");
+        const icon  = document.getElementById(cardPrefix + "-toast-icon");
         toast.className = `toast show ${type}`;
-        msg.textContent = message;
+        msg.textContent  = message;
         icon.textContent = type === "error" ? "✕" : "✓";
         clearTimeout(toast._timer);
         toast._timer = setTimeout(() => toast.classList.remove("show"), 4000);
       }
 
+      function setLoading(btnId, loading, label) {
+        const btn = document.getElementById(btnId);
+        const spinner = btn.querySelector(".btn-spinner");
+        const labelEl = btn.querySelector(".btn-label");
+        if (loading) {
+          btn.classList.add("loading");
+          btn.disabled = true;
+          if (labelEl) labelEl.textContent = label;
+        } else {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+          if (labelEl) labelEl.textContent = label;
+        }
+      }
+
       let resetToken = null;
 
-      // Check for reset token in URL on load
       (function checkResetToken() {
         const params = new URLSearchParams(window.location.search);
         const token = params.get('reset');
@@ -571,31 +568,24 @@
 
       function socialLogin(provider) {
         if (provider === "Google") {
-          window.location.href =
-            "https://euscribe.onrender.com/api/auth/google";
+          window.location.href = "https://euscribe.onrender.com/api/auth/google";
         } else if (provider === "GitHub") {
-          window.location.href =
-            "https://euscribe.onrender.com/api/auth/github";
+          window.location.href = "https://euscribe.onrender.com/api/auth/github";
         } else {
-          showToast('login', provider + ' coming soon!')
+          showToast('login', provider + ' coming soon!');
         }
       }
 
       async function handleSignIn(event) {
         event.preventDefault();
         const email = document.getElementById("login-email").value.trim();
-        const pass = document.getElementById("login-password").value;
-        if (!email || !pass) {
-          showToast('login', 'Please fill in all fields.')
-          return;
-        }
+        const pass  = document.getElementById("login-password").value;
+        if (!email || !pass) { showToast('login', 'Please fill in all fields.'); return; }
 
-        const btn = document.querySelector("#login-card .primary-btn");
-        btn.textContent = "Signing in...";
-        btn.disabled = true;
+        setLoading("login-btn", true, "Signing in…");
 
         try {
-          const res = await fetch(`${API}/api/auth/login`, {
+          const res  = await fetch(`${API}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password: pass }),
@@ -603,45 +593,33 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.message);
 
-          // Clear previous user's documents before logging in new user
           localStorage.removeItem("euscribeDocuments");
           localStorage.removeItem("euscribe_id_map");
-
-          localStorage.setItem("euscribe_token", data.token);
-          localStorage.setItem("euscribe_user_name", data.user.name);
+          localStorage.setItem("euscribe_token",      data.token);
+          localStorage.setItem("euscribe_user_name",  data.user.name);
           localStorage.setItem("euscribe_user_email", data.user.email);
-          localStorage.setItem("euscribe_is_admin", data.user.isAdmin);
-
+          localStorage.setItem("euscribe_is_admin",   data.user.isAdmin);
           localStorage.removeItem("euscribe_onboarded_v2");
 
           window.location.href = data.user.isAdmin ? "admin.html" : "index.html";
         } catch (err) {
-          showToast('login', err.message || 'Login failed')
-          btn.textContent = "Sign In";
-          btn.disabled = false;
+          showToast('login', err.message || 'Login failed');
+          setLoading("login-btn", false, "Sign In");
         }
       }
 
       async function handleSignUp(event) {
         event.preventDefault();
-        const name = document.getElementById("signup-name").value.trim();
+        const name  = document.getElementById("signup-name").value.trim();
         const email = document.getElementById("signup-email").value.trim();
-        const pass = document.getElementById("signup-password").value;
-        if (!name || !email || !pass) {
-          showToast('signup', 'Please fill in all fields.')
-          return;
-        }
-        if (pass.length < 6) {
-          showToast('signup', 'Password must be at least 6 characters.')
-          return;
-        }
+        const pass  = document.getElementById("signup-password").value;
+        if (!name || !email || !pass) { showToast('signup', 'Please fill in all fields.'); return; }
+        if (pass.length < 6) { showToast('signup', 'Password must be at least 6 characters.'); return; }
 
-        const btn = document.querySelector("#signup-card .primary-btn");
-        btn.textContent = "Creating account...";
-        btn.disabled = true;
+        setLoading("signup-btn", true, "Creating account…");
 
         try {
-          const res = await fetch(`${API}/api/auth/signup`, {
+          const res  = await fetch(`${API}/api/auth/signup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password: pass }),
@@ -649,23 +627,18 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.message);
 
-          // Clear previous user's documents before logging in new user
           localStorage.removeItem("euscribeDocuments");
           localStorage.removeItem("euscribe_id_map");
-
-          localStorage.setItem("euscribe_token", data.token);
-          localStorage.setItem("euscribe_user_name", data.user.name);
+          localStorage.setItem("euscribe_token",      data.token);
+          localStorage.setItem("euscribe_user_name",  data.user.name);
           localStorage.setItem("euscribe_user_email", data.user.email);
-          localStorage.setItem("euscribe_is_admin", data.user.isAdmin);
-
-
+          localStorage.setItem("euscribe_is_admin",   data.user.isAdmin);
           localStorage.removeItem("euscribe_onboarded_v2");
 
           window.location.href = data.user.isAdmin ? "admin.html" : "index.html";
         } catch (err) {
-          showToast('signup', err.message || 'Signup failed')
-          btn.textContent = "Create Account";
-          btn.disabled = false;
+          showToast('signup', err.message || 'Signup failed');
+          setLoading("signup-btn", false, "Create Account");
         }
       }
 
@@ -674,12 +647,10 @@
         const email = document.getElementById("forgot-email").value.trim();
         if (!email) { showToast('forgot', 'Please enter your email.'); return; }
 
-        const btn = document.getElementById("forgot-btn");
-        btn.textContent = "Sending...";
-        btn.disabled = true;
+        setLoading("forgot-btn", true, "Sending…");
 
         try {
-          const res = await fetch(`${API}/api/password/forgot`, {
+          const res  = await fetch(`${API}/api/password/forgot`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email }),
@@ -691,51 +662,43 @@
         } catch (err) {
           showToast('forgot', err.message || 'Failed to send reset email');
         } finally {
-          btn.textContent = "Send Reset Link";
-          btn.disabled = false;
+          setLoading("forgot-btn", false, "Send Reset Link");
         }
       }
 
       async function handleReset(event) {
         event.preventDefault();
-        const password = document.getElementById("reset-password").value;
+        const password  = document.getElementById("reset-password").value;
         const password2 = document.getElementById("reset-password2").value;
         if (!password || !password2) { showToast('reset', 'Please fill in both fields.'); return; }
-        if (password.length < 6) { showToast('reset', 'Password must be at least 6 characters.'); return; }
-        if (password !== password2) { showToast('reset', 'Passwords do not match.'); return; }
-        if (!resetToken) { showToast('reset', 'Invalid reset link. Please request a new one.'); return; }
+        if (password.length < 6)     { showToast('reset', 'Password must be at least 6 characters.'); return; }
+        if (password !== password2)  { showToast('reset', 'Passwords do not match.'); return; }
+        if (!resetToken)             { showToast('reset', 'Invalid reset link. Please request a new one.'); return; }
 
-        const btn = document.getElementById("reset-btn");
-        btn.textContent = "Resetting...";
-        btn.disabled = true;
+        setLoading("reset-btn", true, "Resetting…");
 
         try {
-          const res = await fetch(`${API}/api/password/reset`, {
+          const res  = await fetch(`${API}/api/password/reset`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: resetToken, password }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.message);
-          showToast('reset', 'Password reset! Redirecting to login...', 'success');
+          showToast('reset', 'Password reset! Redirecting to login…', 'success');
           resetToken = null;
           setTimeout(() => toggle('login'), 2000);
         } catch (err) {
           showToast('reset', err.message || 'Failed to reset password');
-        } finally {
-          btn.textContent = "Reset Password";
-          btn.disabled = false;
+          setLoading("reset-btn", false, "Reset Password");
         }
       }
 
-      // Enter key support
       document.addEventListener("keydown", (e) => {
         if (e.key !== "Enter") return;
-        const loginVisible = !document
-          .getElementById("login-card")
-          .classList.contains("hidden");
-        if (loginVisible) handleSignIn();
-        else handleSignUp();
+        const loginVisible = !document.getElementById("login-card").classList.contains("hidden");
+        if (loginVisible) handleSignIn(new Event('submit'));
+        else handleSignUp(new Event('submit'));
       });
     </script>
   </body>

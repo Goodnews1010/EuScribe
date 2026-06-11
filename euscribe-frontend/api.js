@@ -104,9 +104,17 @@ document.addEventListener("DOMContentLoaded", function () {
   const userInfoP = document.querySelector(".user-info p");
   if (userInfoP) userInfoP.textContent = name;
 
+  /* ── Logout with confirmation ── */
   const logoutBtn = document.querySelector(".dropdown button");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
+    logoutBtn.addEventListener("click", async function () {
+      const confirmed = await euConfirm("You'll need to sign in again to access your documents.", {
+        title: "Log out of EuScribe?",
+        confirmText: "Log out",
+        cancelText: "Stay",
+        type: "warning",
+      });
+      if (!confirmed) return;
       localStorage.removeItem("euscribe_token");
       localStorage.removeItem("euscribe_user_name");
       localStorage.removeItem("euscribe_user_email");
