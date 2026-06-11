@@ -202,11 +202,16 @@ function fileHandle(value) {
     link.click();
   } else if (value === "pdf") {
     const exportContent = content.cloneNode(true);
-
     exportContent.style.background = "#ffffff";
     exportContent.style.color = "#000000";
     exportContent.style.padding = "56px 64px";
     exportContent.style.width = "100%";
+    exportContent.style.border = "none";
+    exportContent.style.borderRadius = "0";
+    exportContent.style.boxShadow = "none";
+    exportContent.style.outline = "none";
+    exportContent.style.maxWidth = "100%";
+    exportContent.style.minHeight = "unset";
 
     document.body.appendChild(exportContent);
 
