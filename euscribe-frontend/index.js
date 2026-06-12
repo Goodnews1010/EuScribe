@@ -62,6 +62,12 @@ function createNewDocument() {
   saveToStorage();
   renderDocuments();
 }
+#content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted, #5a6478);
+  pointer-events: none;
+  display: block;
+} 
 
 /* ===================================================
    LOAD DOCUMENT
@@ -114,18 +120,31 @@ content.addEventListener("input", () => {
     saveStatus.textContent = "Saved";
     saveStatus.classList.remove("saving");
   }, typingDelay);
-
   updateDocStats();
+  normalizeEmptyContent();
 });
 
 /* ===================================================
    RENAME DOCUMENT
 =================================================== */
-function renameCurrentDocument(newName) {
+function renameCurrentDocument(newName, sourceEl) {
   if (!currentDocId) return;
   const doc = documents.find((item) => String(item.id) === String(currentDocId));
   if (!doc) return;
-  doc.name = newName.trim() || "Untitled Document";
+  doc.name = newName; // allow empty while typing — no forced fallback here
+  if (sourceEl !== topFileTitle) topFileTitle.value = newName;
+  if (sourceEl !== filename) filename.value = newName;
+  saveToStorage();
+  renderDocuments();
+}
+
+function finalizeDocumentName() {
+  if (!currentDocId) return;
+  const doc = documents.find((item) => String(item.id) === String(currentDocId));
+  if (!doc) return;
+  if (!doc.name || !doc.name.trim()) {
+    doc.name = "Untitled Document";
+  }
   filename.value = doc.name;
   topFileTitle.value = doc.name;
   saveToStorage();
@@ -256,12 +275,14 @@ function fileHandle(value) {
    TITLE EDITING
 =================================================== */
 topFileTitle.addEventListener("input", function () {
-  renameCurrentDocument(this.value);
+  renameCurrentDocument(this.value, topFileTitle);
 });
 filename.addEventListener("input", function () {
-  renameCurrentDocument(this.value);
+  renameCurrentDocument(this.value, filename);
 });
 
+topFileTitle.addEventListener("blur", finalizeDocumentName);
+filename.addEventListener("blur", finalizeDocumentName);
 /* ===================================================
    SEARCH
 =================================================== */
@@ -278,8 +299,10 @@ newDocBtn.addEventListener("click", createNewDocument);
 // Remove empty untitled docs from previous sessions on startup
 documents = documents.filter((d) => d.content && d.content.trim() !== "");
 saveToStorage();
-
 renderDocuments();
+if (documents.length === 0) {
+  createNewDocument();
+}
 
 // Fallback: 60s to account for Render cold start (~50s)
 window._mongoLoadFallback = setTimeout(() => {

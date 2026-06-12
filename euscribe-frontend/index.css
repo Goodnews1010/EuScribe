@@ -513,7 +513,12 @@ body {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.08);
 }
-
+#content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted, #5a6478);
+  pointer-events: none;
+  display: block;
+}
 .pdf-export {
   background: #ffffff !important;
   color: #000000 !important;

@@ -132,14 +132,12 @@ async function loadDocumentsFromBackend() {
     localDocs.forEach((d) => documents.push(d));
 
     if (typeof renderDocuments === "function") renderDocuments();
-
-    if (!currentDocId) {
-      if (localDocs.length > 0 && typeof loadDocument === "function") {
-        loadDocument(localDocs[0].id);
-      } else if (localDocs.length === 0 && typeof createNewDocument === "function") {
-        createNewDocument();
-      }
-    }
+    if (localDocs.length === 0) {
+  // Backend confirms account has zero docs — always ensure one exists
+  if (typeof createNewDocument === "function") createNewDocument();
+} else if (!currentDocId) {
+  if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+}
   } catch (err) {
     console.warn("Could not load documents from backend:", err.message);
   }
