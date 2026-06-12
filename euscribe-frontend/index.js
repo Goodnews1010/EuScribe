@@ -67,9 +67,9 @@ function createNewDocument() {
    LOAD DOCUMENT
 =================================================== */
 function loadDocument(id) {
-  const doc = documents.find((item) => item.id === id);
+  const doc = documents.find((item) => String(item.id) === String(id));
   if (!doc) return;
-  currentDocId = id;
+  currentDocId = doc.id;
   content.innerHTML = doc.content;
   filename.value = doc.name;
   topFileTitle.value = doc.name;
@@ -88,7 +88,7 @@ const typingDelay = 1000;
 function saveCurrentDocument() {
   if (!currentDocId) return;
 
-  const doc = documents.find((item) => item.id === currentDocId);
+  const doc = documents.find((item) => String(item.id) === String(currentDocId));
   if (!doc) return;
 
   doc.content = content.innerHTML;
@@ -123,7 +123,7 @@ content.addEventListener("input", () => {
 =================================================== */
 function renameCurrentDocument(newName) {
   if (!currentDocId) return;
-  const doc = documents.find((item) => item.id === currentDocId);
+  const doc = documents.find((item) => String(item.id) === String(currentDocId));
   if (!doc) return;
   doc.name = newName.trim() || "Untitled Document";
   filename.value = doc.name;
@@ -136,7 +136,7 @@ function renameCurrentDocument(newName) {
    DELETE DOCUMENT
 =================================================== */
 async function deleteDocument(id) {
-  const doc = documents.find((d) => d.id === id);
+  const doc = documents.find((d) => String(d.id) === String(id));
   const docName = doc ? doc.name : "this document";
 
   const confirmed = await euConfirm(`"${docName}" will be permanently deleted.`, {
@@ -148,12 +148,21 @@ async function deleteDocument(id) {
 
   if (!confirmed) return;
 
-  documents = documents.filter((doc) => doc.id !== id);
+  // Also delete from backend if available
+  if (typeof deleteFromBackend === "function") deleteFromBackend(id);
+
+  documents = documents.filter((d) => String(d.id) !== String(id));
+
   if (documents.length === 0) {
+    saveToStorage();
     createNewDocument();
     return;
   }
-  if (currentDocId === id) loadDocument(documents[0].id);
+
+  if (String(currentDocId) === String(id)) {
+    loadDocument(documents[0].id);
+  }
+
   saveToStorage();
   renderDocuments();
   euToast("Document deleted.", "error");
@@ -171,7 +180,7 @@ function renderDocuments() {
   filteredDocs.forEach((doc) => {
     const fileItem = document.createElement("div");
     fileItem.classList.add("file-item");
-    if (doc.id === currentDocId) fileItem.style.border = "1px solid #4f8cff";
+    if (String(doc.id) === String(currentDocId)) fileItem.style.border = "1px solid #4f8cff";
     fileItem.innerHTML = `
       <input type="text" class="file-name" value="${doc.name}" readonly />
       <i class='bx bx-trash delete'></i>
@@ -202,17 +211,22 @@ function fileHandle(value) {
     link.click();
   } else if (value === "pdf") {
     const exportContent = content.cloneNode(true);
-    exportContent.style.background = "#ffffff";
-    exportContent.style.color = "#000000";
-    exportContent.style.padding = "56px 64px";
-    exportContent.style.width = "100%";
-    exportContent.style.border = "none";
-    exportContent.style.borderRadius = "0";
-    exportContent.style.boxShadow = "none";
-    exportContent.style.outline = "none";
-    exportContent.style.maxWidth = "100%";
-    exportContent.style.minHeight = "unset";
-
+    exportContent.style.cssText = `
+      background: #ffffff !important;
+      color: #000000 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: unset !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      caret-color: transparent !important;
+      font-family: Georgia, serif !important;
+      font-size: 16px !important;
+      line-height: 1.85 !important;
+    `;
     document.body.appendChild(exportContent);
 
     html2pdf()
@@ -261,13 +275,15 @@ newDocBtn.addEventListener("click", createNewDocument);
 /* ===================================================
    INITIAL LOAD
 =================================================== */
-// Don't load from localStorage on startup — api.js will fetch from MongoDB.
-// Only fall back to localStorage/new doc if the backend fetch doesn't come back.
+// Remove empty untitled docs from previous sessions on startup
+documents = documents.filter((d) => d.content && d.content.trim() !== "");
+saveToStorage();
+
 renderDocuments();
 
 // Fallback: 60s to account for Render cold start (~50s)
 window._mongoLoadFallback = setTimeout(() => {
-  if (window.currentDocId) return; // MongoDB already loaded, do nothing
+  if (currentDocId) return; // MongoDB already loaded
   if (documents.length === 0) {
     createNewDocument();
   } else {
@@ -369,7 +385,6 @@ content.addEventListener("paste", function (e) {
   const menuBtn = document.getElementById("menuBtn");
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
-  const appShell = document.getElementById("appShell");
   let sidebarOpen = true;
 
   menuBtn.addEventListener("click", function () {
@@ -433,37 +448,34 @@ content.addEventListener("paste", function (e) {
     if (formatSelectInjected || !actionsRow) return;
     if (actionsRow.querySelector(".mobile-format-select")) return;
 
-    // Format select
     const sel = document.createElement("select");
     sel.className = "mobile-format-select";
     sel.innerHTML = `
-    <option value="p" selected>Paragraph</option>
-    <option value="h1">Heading 1</option>
-    <option value="h2">Heading 2</option>
-    <option value="h3">Heading 3</option>
-    <option value="h4">Heading 4</option>
-  `;
+      <option value="p" selected>Paragraph</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="h4">Heading 4</option>
+    `;
     sel.addEventListener("change", function () {
       document.execCommand("formatBlock", false, this.value);
     });
     actionsRow.prepend(sel);
 
-    // File select
     const fileSelect = document.createElement("select");
     fileSelect.className = "mobile-format-select";
     fileSelect.innerHTML = `
-    <option value="" selected hidden disabled>File</option>
-    <option value="new">New File</option>
-    <option value="txt">Save as .txt</option>
-    <option value="pdf">Save as .pdf</option>
-  `;
+      <option value="" selected hidden disabled>File</option>
+      <option value="new">New File</option>
+      <option value="txt">Save as .txt</option>
+      <option value="pdf">Save as .pdf</option>
+    `;
     fileSelect.addEventListener("change", function () {
       fileHandle(this.value);
       this.selectedIndex = 0;
     });
     actionsRow.prepend(fileSelect);
 
-    // Color picker
     const colorLabel = document.createElement("label");
     colorLabel.className = "color-picker";
     colorLabel.style.flexShrink = "0";
@@ -473,16 +485,13 @@ content.addEventListener("paste", function (e) {
     });
     actionsRow.appendChild(colorLabel);
 
-    // Highlight picker
     const highlightLabel = document.createElement("label");
     highlightLabel.className = "color-picker";
     highlightLabel.style.flexShrink = "0";
     highlightLabel.innerHTML = `<span>Highlight</span><input type="color" value="#ffff00" />`;
-    highlightLabel
-      .querySelector("input")
-      .addEventListener("input", function () {
-        document.execCommand("hiliteColor", false, this.value);
-      });
+    highlightLabel.querySelector("input").addEventListener("input", function () {
+      document.execCommand("hiliteColor", false, this.value);
+    });
     actionsRow.appendChild(highlightLabel);
 
     formatSelectInjected = true;
@@ -497,9 +506,7 @@ content.addEventListener("paste", function (e) {
     if (bottomNav) {
       bottomNav
         .querySelectorAll(".mob-nav-btn")
-        .forEach((b) =>
-          b.classList.toggle("active", b.dataset.view === "write"),
-        );
+        .forEach((b) => b.classList.toggle("active", b.dataset.view === "write"));
     }
   }
 
@@ -531,52 +538,28 @@ content.addEventListener("paste", function (e) {
         .querySelectorAll(".mob-nav-btn")
         .forEach((b) => b.classList.toggle("active", b === btn));
       if (view === "docs") {
-        if (sidebarOpen) {
-          closeAll();
-        } else {
-          openSidebar();
-        }
+        if (sidebarOpen) closeAll(); else openSidebar();
       } else if (view === "write") {
         closeAll();
       } else if (view === "ai") {
-        if (aiOpen) {
-          closeAll();
-        } else {
-          openAI();
-        }
+        if (aiOpen) closeAll(); else openAI();
       }
     });
   }
 
-  menuBtn.addEventListener(
-    "click",
-    function (e) {
-      if (window.innerWidth <= MOBILE_BP) {
-        e.stopImmediatePropagation();
-        if (sidebarOpen) {
-          closeAll();
-        } else {
-          openSidebar();
-        }
-      }
-    },
-    true,
-  );
+  menuBtn.addEventListener("click", function (e) {
+    if (window.innerWidth <= MOBILE_BP) {
+      e.stopImmediatePropagation();
+      if (sidebarOpen) closeAll(); else openSidebar();
+    }
+  }, true);
 
-  aiBtn.addEventListener(
-    "click",
-    function (e) {
-      if (window.innerWidth <= TABLET_BP) {
-        e.stopImmediatePropagation();
-        if (aiOpen) {
-          closeAll();
-        } else {
-          openAI();
-        }
-      }
-    },
-    true,
-  );
+  aiBtn.addEventListener("click", function (e) {
+    if (window.innerWidth <= TABLET_BP) {
+      e.stopImmediatePropagation();
+      if (aiOpen) closeAll(); else openAI();
+    }
+  }, true);
 
   fileListEl.addEventListener("click", function () {
     if (window.innerWidth <= MOBILE_BP && sidebarOpen) {
@@ -597,17 +580,11 @@ content.addEventListener("paste", function (e) {
     }
   });
 
-  overlay.addEventListener(
-    "touchmove",
-    function (e) {
-      e.preventDefault();
-    },
-    { passive: false },
-  );
+  overlay.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+  }, { passive: false });
 
-  if (window.innerWidth <= MOBILE_BP) {
-    ensureFormatSelect();
-  }
+  if (window.innerWidth <= MOBILE_BP) ensureFormatSelect();
 
   window.addEventListener("resize", function () {
     if (window.innerWidth <= MOBILE_BP) ensureFormatSelect();
@@ -651,11 +628,9 @@ function updateDocStats() {
 })();
 
 /* ============================================================
-   FEATURE 2 — COPY QUICK ACTION POPUP
-   Shows Fix | Rewrite | Summarize | Expand when user copies text
+   COPY QUICK ACTION POPUP
    ============================================================ */
 (function setupCopyPopup() {
-  // Create the popup element
   const popup = document.createElement("div");
   popup.id = "copy-action-popup";
   popup.style.cssText = `
@@ -675,23 +650,19 @@ function updateDocStats() {
   const actions = [
     {
       label: "Fix",
-      prompt: (t) =>
-        `Fix all grammar and spelling errors in this text. Return only the corrected text:\n\n${t}`,
+      prompt: (t) => `Fix all grammar and spelling errors in this text. Return only the corrected text:\n\n${t}`,
     },
     {
       label: "Rewrite",
-      prompt: (t) =>
-        `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${t}`,
+      prompt: (t) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${t}`,
     },
     {
       label: "Summarize",
-      prompt: (t) =>
-        `Summarize the following text into concise key points. Return only the summary:\n\n${t}`,
+      prompt: (t) => `Summarize the following text into concise key points. Return only the summary:\n\n${t}`,
     },
     {
       label: "Expand",
-      prompt: (t) =>
-        `Expand and elaborate on the following text with more detail. Return only the expanded text:\n\n${t}`,
+      prompt: (t) => `Expand and elaborate on the following text with more detail. Return only the expanded text:\n\n${t}`,
     },
   ];
 
@@ -724,17 +695,11 @@ function updateDocStats() {
       if (!copiedText) return;
       hidePopup();
 
-      // Open AI panel on mobile
       const aiPanel = document.getElementById("aiPanel");
-      if (
-        aiPanel &&
-        !aiPanel.classList.contains("open") &&
-        window.innerWidth <= 900
-      ) {
+      if (aiPanel && !aiPanel.classList.contains("open") && window.innerWidth <= 900) {
         aiPanel.classList.add("open");
       }
 
-      // Call AI with the copied text
       if (typeof callAI === "function") {
         callAI(action.prompt(copiedText));
       }
@@ -751,15 +716,13 @@ function updateDocStats() {
     popup.dataset.copiedText = text;
     popup.style.display = "flex";
 
-    // Position at bottom of editor
     const editorRect = content.getBoundingClientRect();
     const popupW = 280;
     let left = editorRect.left + editorRect.width / 2 - popupW / 2;
     let top = editorRect.bottom - 50;
 
     if (left < 8) left = 8;
-    if (left + popupW > window.innerWidth - 8)
-      left = window.innerWidth - popupW - 8;
+    if (left + popupW > window.innerWidth - 8) left = window.innerWidth - popupW - 8;
 
     popup.style.left = left + "px";
     popup.style.top = top + "px";
@@ -772,35 +735,21 @@ function updateDocStats() {
     clearTimeout(hideTimer);
   }
 
-  // Show popup on text selection
   document.addEventListener("mouseup", function () {
     setTimeout(() => {
       const sel = window.getSelection();
       const text = sel ? sel.toString().trim() : "";
-      if (!text || text.length < 3) {
-        hidePopup();
-        return;
-      }
-      // Only show if selection is inside the editor
+      if (!text || text.length < 3) { hidePopup(); return; }
       if (!content.contains(sel.anchorNode)) return;
 
       const editorRect = content.getBoundingClientRect();
-      const x = editorRect.left + editorRect.width / 2;
-      const y = editorRect.bottom - 60;
-
-      showPopup(x, y, text);
+      showPopup(editorRect.left + editorRect.width / 2, editorRect.bottom - 60, text);
     }, 50);
   });
 
-  // Hide popup when clicking outside
-  let justShown = false;
-
   document.addEventListener("mousedown", function (e) {
-    if (!popup.contains(e.target) && !content.contains(e.target)) {
-      hidePopup();
-    }
+    if (!popup.contains(e.target) && !content.contains(e.target)) hidePopup();
   });
 
-  // Hide popup when user starts typing
   content.addEventListener("keydown", hidePopup);
 })();
