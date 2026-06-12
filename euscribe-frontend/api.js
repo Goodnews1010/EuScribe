@@ -13,6 +13,42 @@ function getToken() {
   if (!getToken()) window.location.href = "euscribe-auth.html";
 })();
 
+/* ── User info (runs immediately — DOM already ready since scripts are at bottom) ── */
+(function setUserInfo() {
+  const name = localStorage.getItem("euscribe_user_name") || "User";
+  const avatar = document.querySelector(".avatar");
+  if (avatar) {
+    const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    avatar.textContent = initials;
+  }
+  const userInfoP = document.querySelector(".user-info p");
+  if (userInfoP) userInfoP.textContent = name;
+})();
+
+/* ── Logout — event delegation, outside DOMContentLoaded ── */
+document.body.addEventListener("click", async function (e) {
+  const btn = e.target.closest(".dropdown button");
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Close the dropdown first
+  const profileToggle = document.getElementById("profileToggle");
+  if (profileToggle) profileToggle.checked = false;
+
+  const confirmed = await euConfirm("You'll need to sign in again to access your documents.", {
+    title: "Log out of EuScribe?",
+    confirmText: "Log out",
+    cancelText: "Stay",
+    type: "warning",
+  });
+  if (!confirmed) return;
+  localStorage.removeItem("euscribe_token");
+  localStorage.removeItem("euscribe_user_name");
+  localStorage.removeItem("euscribe_user_email");
+  window.location.href = "euscribe-auth.html";
+});
+
 /* ── GLOBAL: sync a single doc to MongoDB ── */
 async function syncToBackend(localDoc) {
   const token = getToken();
@@ -49,6 +85,25 @@ async function syncToBackend(localDoc) {
   }
 }
 
+/* ── GLOBAL: delete a doc from MongoDB ── */
+async function deleteFromBackend(localId) {
+  const token = getToken();
+  if (!token) return;
+  const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
+  const backendId = idMap[localId];
+  if (!backendId) return;
+  try {
+    await fetch(`${API}/api/documents/${backendId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    delete idMap[localId];
+    localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+  } catch (err) {
+    console.warn("Backend delete failed:", err.message);
+  }
+}
+
 /* ── GLOBAL: load all docs from MongoDB on startup ── */
 async function loadDocumentsFromBackend() {
   const token = getToken();
@@ -71,12 +126,13 @@ async function loadDocumentsFromBackend() {
     localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
 
     clearTimeout(window._mongoLoadFallback);
-    window.documents = localDocs;
-    documents = localDocs;
+
+    // Mutate the same array index.js holds — don't reassign
+    documents.length = 0;
+    localDocs.forEach((d) => documents.push(d));
 
     if (typeof renderDocuments === "function") renderDocuments();
 
-    // Only auto-open a doc if nothing is open yet
     if (!currentDocId) {
       if (localDocs.length > 0 && typeof loadDocument === "function") {
         loadDocument(localDocs[0].id);
@@ -89,54 +145,23 @@ async function loadDocumentsFromBackend() {
   }
 }
 
-/* ============================================================
-   DOM READY
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", function () {
+/* ── Kick off backend load and announcement ── */
+loadDocumentsFromBackend();
+loadAnnouncement();
 
-  /* ── User info ── */
-  const name = localStorage.getItem("euscribe_user_name") || "User";
-  const avatar = document.querySelector(".avatar");
-  if (avatar) {
-    const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-    avatar.textContent = initials;
-  }
-  const userInfoP = document.querySelector(".user-info p");
-  if (userInfoP) userInfoP.textContent = name;
-
-  /* ── Logout with confirmation ── */
-  const logoutBtn = document.querySelector(".dropdown button");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async function () {
-      const confirmed = await euConfirm("You'll need to sign in again to access your documents.", {
-        title: "Log out of EuScribe?",
-        confirmText: "Log out",
-        cancelText: "Stay",
-        type: "warning",
-      });
-      if (!confirmed) return;
-      localStorage.removeItem("euscribe_token");
-      localStorage.removeItem("euscribe_user_name");
-      localStorage.removeItem("euscribe_user_email");
-      window.location.href = "euscribe-auth.html";
-    });
-  }
-
-  loadDocumentsFromBackend();
-  loadAnnouncement();
-
-  /* ── AI Action Cards ── */
+/* ── AI Action Cards ── */
+(function setupAICards() {
   const prompts = {
     "Fix Grammar & Spelling": (text) => `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
-    "Rewrite for Clarity": (text) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
-    Summarize: (text) => `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
-    "Expand & Elaborate": (text) => `Expand and elaborate on the following text with more detail and depth. Return only the expanded text:\n\n${text}`,
-    Formal: (text) => `Rewrite the following text in a formal, professional tone. Return only the rewritten text:\n\n${text}`,
-    Casual: (text) => `Rewrite the following text in a casual, relaxed tone. Return only the rewritten text:\n\n${text}`,
-    Academic: (text) => `Rewrite the following text in an academic, scholarly style. Return only the rewritten text:\n\n${text}`,
-    Friendly: (text) => `Rewrite the following text in a warm, friendly and conversational tone. Return only the rewritten text:\n\n${text}`,
-    Persuasive: (text) => `Rewrite the following text to be more persuasive and convincing. Return only the rewritten text:\n\n${text}`,
-    Creative: (text) => `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
+    "Rewrite for Clarity":    (text) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
+    "Summarize":              (text) => `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
+    "Expand & Elaborate":     (text) => `Expand and elaborate on the following text with more detail and depth. Return only the expanded text:\n\n${text}`,
+    "Formal":                 (text) => `Rewrite the following text in a formal, professional tone. Return only the rewritten text:\n\n${text}`,
+    "Casual":                 (text) => `Rewrite the following text in a casual, relaxed tone. Return only the rewritten text:\n\n${text}`,
+    "Academic":               (text) => `Rewrite the following text in an academic, scholarly style. Return only the rewritten text:\n\n${text}`,
+    "Friendly":               (text) => `Rewrite the following text in a warm, friendly and conversational tone. Return only the rewritten text:\n\n${text}`,
+    "Persuasive":             (text) => `Rewrite the following text to be more persuasive and convincing. Return only the rewritten text:\n\n${text}`,
+    "Creative":               (text) => `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
   };
 
   document.querySelectorAll(".ai-action-card").forEach((card) => {
@@ -181,8 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
-}); // ← end DOMContentLoaded
+})();
 
 /* ============================================================
    ANNOUNCEMENT BANNER
@@ -246,8 +270,6 @@ function dismissAnnouncement(id) {
 /* ============================================================
    AI CALL
    ============================================================ */
-let savedRange = null;
-
 async function callAI(prompt) {
   const token = getToken();
   showAILoading(true);
@@ -282,10 +304,8 @@ function getSelectedText() {
   const editor = document.getElementById("content");
   const sel = window.getSelection();
   if (sel && sel.toString().trim().length > 0) {
-    savedRange = sel.getRangeAt(0).cloneRange();
     return sel.toString().trim();
   }
-  savedRange = null;
   return editor ? editor.innerText.trim() : "";
 }
 
@@ -345,7 +365,7 @@ function injectResultBox() {
       document.execCommand("insertText", false, text);
     }
     hideAIResult();
-    if (typeof window.saveCurrentDocument === "function") window.saveCurrentDocument();
+    if (typeof saveCurrentDocument === "function") saveCurrentDocument();
   });
 }
 
