@@ -62,12 +62,7 @@ function createNewDocument() {
   saveToStorage();
   renderDocuments();
 }
-#content:empty::before {
-  content: attr(data-placeholder);
-  color: var(--text-muted, #5a6478);
-  pointer-events: none;
-  display: block;
-} 
+
 
 /* ===================================================
    LOAD DOCUMENT
