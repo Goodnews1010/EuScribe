@@ -101,7 +101,12 @@ function saveCurrentDocument() {
   // Sync to MongoDB
   if (typeof syncToBackend === "function") syncToBackend(doc);
 }
-
+function normalizeEmptyContent() {
+  const text = content.innerText.replace(/\u200B/g, "").trim();
+  if (text === "") {
+    content.innerHTML = "";
+  }
+}
 content.addEventListener("input", () => {
   saveStatus.textContent = "Saving...";
   saveStatus.classList.add("saving");

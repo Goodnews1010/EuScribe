@@ -145,13 +145,13 @@ body {
 }
 
 /* Theme toggle */
-/* Theme toggle */
 .theme-toggle {
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
