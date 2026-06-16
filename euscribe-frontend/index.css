@@ -152,7 +152,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface);
   border: none;
   border-radius: 8px;
   cursor: pointer;
