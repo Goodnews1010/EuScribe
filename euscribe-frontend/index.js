@@ -63,7 +63,6 @@ function createNewDocument() {
   renderDocuments();
 }
 
-
 /* ===================================================
    LOAD DOCUMENT
 =================================================== */
@@ -332,18 +331,13 @@ document.querySelectorAll(".ai-tab").forEach((tab) => {
 const themeToggle = document.getElementById("themeToggle");
 
 if (localStorage.getItem("euscribe-theme") === "light") {
-  document.body.classList.add("light");
-  themeToggle.checked = true;
+  document.body.classList.add("light");~
 }
 
-themeToggle.addEventListener("change", function () {
-  if (this.checked) {
-    document.body.classList.add("light");
-    localStorage.setItem("euscribe-theme", "light");
-  } else {
-    document.body.classList.remove("light");
-    localStorage.setItem("euscribe-theme", "dark");
-  }
+themeToggle.addEventListener("click", function () {
+  document.body.classList.toggle("light");
+  const isLight = document.body.classList.contains("light");
+  localStorage.setItem("euscribe-theme", isLight ? "light" : "dark");
 });
 
 /* ============================================================
