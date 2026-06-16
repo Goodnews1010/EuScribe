@@ -153,13 +153,14 @@ body {
   align-items: center;
   justify-content: center;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.2s;
+  transition: background 0.2s;
 }
+.theme-toggle:hover { background: var(--surface-alt); }
 .theme-toggle:hover { border-color: var(--accent); }
 .theme-toggle i {
   position: absolute;

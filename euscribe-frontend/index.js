@@ -331,7 +331,7 @@ document.querySelectorAll(".ai-tab").forEach((tab) => {
 const themeToggle = document.getElementById("themeToggle");
 
 if (localStorage.getItem("euscribe-theme") === "light") {
-  document.body.classList.add("light");~
+  document.body.classList.add("light");
 }
 
 themeToggle.addEventListener("click", function () {
