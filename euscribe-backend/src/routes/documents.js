@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Document = require('../models/Document');
 const multer = require('multer');
-const pdfParse = require('pdf-parse');
+const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 const mammoth = require('mammoth');
 
 // Memory storage = file never touches disk, just lives in RAM during the request.
@@ -46,9 +46,22 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     let extractedText = '';
 
     if (mimetype === 'application/pdf') {
-      const parsed = await pdfParse(buffer);
-      extractedText = parsed.text;
-    } else if (
+  const parsed = await pdfParse(buffer);
+  extractedText = parsed.text
+    .split('\n')
+    .map(line => line.trim())
+    .reduce((acc, line) => {
+      if (line === '') {
+        // blank line = paragraph break, but avoid double breaks
+        if (acc && !acc.endsWith('</p><p>')) {
+          return acc + '</p><p>';
+        }
+        return acc;
+      }
+      return acc + line + ' ';
+    }, '<p>')
+    + '</p>';
+} else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
       const result = await mammoth.extractRawText({ buffer });
