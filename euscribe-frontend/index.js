@@ -46,13 +46,57 @@ function saveToStorage() {
 }
 
 /* ===================================================
+   METADATA HELPERS (word count + relative timestamps)
+=================================================== */
+function countWords(htmlOrText) {
+  const text = String(htmlOrText || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  if (!text) return 0;
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+function formatTimeAgo(isoString) {
+  if (!isoString) return "";
+  const then = new Date(isoString).getTime();
+  const diffSec = Math.floor((Date.now() - then) / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffSec < 30) return "Just now";
+  if (diffMin < 1) return `${diffSec}s ago`;
+  if (diffMin < 60) return `${diffMin} min${diffMin === 1 ? "" : "s"} ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr === 1 ? "" : "s"} ago`;
+  if (diffDay === 1) return "Yesterday";
+  if (diffDay < 7) return `${diffDay} days ago`;
+
+  const date = new Date(isoString);
+  const options = { month: "short", day: "numeric" };
+  if (date.getFullYear() !== new Date().getFullYear()) options.year = "numeric";
+  return date.toLocaleDateString(undefined, options);
+}
+
+// Re-render relative "X mins ago" labels every 60s without a full reload
+setInterval(() => {
+  document.querySelectorAll(".file-meta[data-updated-at]").forEach((el) => {
+    const wordLabel = el.dataset.wordLabel || "";
+    el.textContent = `${wordLabel} • Edited ${formatTimeAgo(el.dataset.updatedAt)}`;
+  });
+}, 60000);
+
+/* ===================================================
    CREATE NEW DOCUMENT
 =================================================== */
 function createNewDocument() {
+  const now = new Date().toISOString();
   const newDoc = {
     id: Date.now(),
     name: `Untitled Document ${documents.length + 1}`,
     content: "",
+    createdAt: now,
+    updatedAt: now,
   };
   documents.unshift(newDoc);
   currentDocId = newDoc.id;
@@ -93,10 +137,12 @@ function saveCurrentDocument() {
 
   doc.content = content.innerHTML;
   doc.name = topFileTitle.value.trim() || "Untitled Document";
+  doc.updatedAt = new Date().toISOString();
 
   filename.value = doc.name;
 
   saveToStorage();
+  renderDocuments();
 
   // Sync to MongoDB
   if (typeof syncToBackend === "function") syncToBackend(doc);
@@ -199,12 +245,23 @@ function renderDocuments() {
     const fileItem = document.createElement("div");
     fileItem.classList.add("file-item");
     if (String(doc.id) === String(currentDocId)) fileItem.style.border = "1px solid #4f8cff";
+
+    const wordCount = countWords(doc.content);
+    const wordLabel = wordCount === 1 ? "1 word" : `${wordCount.toLocaleString()} words`;
+    const metaText = `${wordLabel} • Edited ${formatTimeAgo(doc.updatedAt)}`;
+
     fileItem.innerHTML = `
-      <input type="text" class="file-name" value="${doc.name}" readonly />
+      <div class="file-item-main">
+        <input type="text" class="file-name" value="${doc.name}" readonly />
+        <div class="file-meta" data-updated-at="${doc.updatedAt || ""}" data-word-label="${wordLabel}">${metaText}</div>
+      </div>
       <i class='bx bx-trash delete'></i>
     `;
     fileItem
       .querySelector(".file-name")
+      .addEventListener("click", () => loadDocument(doc.id));
+    fileItem
+      .querySelector(".file-meta")
       .addEventListener("click", () => loadDocument(doc.id));
     fileItem.querySelector(".delete").addEventListener("click", (e) => {
       e.stopPropagation();

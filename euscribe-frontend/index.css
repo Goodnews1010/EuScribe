@@ -330,6 +330,18 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   cursor: pointer;
   transition: background 0.2s;
 }
+.file-item-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.file-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  margin-top: 2px;
+  cursor: pointer;
+}
 .file-item:hover {
   background: var(--surface);
 }
