@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Document = require('../models/Document');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
+
+// Memory storage = file never touches disk, just lives in RAM during the request.
+// 10MB cap is plenty for text documents and keeps Render's free tier happy.
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 // GET /api/documents
 router.get('/', auth, async (req, res) => {
@@ -21,6 +31,47 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json(doc);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/documents/upload
+// Accepts a single PDF or DOCX file, extracts its text, and saves it as a new document.
+router.post('/upload', auth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const { originalname, mimetype, buffer } = req.file;
+    let extractedText = '';
+
+    if (mimetype === 'application/pdf') {
+      const parsed = await pdfParse(buffer);
+      extractedText = parsed.text;
+    } else if (
+      mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+      const result = await mammoth.extractRawText({ buffer });
+      extractedText = result.value;
+    } else {
+      return res.status(400).json({
+        message: 'Unsupported file type. Please upload a PDF or DOCX file.',
+      });
+    }
+
+    // Strip the extension for a cleaner default title
+    const title = originalname.replace(/\.(pdf|docx)$/i, '');
+
+    const doc = await Document.create({
+      userId: req.user.id,
+      title,
+      content: extractedText,
+    });
+
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error('Upload parse error:', err);
+    res.status(500).json({ message: 'Failed to process the uploaded file' });
   }
 });
 

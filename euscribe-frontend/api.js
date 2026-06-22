@@ -2,7 +2,8 @@
    EUSCRIBE — BACKEND API CONNECTOR
    ============================================================ */
 
-const API = "https://euscribe.onrender.com";
+const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const API = isDev ? "http://localhost:5000" : "https://euscribe.onrender.com";
 
 function getToken() {
   return localStorage.getItem("euscribe_token");

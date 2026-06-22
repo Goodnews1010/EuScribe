@@ -324,8 +324,63 @@ function fileHandle(value) {
       .then(() => {
         document.body.removeChild(exportContent);
       });
+  } else if (value === "upload") {
+    uploadInput.click();
   }
 }
+/* ===================================================
+   UPLOAD PDF / DOCX
+=================================================== */
+const uploadInput = document.createElement('input');
+uploadInput.type = 'file';
+uploadInput.accept = '.pdf,.docx';
+uploadInput.style.display = 'none';
+document.body.appendChild(uploadInput);
+
+uploadInput.addEventListener('change', async function () {
+  const file = this.files[0];
+  if (!file) return;
+  this.value = ''; // reset so the same file can be re-uploaded if needed
+
+  const token = localStorage.getItem('euscribe_token');
+  if (!token) {
+    euToast('Please log in to upload documents.', 'error');
+    return;
+  }
+
+  euToast('Uploading...', 'info');
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE_URL}/api/documents/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Upload failed');
+    }
+
+    const newDoc = await res.json();
+
+    // Normalise the id field (backend returns _id)
+    newDoc.id = newDoc._id || newDoc.id;
+    newDoc.name = newDoc.title || newDoc.name;
+
+    documents.unshift(newDoc);
+    saveToStorage();
+    renderDocuments();
+    loadDocument(newDoc.id);
+    euToast('Document uploaded successfully!', 'success');
+  } catch (err) {
+    console.error('Upload error:', err);
+    euToast(err.message || 'Failed to upload document.', 'error');
+  }
+});
 
 /* ===================================================
    TITLE EDITING
@@ -539,11 +594,12 @@ content.addEventListener("paste", function (e) {
     const fileSelect = document.createElement("select");
     fileSelect.className = "mobile-format-select";
     fileSelect.innerHTML = `
-      <option value="" selected hidden disabled>File</option>
-      <option value="new">New File</option>
-      <option value="txt">Save as .txt</option>
-      <option value="pdf">Save as .pdf</option>
-    `;
+        <option value="" selected hidden disabled>File</option>
+        <option value="new">New File</option>
+        <option value="upload">Upload PDF / DOCX</option>
+        <option value="txt">Save as .txt</option>
+        <option value="pdf">Save as .pdf</option>
+      `;
     fileSelect.addEventListener("change", function () {
       fileHandle(this.value);
       this.selectedIndex = 0;
