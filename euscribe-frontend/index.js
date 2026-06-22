@@ -328,9 +328,11 @@ function fileHandle(value) {
     uploadInput.click();
   }
 }
+
 /* ===================================================
    UPLOAD PDF / DOCX
 =================================================== */
+const API_BASE_URL = window.API_BASE_URL || "https://your-backend.onrender.com";
 const uploadInput = document.createElement('input');
 uploadInput.type = 'file';
 uploadInput.accept = '.pdf,.docx';
@@ -354,7 +356,7 @@ uploadInput.addEventListener('change', async function () {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${API_BASE_URL}/api/documents/upload`, {
+    const res = await fetch(`${API}/api/documents/upload`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
