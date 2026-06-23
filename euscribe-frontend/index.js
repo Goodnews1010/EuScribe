@@ -251,78 +251,77 @@ function renderDocuments() {
     const metaText = `${wordLabel} • Edited ${formatTimeAgo(doc.updatedAt)}`;
 
     fileItem.innerHTML = `
-  <div class="file-item-main">
-    <input type="text" class="file-name" name="file-name-${doc.id}" value="${doc.name}" readonly />
-    <div class="file-meta" data-updated-at="${doc.updatedAt || ""}" data-word-label="${wordLabel}">${metaText}</div>
-  </div>
-  <div class="file-item-actions">
-    <i class='bx bx-edit-alt edit-name' title="Rename"></i>
-    <i class='bx bx-trash delete' title="Delete"></i>
-  </div>
-`;
+      <div class="file-item-main">
+        <input type="text" class="file-name" name="file-name-${doc.id}" value="${doc.name}" readonly />
+        <div class="file-meta" data-updated-at="${doc.updatedAt || ""}" data-word-label="${wordLabel}">${metaText}</div>
+      </div>
+      <div class="file-item-actions">
+        <i class='bx bx-edit-alt edit-name' title="Rename"></i>
+        <i class='bx bx-trash delete' title="Delete"></i>
+      </div>
+    `;
 
-const nameInput = fileItem.querySelector(".file-name");
-const editBtn = fileItem.querySelector(".edit-name");
+    const nameInput = fileItem.querySelector(".file-name");
+    const editBtn = fileItem.querySelector(".edit-name");
 
-nameInput.addEventListener("click", () => loadDocument(doc.id));
-fileItem.querySelector(".file-meta").addEventListener("click", () => loadDocument(doc.id));
+    nameInput.addEventListener("click", () => loadDocument(doc.id));
+    fileItem.querySelector(".file-meta").addEventListener("click", () => loadDocument(doc.id));
 
-editBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const isEditing = !nameInput.readOnly;
-
-if (isEditing) {
-    nameInput.readOnly = true;
-    editBtn.className = "bx bx-edit-alt edit-name";
-    const newName = nameInput.value.trim() || "Untitled Document";
-    nameInput.value = newName;
-    loadDocument(doc.id);
-    renameCurrentDocument(newName, null);
-    finalizeDocumentName();
-  } else {
-    if (String(currentDocId) !== String(doc.id)) {
-      const d = documents.find((item) => String(item.id) === String(doc.id));
-      if (d) {
-        currentDocId = d.id;
-        content.innerHTML = d.content;
-        filename.value = d.name;
-        topFileTitle.value = d.name;
-        updateDocStats();
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isEditing = !nameInput.readOnly;
+      if (isEditing) {
+        nameInput.readOnly = true;
+        editBtn.className = "bx bx-edit-alt edit-name";
+        const newName = nameInput.value.trim() || "Untitled Document";
+        nameInput.value = newName;
+        loadDocument(doc.id);
+        renameCurrentDocument(newName, null);
+        finalizeDocumentName();
+      } else {
+        if (String(currentDocId) !== String(doc.id)) {
+          const d = documents.find((item) => String(item.id) === String(doc.id));
+          if (d) {
+            currentDocId = d.id;
+            content.innerHTML = d.content;
+            filename.value = d.name;
+            topFileTitle.value = d.name;
+            updateDocStats();
+          }
+        }
+        nameInput.readOnly = false;
+        nameInput.focus();
+        nameInput.select();
+        editBtn.className = "bx bx-check-bold edit-name";
       }
-    }
-    nameInput.readOnly = false;
-    nameInput.focus();
-    nameInput.select();
-    editBtn.className = "bx bx-check-bold edit-name";
-  }
-});
-nameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") editBtn.click();
-  if (e.key === "Escape") {
-    nameInput.value = doc.name;
-    nameInput.readOnly = true;
-    editBtn.className = "bx bx-edit-alt edit-name";
-  }
-});
+    });
 
-nameInput.addEventListener("blur", (e) => {
-  setTimeout(() => {
-    if (document.activeElement !== editBtn) {
-      nameInput.readOnly = true;
-      editBtn.className = "bx bx-edit-alt edit-name";
-    }
-  }, 150);
-});
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") editBtn.click();
+      if (e.key === "Escape") {
+        nameInput.value = doc.name;
+        nameInput.readOnly = true;
+        editBtn.className = "bx bx-edit-alt edit-name";
+      }
+    });
 
-fileItem.querySelector(".delete").addEventListener("click", (e) => {
-  e.stopPropagation();
-  deleteDocument(doc.id);
-});
+    nameInput.addEventListener("blur", () => {
+      setTimeout(() => {
+        if (document.activeElement !== editBtn) {
+          nameInput.readOnly = true;
+          editBtn.className = "bx bx-edit-alt edit-name";
+        }
+      }, 150);
+    });
 
-fileList.appendChild(fileItem);
-});
+    fileItem.querySelector(".delete").addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteDocument(doc.id);
+    });
+
+    fileList.appendChild(fileItem);
+  });
 }
-
 /* ===================================================
    FILE HANDLE
 =================================================== */
