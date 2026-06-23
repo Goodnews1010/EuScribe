@@ -371,6 +371,16 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   cursor: pointer;
   font-size: 13px;
 }
+.file-name[readonly] {
+  cursor: default;
+  border-bottom: none;
+  text-decoration: none;
+}
+.file-name:not([readonly]) {
+  cursor: text;
+  border-bottom: 1px solid #4f8cff;
+  outline: none;
+}
 .file-name:focus { background: #3a3a55; border-radius: 4px; padding: 2px 4px; }
 .delete { color: var(--danger); cursor: pointer; font-size: 16px; }
 
