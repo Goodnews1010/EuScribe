@@ -279,8 +279,18 @@ editBtn.addEventListener("click", (e) => {
     loadDocument(doc.id);
     renameCurrentDocument(newName, null);
     finalizeDocumentName();
-  } else {
-    loadDocument(doc.id);
+  } } else {
+    // Switch doc without re-rendering the sidebar
+    if (String(currentDocId) !== String(doc.id)) {
+      const d = documents.find((item) => String(item.id) === String(doc.id));
+      if (d) {
+        currentDocId = d.id;
+        content.innerHTML = d.content;
+        filename.value = d.name;
+        topFileTitle.value = d.name;
+        updateDocStats();
+      }
+    }
     nameInput.readOnly = false;
     nameInput.focus();
     nameInput.select();
