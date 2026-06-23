@@ -342,6 +342,21 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   margin-top: 2.5px;
   cursor: pointer;
 }
+.file-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.edit-name {
+  font-size: 15px;
+  color: var(--text-muted, #8898b4);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.edit-name:hover {
+  color: #4f8cff;
+}
 .file-item:hover {
   background: var(--surface);
 }
