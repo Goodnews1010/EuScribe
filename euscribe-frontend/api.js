@@ -14,7 +14,7 @@ function getToken() {
   if (!getToken()) window.location.href = "euscribe-auth.html";
 })();
 
-/* ── User info (runs immediately — DOM already ready since scripts are at bottom) ── */
+/* ── User info ── */
 (function setUserInfo() {
   const name = localStorage.getItem("euscribe_user_name") || "User";
   const avatar = document.querySelector(".avatar");
@@ -26,14 +26,13 @@ function getToken() {
   if (userInfoP) userInfoP.textContent = name;
 })();
 
-/* ── Logout — event delegation, outside DOMContentLoaded ── */
+/* ── Logout ── */
 document.body.addEventListener("click", async function (e) {
   const btn = e.target.closest(".dropdown button");
   if (!btn) return;
   e.preventDefault();
   e.stopPropagation();
 
-  // Close the dropdown first
   const profileToggle = document.getElementById("profileToggle");
   if (profileToggle) profileToggle.checked = false;
 
@@ -128,17 +127,15 @@ async function loadDocumentsFromBackend() {
 
     clearTimeout(window._mongoLoadFallback);
 
-    // Mutate the same array index.js holds — don't reassign
     documents.length = 0;
     localDocs.forEach((d) => documents.push(d));
 
     if (typeof renderDocuments === "function") renderDocuments();
     if (localDocs.length === 0) {
-  // Backend confirms account has zero docs — always ensure one exists
-  if (typeof createNewDocument === "function") createNewDocument();
-} else if (!currentDocId) {
-  if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
-}
+      if (typeof createNewDocument === "function") createNewDocument();
+    } else if (!currentDocId) {
+      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    }
   } catch (err) {
     console.warn("Could not load documents from backend:", err.message);
   }
@@ -148,7 +145,48 @@ async function loadDocumentsFromBackend() {
 loadDocumentsFromBackend();
 loadAnnouncement();
 
-/* ── AI Action Cards ── */
+/* ============================================================
+   AI CONVERSATION HISTORY
+   ============================================================ */
+
+// In-memory conversation — persists for the session, cleared on page load.
+// Shape: [{ role: "user"|"assistant", content: string }]
+let aiConversationHistory = [];
+
+function clearAIHistory() {
+  aiConversationHistory = [];
+  const thread = document.getElementById("ai-chat-thread");
+  if (thread) thread.innerHTML = "";
+  const emptyState = document.getElementById("ai-chat-empty");
+  if (emptyState) emptyState.style.display = "flex";
+}
+
+/* ============================================================
+   DOCUMENT CONTEXT — gives AI awareness of the current doc
+   ============================================================ */
+
+function getDocumentContext() {
+  const editor = document.getElementById("content");
+  const titleEl = document.querySelector(".file-title");
+  if (!editor) return "";
+
+  const title = titleEl ? titleEl.value.trim() : "Untitled Document";
+  const text = editor.innerText.trim();
+
+  if (!text) return "";
+
+  // Truncate to ~1500 words to stay within token budget
+  const words = text.split(/\s+/);
+  const truncated = words.length > 1500
+    ? words.slice(0, 1500).join(" ") + "\n\n[Document continues…]"
+    : text;
+
+  return `\n\n---\nCurrent document: "${title}"\n\n${truncated}\n---`;
+}
+
+/* ============================================================
+   AI ACTION CARDS
+   ============================================================ */
 (function setupAICards() {
   const prompts = {
     "Fix Grammar & Spelling": (text) => `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
@@ -172,14 +210,14 @@ loadAnnouncement();
       card.addEventListener("click", function () {
         const selectedText = getSelectedText();
         if (!selectedText) {
-          showAIResult("Please select some text in the editor first, or type something.", true);
+          appendAIMessage("assistant", "Please select some text in the editor first, then try again.", true);
           return;
         }
         const aiPanel = document.getElementById("aiPanel");
         if (aiPanel && !aiPanel.classList.contains("open") && window.innerWidth <= 900) {
           aiPanel.classList.add("open");
         }
-        callAI(prompts[title](selectedText));
+        callAI(prompts[title](selectedText), title);
       });
     }
   });
@@ -190,12 +228,12 @@ loadAnnouncement();
   if (sendBtn && aiInput) {
     sendBtn.addEventListener("click", function () {
       const userPrompt = aiInput.value.trim();
-      const selectedText = getSelectedText();
       if (!userPrompt) return;
+      const selectedText = getSelectedText();
       const fullPrompt = selectedText
         ? `${userPrompt}\n\nHere is the text to work with:\n\n${selectedText}`
         : userPrompt;
-      callAI(fullPrompt);
+      callAI(fullPrompt, userPrompt);
       aiInput.value = "";
     });
     aiInput.addEventListener("keydown", function (e) {
@@ -205,6 +243,10 @@ loadAnnouncement();
       }
     });
   }
+
+  /* ── Clear history button ── */
+  const clearBtn = document.getElementById("ai-clear-history");
+  if (clearBtn) clearBtn.addEventListener("click", clearAIHistory);
 })();
 
 /* ============================================================
@@ -267,32 +309,91 @@ function dismissAnnouncement(id) {
 }
 
 /* ============================================================
-   AI CALL
+   AI CALL — streaming, with conversation history + doc context
    ============================================================ */
-async function callAI(prompt) {
+async function callAI(prompt, displayLabel = null) {
   const token = getToken();
-  showAILoading(true);
-  hideAIResult();
+
+  // Build the user-facing label shown in the chat thread
+  const userLabel = displayLabel || prompt.slice(0, 80) + (prompt.length > 80 ? "…" : "");
+
+  // Append document context to the actual prompt sent to AI (invisible to chat UI)
+  const docContext = getDocumentContext();
+  const fullPrompt = docContext
+    ? `${prompt}\n\n[Context: you are assisting a writer. Here is the document they are currently working on for reference:${docContext}]`
+    : prompt;
+
+  // Push to history (use fullPrompt for AI accuracy, userLabel for display)
+  aiConversationHistory.push({ role: "user", content: fullPrompt });
+
+  // Show user bubble in chat thread
+  ensureChatUI();
+  appendAIMessage("user", userLabel);
+
+  // Create the AI bubble and get a handle to stream text into it
+  const { el: aiBubble, textEl } = appendAIMessage("assistant", "", false, true);
+
   try {
-    const res = await fetch(`${API}/api/ai/complete`, {
+    const res = await fetch(`${API}/api/ai/stream`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ prompt }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ messages: aiConversationHistory }),
     });
-    const data = await res.json();
+
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         localStorage.removeItem("euscribe_token");
         window.location.href = "euscribe-auth.html";
         return;
       }
-      throw new Error(data.message || "AI request failed");
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "AI request failed");
     }
-    showAIResult(data.result);
+
+    // Stream the response token by token
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullResponse = "";
+
+    // Remove typing indicator now that stream has started
+    const typingIndicator = aiBubble.querySelector(".ai-typing");
+    if (typingIndicator) typingIndicator.remove();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      // Groq streams SSE lines: "data: {...}\n\n"
+      const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
+      for (const line of lines) {
+        const jsonStr = line.replace("data: ", "").trim();
+        if (jsonStr === "[DONE]") break;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const token = parsed.choices?.[0]?.delta?.content || "";
+          fullResponse += token;
+          textEl.textContent = fullResponse;
+          scrollChatToBottom();
+        } catch (_) { /* partial JSON chunk, skip */ }
+      }
+    }
+
+    // Save completed response to history for follow-up context
+    aiConversationHistory.push({ role: "assistant", content: fullResponse });
+
+    // Add copy / insert buttons to the completed bubble
+    addBubbleActions(aiBubble, fullResponse);
+
   } catch (err) {
-    showAIResult(`Error: ${err.message}`, true);
-  } finally {
-    showAILoading(false);
+    textEl.textContent = `Error: ${err.message}`;
+    aiBubble.style.borderColor = "rgba(255,107,107,0.3)";
+    aiBubble.style.background = "rgba(255,107,107,0.06)";
+    const typingIndicator = aiBubble.querySelector(".ai-typing");
+    if (typingIndicator) typingIndicator.remove();
   }
 }
 
@@ -309,51 +410,170 @@ function getSelectedText() {
 }
 
 /* ============================================================
-   AI RESULT UI
+   CHAT THREAD UI
    ============================================================ */
-function injectResultBox() {
-  if (document.getElementById("ai-result-box")) return;
-  const box = document.createElement("div");
-  box.id = "ai-result-box";
-  box.style.cssText = `
-    margin-top:16px;padding:14px;
-    background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.2);
-    border-radius:10px;display:none;flex-direction:column;gap:10px;
-  `;
-  box.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <span style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue,#4f8cff)">AI Result</span>
-      <button id="ai-result-close" style="background:none;border:none;color:var(--text-muted,#8898b4);cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>
-    </div>
-    <div id="ai-result-text" style="font-size:13px;line-height:1.7;color:var(--text,#e6edf3);white-space:pre-wrap;max-height:220px;overflow-y:auto"></div>
-    <div id="ai-result-error" style="font-size:13px;color:#ff6b6b;display:none"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="ai-insert-btn" style="flex:1;padding:8px 12px;background:linear-gradient(135deg,#4f8cff,#3a7de8);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Copy</button>
-      <button id="ai-replace-btn" style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#e6edf3;font-size:12px;cursor:pointer;">Replace selection</button>
-    </div>
-  `;
+
+function ensureChatUI() {
+  if (document.getElementById("ai-chat-thread")) return;
+
+  // Remove legacy single-result box if present
+  const legacy = document.getElementById("ai-result-box");
+  if (legacy) legacy.remove();
+  const legacySpinner = document.getElementById("ai-loading");
+  if (legacySpinner) legacySpinner.remove();
+
   const header = document.querySelector(".ai-panel-header");
-  if (header) header.after(box);
+  if (!header) return;
 
-  const spinner = document.createElement("div");
-  spinner.id = "ai-loading";
-  spinner.style.cssText = `display:none;align-items:center;gap:10px;padding:14px;margin-top:8px;font-size:13px;color:var(--text-muted,#8898b4);`;
-  spinner.innerHTML = `<div style="width:14px;height:14px;flex-shrink:0;border:2px solid rgba(79,140,255,0.2);border-top-color:#4f8cff;border-radius:50%;animation:spin 0.5s linear infinite;"></div><span>AI is thinking...</span>`;
-  box.before(spinner);
+  // Chat thread container
+  const thread = document.createElement("div");
+  thread.id = "ai-chat-thread";
+  thread.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 14px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    max-height: 420px;
+    scroll-behavior: smooth;
+  `;
 
-  document.getElementById("ai-result-close").addEventListener("click", hideAIResult);
+  // Empty state
+  const emptyState = document.createElement("div");
+  emptyState.id = "ai-chat-empty";
+  emptyState.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    color: var(--text-muted, #8898b4);
+    font-size: 13px;
+    text-align: center;
+  `;
+  emptyState.innerHTML = `
+    <span style="font-size:28px;opacity:0.4">✦</span>
+    <span>Ask anything, or select text and use an action above.</span>
+  `;
+  thread.appendChild(emptyState);
 
-  document.getElementById("ai-insert-btn").addEventListener("click", function () {
-    const text = document.getElementById("ai-result-text").textContent;
+  // Clear history button — injected into panel header
+  if (!document.getElementById("ai-clear-history")) {
+    const clearBtn = document.createElement("button");
+    clearBtn.id = "ai-clear-history";
+    clearBtn.title = "Clear conversation";
+    clearBtn.style.cssText = `
+      background: none;
+      border: none;
+      color: var(--text-muted, #8898b4);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      transition: color 0.15s, background 0.15s;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    `;
+    clearBtn.textContent = "Clear chat";
+    clearBtn.addEventListener("mouseenter", () => {
+      clearBtn.style.color = "#e6edf3";
+      clearBtn.style.background = "rgba(255,255,255,0.06)";
+    });
+    clearBtn.addEventListener("mouseleave", () => {
+      clearBtn.style.color = "";
+      clearBtn.style.background = "";
+    });
+    clearBtn.addEventListener("click", clearAIHistory);
+    header.appendChild(clearBtn);
+  }
+
+  header.after(thread);
+}
+
+function appendAIMessage(role, text, isError = false, isStreaming = false) {
+  const thread = document.getElementById("ai-chat-thread");
+  if (!thread) return {};
+
+  // Hide empty state
+  const emptyState = document.getElementById("ai-chat-empty");
+  if (emptyState) emptyState.style.display = "none";
+
+  const bubble = document.createElement("div");
+  const isUser = role === "user";
+
+  bubble.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-self: ${isUser ? "flex-end" : "flex-start"};
+    max-width: 88%;
+  `;
+
+  const inner = document.createElement("div");
+  inner.style.cssText = `
+    padding: 10px 13px;
+    border-radius: ${isUser ? "12px 12px 3px 12px" : "12px 12px 12px 3px"};
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    ${isUser
+      ? "background: rgba(79,140,255,0.15); border: 1px solid rgba(79,140,255,0.25); color: #e6edf3;"
+      : isError
+        ? "background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b;"
+        : "background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #e6edf3;"
+    }
+  `;
+
+  const textEl = document.createElement("span");
+  textEl.textContent = text;
+  inner.appendChild(textEl);
+
+  // Typing indicator (three animated dots) while waiting for stream to start
+  if (isStreaming && !text) {
+    const typing = document.createElement("span");
+    typing.className = "ai-typing";
+    typing.style.cssText = `display:inline-flex;gap:3px;align-items:center;padding:2px 0;`;
+    typing.innerHTML = `
+      <style>
+        @keyframes blink{0%,80%,100%{opacity:0.15}40%{opacity:1}}
+        .ai-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite;}
+        .ai-dot:nth-child(2){animation-delay:0.2s}
+        .ai-dot:nth-child(3){animation-delay:0.4s}
+      </style>
+      <span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>
+    `;
+    inner.appendChild(typing);
+  }
+
+  bubble.appendChild(inner);
+  thread.appendChild(bubble);
+  scrollChatToBottom();
+
+  return { el: bubble, textEl };
+}
+
+function addBubbleActions(bubbleEl, text) {
+  const actions = document.createElement("div");
+  actions.style.cssText = `display:flex;gap:6px;flex-wrap:wrap;padding:0 2px;`;
+
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "Copy";
+  styleActionBtn(copyBtn);
+  copyBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById("ai-insert-btn");
-      btn.textContent = "Copied!";
-      setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
     });
   });
 
-  document.getElementById("ai-replace-btn").addEventListener("click", function () {
-    const text = document.getElementById("ai-result-text").textContent;
+  const replaceBtn = document.createElement("button");
+  replaceBtn.textContent = "Replace selection";
+  styleActionBtn(replaceBtn, true);
+  replaceBtn.addEventListener("click", () => {
     const editor = document.getElementById("content");
     editor.focus();
     const sel = window.getSelection();
@@ -363,40 +583,52 @@ function injectResultBox() {
     } else {
       document.execCommand("insertText", false, text);
     }
-    hideAIResult();
     if (typeof saveCurrentDocument === "function") saveCurrentDocument();
+  });
+
+  actions.appendChild(copyBtn);
+  actions.appendChild(replaceBtn);
+  bubbleEl.appendChild(actions);
+}
+
+function styleActionBtn(btn, ghost = false) {
+  btn.style.cssText = `
+    padding: 5px 11px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    ${ghost
+      ? "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #8898b4;"
+      : "background: linear-gradient(135deg,#4f8cff,#3a7de8); border: none; color: #fff;"
+    }
+  `;
+  btn.addEventListener("mouseenter", () => {
+    btn.style.opacity = "0.85";
+  });
+  btn.addEventListener("mouseleave", () => {
+    btn.style.opacity = "1";
   });
 }
 
+function scrollChatToBottom() {
+  const thread = document.getElementById("ai-chat-thread");
+  if (thread) thread.scrollTop = thread.scrollHeight;
+}
+
+/* ============================================================
+   LEGACY SHIMS — keep old showAIResult / showAILoading calls
+   working in case anything else in the codebase calls them
+   ============================================================ */
 function showAILoading(on) {
-  injectResultBox();
-  const el = document.getElementById("ai-loading");
-  if (el) el.style.display = on ? "flex" : "none";
+  // no-op — streaming replaces loading spinner
 }
-
 function showAIResult(text, isError = false) {
-  injectResultBox();
-  const box = document.getElementById("ai-result-box");
-  const textEl = document.getElementById("ai-result-text");
-  const errEl = document.getElementById("ai-result-error");
-  if (!box) return;
-  if (isError) {
-    textEl.style.display = "none";
-    errEl.style.display = "block";
-    errEl.textContent = text;
-    document.getElementById("ai-insert-btn").style.display = "none";
-    document.getElementById("ai-replace-btn").style.display = "none";
-  } else {
-    textEl.style.display = "block";
-    errEl.style.display = "none";
-    textEl.textContent = text;
-    document.getElementById("ai-insert-btn").style.display = "";
-    document.getElementById("ai-replace-btn").style.display = "";
-  }
-  box.style.display = "flex";
+  ensureChatUI();
+  appendAIMessage("assistant", text, isError);
 }
-
 function hideAIResult() {
-  const box = document.getElementById("ai-result-box");
-  if (box) box.style.display = "none";
+  // no-op — individual bubbles are dismissed via clear chat
 }
