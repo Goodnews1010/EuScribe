@@ -295,6 +295,7 @@ if (isEditing) {
     nameInput.select();
     editBtn.className = "bx bx-check-bold edit-name";
   }
+});
 nameInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") editBtn.click();
   if (e.key === "Escape") {
