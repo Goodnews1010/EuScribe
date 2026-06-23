@@ -930,12 +930,17 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
         </div>
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-title-icon cti-green"><i class='bx bxs-file-doc'></i></span>All Documents</div>
-            <button class="card-action" onclick="loadDocs()"><i class='bx bx-refresh'></i> Refresh</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Title</th><th>Owner</th><th>Words</th><th>Created</th><th>Updated</th></tr></thead>
+  <div class="card-title"><span class="card-title-icon cti-green"><i class='bx bxs-file-doc'></i></span>All Documents <span id="docCountLabel" style="color:var(--text2);font-weight:400;font-size:12px"></span></div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="search-input" id="docSearch" type="text" placeholder="Search by title or owner…" oninput="filterDocs()"/>
+    </div>
+    <button class="card-action" onclick="loadDocs()"><i class='bx bx-refresh'></i> Refresh</button>
+  </div>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Title</th><th>Owner</th><th>Email</th><th>Words</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
               <tbody id="docsTable">
                 <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading documents…</td></tr>
               </tbody>
@@ -1253,6 +1258,7 @@ else if (isAdminLS !== 'true') { alert('Admin access required.'); window.locatio
 const IS_SUPER = localStorage.getItem('euscribe_is_super') !== 'false'; // defaults to true unless explicitly false
 
 let allUsers = [];
+let allDocs = [];
 let selectedUserIds = new Set();
 let currentProfileUser = null;
 let recipientMode = 'all';
@@ -1839,24 +1845,48 @@ async function clearAnnouncement() {
 /* ── DOCUMENTS ── */
 async function loadDocs() {
   const tbody = document.getElementById('docsTable');
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:32px">Loading…</td></tr>';
   try {
     const res = await fetch(`${API}/api/admin/documents`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) throw new Error('Failed');
-    const docs = await res.json();
-    tbody.innerHTML = docs.map(d => {
-      const words = d.content ? d.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
-      return `<tr>
-        <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
-        <td style="color:var(--blue2)">${d.userId?.name || d.userId || '—'}</td>
-        <td>${words.toLocaleString()}</td>
-        <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
-        <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">No documents found.</td></tr>';
+    allDocs = await res.json();
+    document.getElementById('docCountLabel').textContent = `(${allDocs.length} total)`;
+    renderDocsTable(allDocs);
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Could not load documents.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:32px">Could not load documents.</td></tr>';
   }
+}
+
+function renderDocsTable(docs) {
+  const tbody = document.getElementById('docsTable');
+  if (!docs.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:32px">No documents found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = docs.map(d => {
+    const words = d.content ? d.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
+    const ownerName = d.userId?.name || '—';
+    const ownerEmail = d.userId?.email || '—';
+    return `<tr>
+      <td style="color:var(--text);font-weight:500">${d.title || 'Untitled'}</td>
+      <td style="color:var(--blue2)">${ownerName}</td>
+      <td style="color:var(--text3);font-size:12px">${ownerEmail}</td>
+      <td>${words.toLocaleString()}</td>
+      <td>${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+      <td>${new Date(d.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+      <td><button class="action-btn view" onclick="viewDoc('${d._id}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterDocs() {
+  const q = document.getElementById('docSearch').value.toLowerCase().trim();
+  if (!q) { renderDocsTable(allDocs); return; }
+  renderDocsTable(allDocs.filter(d =>
+    (d.title || '').toLowerCase().includes(q) ||
+    (d.userId?.name || '').toLowerCase().includes(q) ||
+    (d.userId?.email || '').toLowerCase().includes(q)
+  ));
 }
 
 /* ── ACTIVITY ── */
@@ -1963,6 +1993,42 @@ function showResult(el, msg, success) {
 function parseJwt(token) {
   try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
 }
+function viewDoc(id) {
+  const doc = allDocs.find(d => d._id === id);
+  if (!doc) return;
+  const ownerName = doc.userId?.name || 'Unknown';
+  const ownerEmail = doc.userId?.email || '—';
+  const words = doc.content ? doc.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
+
+  document.getElementById('modalTitle').textContent = doc.title || 'Untitled Document';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div class="user-av uav1" style="width:36px;height:36px;font-size:13px">${(ownerName[0]||'?').toUpperCase()}</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${ownerName}</div>
+        <div style="font-size:11px;color:var(--text3)">${ownerEmail}</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge badge-gray">${words.toLocaleString()} words</span>
+        <span class="badge badge-blue">Updated ${new Date(doc.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
+      </div>
+    </div>
+    <div style="
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:20px 24px;
+      max-height:55vh;
+      overflow-y:auto;
+      font-family:'Inter',sans-serif;
+      font-size:14px;
+      line-height:1.8;
+      color:var(--text);
+    ">${doc.content || '<p style="color:var(--text3)">This document is empty.</p>'}</div>
+  `;
+  document.getElementById('profileModal').classList.remove('hidden');
+}
+
 </script>
 </body>
 </html>
