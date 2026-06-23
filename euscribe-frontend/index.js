@@ -252,7 +252,7 @@ function renderDocuments() {
 
     fileItem.innerHTML = `
   <div class="file-item-main">
-    <input type="text" class="file-name" value="${doc.name}" readonly />
+    <input type="text" class="file-name" name="file-name-${doc.id}" value="${doc.name}" readonly />
     <div class="file-meta" data-updated-at="${doc.updatedAt || ""}" data-word-label="${wordLabel}">${metaText}</div>
   </div>
   <div class="file-item-actions">

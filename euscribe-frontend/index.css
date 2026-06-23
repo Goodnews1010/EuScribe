@@ -353,6 +353,8 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   color: var(--text-muted, #8898b4);
   cursor: pointer;
   transition: color 0.15s;
+  text-decoration: none;
+  border-bottom: none;
 }
 .edit-name:hover {
   color: #4f8cff;
