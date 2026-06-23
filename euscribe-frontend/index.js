@@ -284,7 +284,7 @@ editBtn.addEventListener("click", (e) => {
     nameInput.readOnly = false;
     nameInput.focus();
     nameInput.select();
-    editBtn.className = "bx bx-check edit-name";
+    editBtn.className = "bx bx-check-bold edit-name";
   }
 });
 
@@ -298,10 +298,12 @@ nameInput.addEventListener("keydown", (e) => {
 });
 
 nameInput.addEventListener("blur", (e) => {
-  if (e.relatedTarget !== editBtn) {
-    nameInput.readOnly = true;
-    editBtn.className = "bx bx-edit-alt edit-name";
-  }
+  setTimeout(() => {
+    if (document.activeElement !== editBtn) {
+      nameInput.readOnly = true;
+      editBtn.className = "bx bx-edit-alt edit-name";
+    }
+  }, 150);
 });
 
 fileItem.querySelector(".delete").addEventListener("click", (e) => {
