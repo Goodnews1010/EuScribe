@@ -271,7 +271,7 @@ editBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   const isEditing = !nameInput.readOnly;
 
-  if (isEditing) {
+if (isEditing) {
     nameInput.readOnly = true;
     editBtn.className = "bx bx-edit-alt edit-name";
     const newName = nameInput.value.trim() || "Untitled Document";
@@ -279,8 +279,7 @@ editBtn.addEventListener("click", (e) => {
     loadDocument(doc.id);
     renameCurrentDocument(newName, null);
     finalizeDocumentName();
-  } } else {
-    // Switch doc without re-rendering the sidebar
+  } else {
     if (String(currentDocId) !== String(doc.id)) {
       const d = documents.find((item) => String(item.id) === String(doc.id));
       if (d) {
@@ -296,8 +295,6 @@ editBtn.addEventListener("click", (e) => {
     nameInput.select();
     editBtn.className = "bx bx-check-bold edit-name";
   }
-});
-
 nameInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") editBtn.click();
   if (e.key === "Escape") {
