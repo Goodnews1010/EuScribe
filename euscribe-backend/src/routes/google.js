@@ -12,15 +12,13 @@ passport.use(new GoogleStrategy({
   callbackURL: 'https://euscribe.onrender.com/api/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    // Check if user already exists
     let user = await User.findOne({ email: profile.emails[0].value });
 
     if (!user) {
-      // Create new user
       user = await User.create({
         name: profile.displayName,
         email: profile.emails[0].value,
-        password: 'google-oauth-' + profile.id // placeholder password
+        password: 'google-oauth-' + profile.id
       });
     }
 
@@ -43,9 +41,8 @@ router.get('/callback',
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     const name = encodeURIComponent(req.user.name);
     const email = encodeURIComponent(req.user.email);
-
-    // Redirect to frontend with token in URL
-    res.redirect(`https://goodnews1010.github.io/EuScribe/euscribe-frontend/index.html?token=${token}&name=${name}&email=${email}`);
+    const redirect = req.user.isAdmin ? 'admin.html' : 'index.html'; // 👈 added
+    res.redirect(`https://goodnews1010.github.io/EuScribe/euscribe-frontend/${redirect}?token=${token}&name=${name}&email=${email}&isAdmin=${req.user.isAdmin}&isSuper=${req.user.isSuper}`);
   }
 );
 

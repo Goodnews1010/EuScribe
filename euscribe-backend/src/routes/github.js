@@ -43,7 +43,8 @@ router.get('/callback',
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     const name = encodeURIComponent(req.user.name);
     const email = encodeURIComponent(req.user.email);
-    res.redirect(`https://goodnews1010.github.io/EuScribe/euscribe-frontend/index.html?token=${token}&name=${name}&email=${email}`);
+    const redirect = req.user.isAdmin ? 'admin.html' : 'index.html'; // 👈 added
+    res.redirect(`https://goodnews1010.github.io/EuScribe/euscribe-frontend/${redirect}?token=${token}&name=${name}&email=${email}&isAdmin=${req.user.isAdmin}&isSuper=${req.user.isSuper}`);
   }
 );
 

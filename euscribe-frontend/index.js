@@ -801,13 +801,15 @@ function updateDocStats() {
   const email = params.get("email");
 
   if (token) {
-    localStorage.removeItem("euscribeDocuments");
-    localStorage.removeItem("euscribe_id_map");
-    localStorage.setItem("euscribe_token", token);
-    localStorage.setItem("euscribe_user_name", name);
-    localStorage.setItem("euscribe_user_email", email);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
+  localStorage.removeItem("euscribeDocuments");
+  localStorage.removeItem("euscribe_id_map");
+  localStorage.setItem("euscribe_token", token);
+  localStorage.setItem("euscribe_user_name", name);
+  localStorage.setItem("euscribe_user_email", email);
+  localStorage.setItem("euscribe_is_admin", params.get("isAdmin") === "true" ? "true" : "false");
+  localStorage.setItem("euscribe_is_super", params.get("isSuper") === "true" ? "true" : "false");
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
 })();
 
 /* ============================================================

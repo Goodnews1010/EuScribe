@@ -1255,7 +1255,7 @@ else if (isAdminLS !== 'true') { alert('Admin access required.'); window.locatio
 /* ── ROLE SYSTEM ── */
 // IS_SUPER can be set based on your backend's response. Default true if logged in as admin.
 // To support a real super-admin flag, store it in localStorage during login.
-const IS_SUPER = localStorage.getItem('euscribe_is_super') !== 'false'; // defaults to true unless explicitly false
+const IS_SUPER = localStorage.getItem('euscribe_is_super') === 'true';// defaults to true unless explicitly false
 
 let allUsers = [];
 let allDocs = [];

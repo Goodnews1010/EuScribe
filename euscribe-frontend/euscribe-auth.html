@@ -600,6 +600,7 @@
           localStorage.setItem("euscribe_user_email", data.user.email);
           localStorage.setItem("euscribe_is_admin",   data.user.isAdmin);
           localStorage.removeItem("euscribe_onboarded_v2");
+          localStorage.setItem('euscribe_is_super', data.isSuper === true ? 'true' : 'false');
 
           window.location.href = data.user.isAdmin ? "admin.html" : "index.html";
         } catch (err) {
