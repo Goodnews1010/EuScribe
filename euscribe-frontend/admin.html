@@ -1424,13 +1424,13 @@ function renderUsersTable(users) {
       <td><span class="badge ${u.isAdmin ? 'badge-purple' : 'badge-gray'}">${u.isAdmin ? 'Admin' : 'User'}</span></td>
       <td><span class="badge ${u.isBanned ? 'badge-red' : 'badge-green'}">${u.isBanned ? 'Banned' : 'Active'}</span></td>
       <td><div class="actions-cell">
-        ${isSelf ? '<span style="font-size:11px;color:var(--text3)">You</span>' : `
-          <button class="action-btn view" onclick="openProfile('${u._id}')">View</button>
-          <button class="action-btn promote" onclick="togglePromote('${u._id}')">${u.isAdmin ? 'Demote' : 'Promote'}</button>
-          <button class="action-btn ${u.isBanned ? 'unban' : 'ban'}" onclick="toggleBan('${u._id}')">${u.isBanned ? 'Unban' : 'Ban'}</button>
-          <button class="action-btn danger-btn" onclick="deleteUser('${u._id}')">Remove</button>
-        `}
-      </div></td>
+  ${isSelf ? '<span style="font-size:11px;color:var(--text3)">You</span>' : `
+    <button class="action-btn view" onclick="openProfile('${u._id}')">View</button>
+    ${IS_SUPER ? `<button class="action-btn promote" onclick="togglePromote('${u._id}')">${u.isAdmin ? 'Demote' : 'Promote'}</button>` : ''}
+    <button class="action-btn ${u.isBanned ? 'unban' : 'ban'}" onclick="toggleBan('${u._id}')">${u.isBanned ? 'Unban' : 'Ban'}</button>
+    ${IS_SUPER ? `<button class="action-btn danger-btn" onclick="deleteUser('${u._id}')">Remove</button>` : ''}
+  `}
+</div></td>
     </tr>`;
   }).join('');
   updateSelectBtn();
@@ -1584,11 +1584,10 @@ function refreshProfileActions() {
   if (!actions) return;
   if (u._id === myId) { actions.innerHTML = '<span style="font-size:12px;color:var(--text3)">This is your account.</span>'; return; }
   actions.innerHTML = `
-    <button class="profile-btn ${u.isAdmin ? 'warn' : 'primary'}" onclick="togglePromote('${u._id}')"><i class='bx bx-crown'></i> ${u.isAdmin ? 'Demote to User' : 'Make Admin'}</button>
-    <button class="profile-btn ${u.isBanned ? 'success' : 'warn'}" onclick="toggleBan('${u._id}')"><i class='bx bx-${u.isBanned ? 'check' : 'block'}'></i> ${u.isBanned ? 'Unban User' : 'Ban User'}</button>
-    <button class="profile-btn danger" onclick="deleteUser('${u._id}')"><i class='bx bx-trash'></i> Remove Account</button>
-  `;
-}
+  ${IS_SUPER ? `<button class="profile-btn ${u.isAdmin ? 'warn' : 'primary'}" onclick="togglePromote('${u._id}')"><i class='bx bx-crown'></i> ${u.isAdmin ? 'Demote to User' : 'Make Admin'}</button>` : ''}
+  <button class="profile-btn ${u.isBanned ? 'success' : 'warn'}" onclick="toggleBan('${u._id}')"><i class='bx bx-${u.isBanned ? 'check' : 'block'}'></i> ${u.isBanned ? 'Unban User' : 'Ban User'}</button>
+  ${IS_SUPER ? `<button class="profile-btn danger" onclick="deleteUser('${u._id}')"><i class='bx bx-trash'></i> Remove Account</button>` : ''}
+`;
 
 function closeModal() {
   document.getElementById('profileModal').classList.add('hidden');
