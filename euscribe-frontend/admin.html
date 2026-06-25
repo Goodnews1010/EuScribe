@@ -6,6 +6,7 @@
 <title>EuScribe — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<script src="https://goodnewz1010.github.io/EuScribe/euscribe-frontend/notifications.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -1349,8 +1350,9 @@ function startUptime() {
 
 /* ── NAVIGATION HELPERS ── */
 function backToApp() { window.location.href = 'index.html'; }
-function handleLogout() {
-  if (confirm('Sign out of EuScribe Admin?')) {
+async function handleLogout() {
+  const ok = await euConfirm('You will be signed out of the admin panel.', { title: 'Sign Out?', confirmText: 'Sign Out', type: 'warning' });
+  if (ok) {
     ['euscribe_token','euscribe_user_name','euscribe_user_email','euscribe_is_admin','euscribe_is_super'].forEach(k => localStorage.removeItem(k));
     window.location.href = 'euscribe-auth.html';
   }
@@ -1480,35 +1482,37 @@ async function togglePromote(id) {
   try {
     const res = await fetch(`${API}/api/admin/users/${id}/promote`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
     const data = await res.json();
-    if (!res.ok) { alert(data.message); return; }
+    euToast(`User ${data.isAdmin ? 'promoted to admin' : 'demoted to user'}.`, 'success');
     const u = allUsers.find(u => u._id === id);
     if (u) u.isAdmin = data.isAdmin;
     filterUsers();
     if (currentProfileUser?._id === id) { currentProfileUser.isAdmin = data.isAdmin; refreshProfileActions(); }
-  } catch(e) { alert('Error updating user.'); }
+  } catch(e) { euToast('Error updating user.', 'error'); }
 }
 
 async function toggleBan(id) {
   const u = allUsers.find(u => u._id === id);
   const action = u?.isBanned ? 'unban' : 'ban';
-  if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} this user?`)) return;
-  try {
+  const ok = await euConfirm(`${action.charAt(0).toUpperCase()+action.slice(1)} this user?`, { title: 'Confirm Action', type: 'warning' });
+    if (!ok) return;
+    try {
     const res = await fetch(`${API}/api/admin/users/${id}/ban`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
     const data = await res.json();
-    if (!res.ok) { alert(data.message); return; }
+    euToast(`User ${data.isBanned ? 'banned' : 'unbanned'} successfully.`, data.isBanned ? 'warning' : 'success');
     if (u) u.isBanned = data.isBanned;
     filterUsers();
     if (currentProfileUser?._id === id) { currentProfileUser.isBanned = data.isBanned; refreshProfileActions(); }
-  } catch(e) { alert('Error updating user.'); }
+  } catch(e) { euToast('Error updating user.', 'error'); }
 }
 
 async function deleteUser(id) {
-  if (!confirm('Remove this user permanently? This cannot be undone.')) return;
+  const ok = await euConfirm('This user will be permanently removed.', { title: 'Delete User?', confirmText: 'Delete', type: 'danger' });
+  if (!ok) return;
   try {
     const res = await fetch(`${API}/api/admin/users/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} });
-    if (res.ok) { allUsers = allUsers.filter(u => u._id !== id); filterUsers(); closeModal(); }
-    else alert('Could not remove user.');
-  } catch(e) { alert('Error removing user.'); }
+    if (res.ok) { allUsers = allUsers.filter(u => u._id !== id); filterUsers(); closeModal(); euToast('User removed.', 'error'); }
+    else euToast('Could not remove user.', 'error');
+} catch(e) { euToast('Error removing user.', 'error'); }
 }
 
 /* ── PROFILE MODAL ── */
@@ -1666,20 +1670,21 @@ async function loadAdmins() {
 }
 
 async function removeAdmin(id, name) {
-  if (!confirm(`Remove ${name} as admin? They will revert to a regular user.`)) return;
+  const ok = await euConfirm(`${name} will revert to a regular user.`, { title: 'Remove Admin?', confirmText: 'Remove', type: 'warning' });
+if (!ok) return;
   try {
     const res = await fetch(`${API}/api/admin/users/${id}/promote`, { method:'PATCH', headers:{'Authorization':`Bearer ${token}`} });
-    if (res.ok) { await loadAdmins(); }
-    else alert('Could not demote admin.');
-  } catch(e) { alert('Error removing admin.'); }
+   if (res.ok) { await loadAdmins(); euToast('Admin removed successfully.', 'success'); }
+else euToast('Could not demote admin.', 'error');
+} catch(e) { euToast('Error removing admin.', 'error'); }
 }
 
-function openAddAdminModal() {
-  const email = prompt('Enter the email of the user to make an Admin:');
+async function openAddAdminModal() {
+  const email = await euPrompt('Enter the email of the user to promote to Admin:', { title: 'Add Admin', placeholder: 'user@example.com', confirmText: 'Promote' });
   if (email) {
     const u = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (u) { togglePromote(u._id).then(() => loadAdmins()); }
-    else alert(`No user found with email: ${email}`);
+    else euToast(`No user found with email: ${email}`, 'error');
   }
 }
 
@@ -1766,7 +1771,8 @@ async function sendBroadcast() {
     targetEmails = customRecipients.map(u => u.email);
     confirmMsg = `Send to ${customRecipients.length} selected user(s)?\n\nSubject: ${subject}`;
   }
-  if (!confirm(confirmMsg)) return;
+  const ok = await euConfirm(confirmMsg, { title: 'Send Broadcast?', confirmText: 'Send', type: 'info' });
+if (!ok) return;
 
   btn.disabled = true;
   btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Sending…';
@@ -1834,7 +1840,8 @@ async function postAnnouncement() {
 }
 
 async function clearAnnouncement() {
-  if (!confirm('Remove the active announcement?')) return;
+  const ok = await euConfirm('The active announcement will be removed.', { title: 'Clear Announcement?', confirmText: 'Clear', type: 'warning' });
+if (!ok) return;
   try {
     const res = await fetch(`${API}/api/admin/announcement`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} });
     if (res.ok) { showResult(document.getElementById('announcementResult'), '✓ Announcement cleared.', true); loadCurrentAnnouncement(); }

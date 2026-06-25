@@ -938,3 +938,95 @@ function updateDocStats() {
 
   content.addEventListener("keydown", hidePopup);
 })();
+
+/* ============================================================
+   ADMIN ANNOUNCEMENT BANNER
+   ============================================================ */
+(function checkAnnouncement() {
+  const token = localStorage.getItem('euscribe_token');
+  if (!token) return;
+
+  const API = window.API || 'https://euscribe.onrender.com';
+
+  fetch(`${API}/api/announcement`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(r => r.json())
+  .then(ann => {
+    if (!ann || !ann.active || !ann.message) return;
+
+    // Don't show if user already dismissed this exact announcement
+    const dismissed = localStorage.getItem('euscribe_dismissed_ann');
+    if (dismissed === ann._id) return;
+
+    // Build banner
+    const banner = document.createElement('div');
+    banner.id = 'eu-announcement-banner';
+    banner.style.cssText = `
+      position: fixed;
+      top: var(--topbar-h, 65px);
+      left: 0; right: 0;
+      z-index: 9990;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      background: rgba(79,140,255,0.08);
+      border-bottom: 1px solid rgba(79,140,255,0.2);
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 13px;
+      color: #c8d8ff;
+      animation: euSlideDown 0.3s ease;
+    `;
+
+    banner.innerHTML = `
+      <span style="font-size:15px;flex-shrink:0">📢</span>
+      <span style="flex:1;line-height:1.5">${ann.message}</span>
+      <button id="eu-ann-dismiss" style="
+        background: none;
+        border: 1px solid rgba(79,140,255,0.3);
+        border-radius: 6px;
+        color: #4f8cff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-family: inherit;
+        flex-shrink: 0;
+        transition: background 0.15s;
+      ">Dismiss</button>
+    `;
+
+    // Inject slide-down animation if not already present
+    if (!document.getElementById('eu-ann-style')) {
+      const s = document.createElement('style');
+      s.id = 'eu-ann-style';
+      s.textContent = `
+        @keyframes euSlideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        #eu-announcement-banner button:hover {
+          background: rgba(79,140,255,0.12) !important;
+        }
+      `;
+      document.head.appendChild(s);
+    }
+
+    document.body.appendChild(banner);
+
+    // Push editor content down so banner doesn't overlap
+    const appShell = document.getElementById('appShell');
+    if (appShell) appShell.style.marginTop = `calc(var(--topbar-h, 65px) + ${banner.offsetHeight + 2}px)`;
+
+    banner.querySelector('#eu-ann-dismiss').addEventListener('click', () => {
+      banner.style.animation = 'euFadeOut 0.2s ease forwards';
+      setTimeout(() => {
+        banner.remove();
+        if (appShell) appShell.style.marginTop = '';
+      }, 200);
+      localStorage.setItem('euscribe_dismissed_ann', ann._id);
+    });
+  })
+  .catch(() => {}); // silent fail — don't break app if backend is cold
+})();

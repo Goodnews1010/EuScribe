@@ -452,6 +452,8 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   font-size: 13px;
   cursor: pointer;
   transition: border-color 0.2s;
+  appearance: auto;
+  -webkit-appearance: auto;
 }
 .toolbar-select:focus { border-color: var(--accent); }
 
