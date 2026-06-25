@@ -6,7 +6,6 @@
 <title>EuScribe — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
-<script src="https://goodnewz1010.github.io/EuScribe/euscribe-frontend/notifications.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -1243,15 +1242,17 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue);cursor:poin
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /shell -->
-
+<script src="https://goodnewz1010.github.io/EuScribe/euscribe-frontend/notifications.js"></script>
 <script>
+
+
 const API = 'https://euscribe.onrender.com';
 
 /* ── AUTH GUARD ── */
 const token = localStorage.getItem('euscribe_token');
 const isAdminLS = localStorage.getItem('euscribe_is_admin');
 if (!token) { window.location.href = 'euscribe-auth.html'; }
-else if (isAdminLS !== 'true') { alert('Admin access required.'); window.location.href = 'euscribe-auth.html'; }
+else if (isAdminLS !== 'true') { window.location.href = 'euscribe-auth.html'; }
 
 /* ── ROLE SYSTEM ── */
 // IS_SUPER can be set based on your backend's response. Default true if logged in as admin.
