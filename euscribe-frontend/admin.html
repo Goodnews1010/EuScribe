@@ -1913,21 +1913,33 @@ async function loadActivity() {
     const res = await fetch(`${API}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) throw new Error();
     const users = await res.json();
-    el.innerHTML = [...users]
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map(u => `
-        <div class="activity-item">
-          <div class="activity-icon ai-green"><i class='bx bxs-user'></i></div>
-          <div class="activity-body">
-            <div class="activity-text">
-              <strong>${u.name || 'User'}</strong> (${u.email}) signed up
-              ${u.isBanned ? '<span class="badge badge-red" style="margin-left:6px">Banned</span>' : ''}
-              ${u.isAdmin ? '<span class="badge badge-purple" style="margin-left:4px">Admin</span>' : ''}
-            </div>
-            <div class="activity-time">${new Date(u.createdAt).toLocaleString()}</div>
-          </div>
+
+    const events = [];
+    users.forEach(u => {
+      events.push({ type: 'signup', user: u, date: new Date(u.createdAt) });
+      if (u.lastLoginAt) {
+        events.push({ type: 'login', user: u, date: new Date(u.lastLoginAt) });
+      }
+    });
+
+    events.sort((a, b) => b.date - a.date);
+
+    el.innerHTML = events.slice(0, 30).map(e => `
+      <div class="activity-item">
+        <div class="activity-icon ${e.type === 'login' ? 'ai-blue' : 'ai-green'}">
+          <i class='bx ${e.type === 'login' ? 'bx-log-in' : 'bxs-user-plus'}'></i>
         </div>
-      `).join('');
+        <div class="activity-body">
+          <div class="activity-text">
+            <strong>${e.user.name || 'User'}</strong> (${e.user.email})
+            ${e.type === 'login' ? 'signed in' : 'created an account'}
+            ${e.user.isBanned ? '<span class="badge badge-red" style="margin-left:6px">Banned</span>' : ''}
+            ${e.user.isAdmin ? '<span class="badge badge-purple" style="margin-left:4px">Admin</span>' : ''}
+          </div>
+          <div class="activity-time">${e.date.toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
   } catch(e) {
     el.innerHTML = '<div style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Could not load activity.</div>';
   }
