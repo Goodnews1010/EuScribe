@@ -1588,7 +1588,7 @@ function refreshProfileActions() {
   <button class="profile-btn ${u.isBanned ? 'success' : 'warn'}" onclick="toggleBan('${u._id}')"><i class='bx bx-${u.isBanned ? 'check' : 'block'}'></i> ${u.isBanned ? 'Unban User' : 'Ban User'}</button>
   ${IS_SUPER ? `<button class="profile-btn danger" onclick="deleteUser('${u._id}')"><i class='bx bx-trash'></i> Remove Account</button>` : ''}
 `;
-
+}
 function closeModal() {
   document.getElementById('profileModal').classList.add('hidden');
   currentProfileUser = null;
