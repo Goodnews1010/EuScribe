@@ -606,6 +606,13 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   transition: transform 0.3s ease;
 }
 
+/* Chat thread injected by JS — constrain it so it doesn't push tabs down */
+#ai-chat-thread {
+  max-height: 260px;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
 .ai-panel.closed {
   transform: translateX(100%);
 }
@@ -712,6 +719,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
 }
 .ai-panel-body::-webkit-scrollbar { width: 4px; }
 .ai-panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
