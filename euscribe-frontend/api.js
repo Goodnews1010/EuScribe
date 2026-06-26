@@ -608,6 +608,21 @@ function ensureChatUI() {
   }
 
   header.after(thread);
+  // Chat history toggle button
+  if (!document.getElementById("ai-chat-toggle")) {
+    const toggleBtn = document.createElement("button");
+    toggleBtn.id = "ai-chat-toggle";
+    toggleBtn.innerHTML = `<i class='bx bx-chevron-down' style="font-size:14px;transition:transform 0.2s"></i><span>Chat history</span>`;
+    toggleBtn.addEventListener("click", () => {
+      const isExpanded = thread.classList.toggle("expanded");
+      const icon = toggleBtn.querySelector("i");
+      icon.style.transform = isExpanded ? "rotate(180deg)" : "rotate(0deg)";
+      const label = toggleBtn.querySelector("span");
+      label.textContent = isExpanded ? "Hide history" : "Chat history";
+      if (isExpanded) scrollChatToBottom();
+    });
+    thread.after(toggleBtn);
+  }
 }
 
 function appendAIMessage(role, text, isError = false, isStreaming = false) {
@@ -617,6 +632,17 @@ function appendAIMessage(role, text, isError = false, isStreaming = false) {
   // Hide empty state
   const emptyState = document.getElementById("ai-chat-empty");
   if (emptyState) emptyState.style.display = "none";
+  // Show the toggle button when there are messages
+  const toggleBtn = document.getElementById("ai-chat-toggle");
+  if (toggleBtn) {
+    toggleBtn.classList.add("visible");
+    // Auto-expand when a new message arrives
+    thread.classList.add("expanded");
+    const icon = toggleBtn.querySelector("i");
+    if (icon) icon.style.transform = "rotate(180deg)";
+    const label = toggleBtn.querySelector("span");
+    if (label) label.textContent = "Hide history";
+  }
 
   const bubble = document.createElement("div");
   const isUser = role === "user";
