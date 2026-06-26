@@ -119,6 +119,11 @@ function loadDocument(id) {
   topFileTitle.value = doc.name;
   renderDocuments();
   updateDocStats();
+
+  // Load this document's AI conversation history
+  if (typeof loadChatHistory === "function") {
+    loadChatHistory(doc.id);
+  }
 }
 
 /* ===================================================

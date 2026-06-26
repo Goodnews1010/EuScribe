@@ -2,7 +2,9 @@
    EUSCRIBE — BACKEND API CONNECTOR
    ============================================================ */
 
-const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const isDev =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 const API = isDev ? "http://localhost:5000" : "https://euscribe.onrender.com";
 
 function getToken() {
@@ -19,7 +21,12 @@ function getToken() {
   const name = localStorage.getItem("euscribe_user_name") || "User";
   const avatar = document.querySelector(".avatar");
   if (avatar) {
-    const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
     avatar.textContent = initials;
   }
   const userInfoP = document.querySelector(".user-info p");
@@ -36,12 +43,15 @@ document.body.addEventListener("click", async function (e) {
   const profileToggle = document.getElementById("profileToggle");
   if (profileToggle) profileToggle.checked = false;
 
-  const confirmed = await euConfirm("You'll need to sign in again to access your documents.", {
-    title: "Log out of EuScribe?",
-    confirmText: "Log out",
-    cancelText: "Stay",
-    type: "warning",
-  });
+  const confirmed = await euConfirm(
+    "You'll need to sign in again to access your documents.",
+    {
+      title: "Log out of EuScribe?",
+      confirmText: "Log out",
+      cancelText: "Stay",
+      type: "warning",
+    },
+  );
   if (!confirmed) return;
   localStorage.removeItem("euscribe_token");
   localStorage.removeItem("euscribe_user_name");
@@ -63,7 +73,10 @@ async function syncToBackend(localDoc) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title: localDoc.name, content: localDoc.content }),
+        body: JSON.stringify({
+          title: localDoc.name,
+          content: localDoc.content,
+        }),
       });
     } else {
       const res = await fetch(`${API}/api/documents`, {
@@ -72,7 +85,10 @@ async function syncToBackend(localDoc) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title: localDoc.name, content: localDoc.content }),
+        body: JSON.stringify({
+          title: localDoc.name,
+          content: localDoc.content,
+        }),
       });
       const data = await res.json();
       if (data._id) {
@@ -117,9 +133,14 @@ async function loadDocumentsFromBackend() {
 
     const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
     const localDocs = backendDocs.map((doc) => {
-      let localId = Object.keys(idMap).find((k) => idMap[k] === doc._id) || doc._id;
+      let localId =
+        Object.keys(idMap).find((k) => idMap[k] === doc._id) || doc._id;
       idMap[localId] = doc._id;
-      return { id: localId, name: doc.title || "Untitled Document", content: doc.content || "" };
+      return {
+        id: localId,
+        name: doc.title || "Untitled Document",
+        content: doc.content || "",
+      };
     });
 
     localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
@@ -152,15 +173,74 @@ loadAnnouncement();
 // In-memory conversation — persists for the session, cleared on page load.
 // Shape: [{ role: "user"|"assistant", content: string }]
 let aiConversationHistory = [];
+let _currentChatDocId = null; // tracks which doc the chat belongs to
+
+/* ── Save current chat to localStorage ── */
+function saveChatHistory(docId) {
+  if (!docId) return;
+  // Only save last 20 messages to avoid bloat
+  const trimmed = aiConversationHistory.slice(-20);
+  localStorage.setItem(`euscribe_chat_${docId}`, JSON.stringify(trimmed));
+}
+
+/* ── Load chat for a specific document ── */
+function loadChatHistory(docId) {
+  if (!docId) return;
+  _currentChatDocId = docId;
+
+  // Make sure the chat UI exists before we try to render into it
+  if (typeof ensureChatUI === "function") ensureChatUI();
+
+  const thread = document.getElementById("ai-chat-thread");
+
+  // Clear the visible thread
+  if (thread) thread.innerHTML = "";
+  const emptyState = document.getElementById("ai-chat-empty");
+
+  // Load this doc's history from localStorage
+  try {
+    const stored = localStorage.getItem(`euscribe_chat_${docId}`);
+    aiConversationHistory = stored ? JSON.parse(stored) : [];
+  } catch {
+    aiConversationHistory = [];
+  }
+
+  // Rebuild the visible thread from history
+  if (aiConversationHistory.length === 0) {
+    if (emptyState) emptyState.style.display = "flex";
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = "none";
+
+  // Only render display messages (skip ones with full doc context injected)
+  aiConversationHistory.forEach((msg) => {
+    if (msg.role === "user") {
+      // Show a clean label — strip the doc context block we appended
+      const cleanLabel = msg.content
+        .replace(/\n\n\[Context:[\s\S]*?\]$/, "")
+        .trim();
+      appendAIMessage(
+        "user",
+        cleanLabel.slice(0, 120) + (cleanLabel.length > 120 ? "…" : ""),
+      );
+    } else {
+      const { el } = appendAIMessage("assistant", msg.content);
+      if (el) addBubbleActions(el, msg.content);
+    }
+  });
+}
 
 function clearAIHistory() {
   aiConversationHistory = [];
+  if (_currentChatDocId) {
+    localStorage.removeItem(`euscribe_chat_${_currentChatDocId}`);
+  }
   const thread = document.getElementById("ai-chat-thread");
   if (thread) thread.innerHTML = "";
   const emptyState = document.getElementById("ai-chat-empty");
   if (emptyState) emptyState.style.display = "flex";
 }
-
 /* ============================================================
    DOCUMENT CONTEXT — gives AI awareness of the current doc
    ============================================================ */
@@ -177,9 +257,10 @@ function getDocumentContext() {
 
   // Truncate to ~1500 words to stay within token budget
   const words = text.split(/\s+/);
-  const truncated = words.length > 1500
-    ? words.slice(0, 1500).join(" ") + "\n\n[Document continues…]"
-    : text;
+  const truncated =
+    words.length > 1500
+      ? words.slice(0, 1500).join(" ") + "\n\n[Document continues…]"
+      : text;
 
   return `\n\n---\nCurrent document: "${title}"\n\n${truncated}\n---`;
 }
@@ -189,16 +270,26 @@ function getDocumentContext() {
    ============================================================ */
 (function setupAICards() {
   const prompts = {
-    "Fix Grammar & Spelling": (text) => `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
-    "Rewrite for Clarity":    (text) => `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
-    "Summarize":              (text) => `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
-    "Expand & Elaborate":     (text) => `Expand and elaborate on the following text with more detail and depth. Return only the expanded text:\n\n${text}`,
-    "Formal":                 (text) => `Rewrite the following text in a formal, professional tone. Return only the rewritten text:\n\n${text}`,
-    "Casual":                 (text) => `Rewrite the following text in a casual, relaxed tone. Return only the rewritten text:\n\n${text}`,
-    "Academic":               (text) => `Rewrite the following text in an academic, scholarly style. Return only the rewritten text:\n\n${text}`,
-    "Friendly":               (text) => `Rewrite the following text in a warm, friendly and conversational tone. Return only the rewritten text:\n\n${text}`,
-    "Persuasive":             (text) => `Rewrite the following text to be more persuasive and convincing. Return only the rewritten text:\n\n${text}`,
-    "Creative":               (text) => `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
+    "Fix Grammar & Spelling": (text) =>
+      `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
+    "Rewrite for Clarity": (text) =>
+      `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
+    Summarize: (text) =>
+      `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
+    "Expand & Elaborate": (text) =>
+      `Expand and elaborate on the following text with more detail and depth. Return only the expanded text:\n\n${text}`,
+    Formal: (text) =>
+      `Rewrite the following text in a formal, professional tone. Return only the rewritten text:\n\n${text}`,
+    Casual: (text) =>
+      `Rewrite the following text in a casual, relaxed tone. Return only the rewritten text:\n\n${text}`,
+    Academic: (text) =>
+      `Rewrite the following text in an academic, scholarly style. Return only the rewritten text:\n\n${text}`,
+    Friendly: (text) =>
+      `Rewrite the following text in a warm, friendly and conversational tone. Return only the rewritten text:\n\n${text}`,
+    Persuasive: (text) =>
+      `Rewrite the following text to be more persuasive and convincing. Return only the rewritten text:\n\n${text}`,
+    Creative: (text) =>
+      `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
   };
 
   document.querySelectorAll(".ai-action-card").forEach((card) => {
@@ -210,11 +301,19 @@ function getDocumentContext() {
       card.addEventListener("click", function () {
         const selectedText = getSelectedText();
         if (!selectedText) {
-          appendAIMessage("assistant", "Please select some text in the editor first, then try again.", true);
+          appendAIMessage(
+            "assistant",
+            "Please select some text in the editor first, then try again.",
+            true,
+          );
           return;
         }
         const aiPanel = document.getElementById("aiPanel");
-        if (aiPanel && !aiPanel.classList.contains("open") && window.innerWidth <= 900) {
+        if (
+          aiPanel &&
+          !aiPanel.classList.contains("open") &&
+          window.innerWidth <= 900
+        ) {
           aiPanel.classList.add("open");
         }
         callAI(prompts[title](selectedText), title);
@@ -259,7 +358,10 @@ async function loadAnnouncement() {
     const res = await fetch(`${API}/api/announcement`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) { setTimeout(loadAnnouncement, 55000); return; }
+    if (!res.ok) {
+      setTimeout(loadAnnouncement, 55000);
+      return;
+    }
     const ann = await res.json();
     if (!ann) return;
     const dismissed = localStorage.getItem("euscribe_dismissed_ann");
@@ -294,7 +396,10 @@ function showAnnouncementBanner(ann) {
     ">Dismiss</button>
   `;
   document.body.prepend(banner);
-  document.body.style.paddingTop = (parseInt(document.body.style.paddingTop) || 0) + banner.offsetHeight + "px";
+  document.body.style.paddingTop =
+    (parseInt(document.body.style.paddingTop) || 0) +
+    banner.offsetHeight +
+    "px";
 }
 
 function dismissAnnouncement(id) {
@@ -304,7 +409,10 @@ function dismissAnnouncement(id) {
     banner.style.transition = "opacity 0.2s, transform 0.2s";
     banner.style.opacity = "0";
     banner.style.transform = "translateY(-100%)";
-    setTimeout(() => { document.body.style.paddingTop = ""; banner.remove(); }, 200);
+    setTimeout(() => {
+      document.body.style.paddingTop = "";
+      banner.remove();
+    }, 200);
   }
 }
 
@@ -315,7 +423,8 @@ async function callAI(prompt, displayLabel = null) {
   const token = getToken();
 
   // Build the user-facing label shown in the chat thread
-  const userLabel = displayLabel || prompt.slice(0, 80) + (prompt.length > 80 ? "…" : "");
+  const userLabel =
+    displayLabel || prompt.slice(0, 80) + (prompt.length > 80 ? "…" : "");
 
   // Append document context to the actual prompt sent to AI (invisible to chat UI)
   const docContext = getDocumentContext();
@@ -331,7 +440,12 @@ async function callAI(prompt, displayLabel = null) {
   appendAIMessage("user", userLabel);
 
   // Create the AI bubble and get a handle to stream text into it
-  const { el: aiBubble, textEl } = appendAIMessage("assistant", "", false, true);
+  const { el: aiBubble, textEl } = appendAIMessage(
+    "assistant",
+    "",
+    false,
+    true,
+  );
 
   try {
     const res = await fetch(`${API}/api/ai/stream`, {
@@ -378,16 +492,19 @@ async function callAI(prompt, displayLabel = null) {
           fullResponse += token;
           textEl.textContent = fullResponse;
           scrollChatToBottom();
-        } catch (_) { /* partial JSON chunk, skip */ }
+        } catch (_) {
+          /* partial JSON chunk, skip */
+        }
       }
     }
 
     // Save completed response to history for follow-up context
     aiConversationHistory.push({ role: "assistant", content: fullResponse });
 
+    saveChatHistory(_currentChatDocId);
+
     // Add copy / insert buttons to the completed bubble
     addBubbleActions(aiBubble, fullResponse);
-
   } catch (err) {
     textEl.textContent = `Error: ${err.message}`;
     aiBubble.style.borderColor = "rgba(255,107,107,0.3)";
@@ -520,11 +637,12 @@ function appendAIMessage(role, text, isError = false, isStreaming = false) {
     line-height: 1.65;
     white-space: pre-wrap;
     word-break: break-word;
-    ${isUser
-      ? "background: rgba(79,140,255,0.15); border: 1px solid rgba(79,140,255,0.25); color: #e6edf3;"
-      : isError
-        ? "background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b;"
-        : "background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #e6edf3;"
+    ${
+      isUser
+        ? "background: rgba(79,140,255,0.15); border: 1px solid rgba(79,140,255,0.25); color: #e6edf3;"
+        : isError
+          ? "background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b;"
+          : "background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #e6edf3;"
     }
   `;
 
@@ -566,7 +684,9 @@ function addBubbleActions(bubbleEl, text) {
   copyBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(text).then(() => {
       copyBtn.textContent = "Copied!";
-      setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+      }, 2000);
     });
   });
 
@@ -600,9 +720,10 @@ function styleActionBtn(btn, ghost = false) {
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
-    ${ghost
-      ? "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #8898b4;"
-      : "background: linear-gradient(135deg,#4f8cff,#3a7de8); border: none; color: #fff;"
+    ${
+      ghost
+        ? "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #8898b4;"
+        : "background: linear-gradient(135deg,#4f8cff,#3a7de8); border: none; color: #fff;"
     }
   `;
   btn.addEventListener("mouseenter", () => {
