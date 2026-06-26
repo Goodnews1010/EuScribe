@@ -120,11 +120,11 @@ function loadDocument(id) {
   renderDocuments();
   updateDocStats();
 
- // Load this document's AI conversation history
-  // Defer so ensureChatUI has time to run first
+  // Load this document's AI conversation history
   if (typeof loadChatHistory === "function") {
-    setTimeout(() => loadChatHistory(doc.id), 0);
+    loadChatHistory(doc.id);
   }
+}
 
 /* ===================================================
    SAVE CURRENT DOCUMENT
