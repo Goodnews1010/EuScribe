@@ -198,14 +198,8 @@ function loadChatHistory(docId) {
     thread.innerHTML = "";
     thread.classList.remove("expanded");
   }
-  const toggleBtn = document.getElementById("ai-chat-toggle");
-  if (toggleBtn) {
-    toggleBtn.classList.remove("visible");
-    const icon = toggleBtn.querySelector("i");
-    if (icon) icon.style.transform = "rotate(0deg)";
-    const label = toggleBtn.querySelector("span");
-    if (label) label.textContent = "Chat history";
-  }
+  const controls = document.getElementById("ai-chat-controls");
+  if (controls) controls.style.display = "none";
   const emptyState = document.getElementById("ai-chat-empty");
 
   // Load this doc's history from localStorage
@@ -219,6 +213,9 @@ function loadChatHistory(docId) {
   // Rebuild the visible thread from history
   if (aiConversationHistory.length === 0) {
     if (emptyState) emptyState.style.display = "flex";
+    const controls = document.getElementById("ai-chat-controls");
+    if (controls) controls.style.display = "none";
+    if (thread) thread.classList.remove("expanded");
     return;
   }
 
@@ -252,14 +249,8 @@ function clearAIHistory() {
     thread.innerHTML = "";
     thread.classList.remove("expanded");
   }
-  const toggleBtn = document.getElementById("ai-chat-toggle");
-  if (toggleBtn) {
-    toggleBtn.classList.remove("visible");
-    const icon = toggleBtn.querySelector("i");
-    if (icon) icon.style.transform = "rotate(0deg)";
-    const label = toggleBtn.querySelector("span");
-    if (label) label.textContent = "Chat history";
-  }
+  const controls = document.getElementById("ai-chat-controls");
+  if (controls) controls.style.display = "none"; 
 }
 /* ============================================================
    DOCUMENT CONTEXT — gives AI awareness of the current doc
@@ -593,51 +584,81 @@ function ensureChatUI() {
   `;
   thread.appendChild(emptyState);
 
-  // Clear history button — injected into panel header
-  if (!document.getElementById("ai-clear-history")) {
+  // Header controls row — Clear + History toggle on same line
+  if (!document.getElementById("ai-chat-controls")) {
+    const controlsRow = document.createElement("div");
+    controlsRow.id = "ai-chat-controls";
+    controlsRow.style.cssText = `
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      gap: 8px;
+    `;
+
     const clearBtn = document.createElement("button");
     clearBtn.id = "ai-clear-history";
-    clearBtn.title = "Clear conversation";
+    clearBtn.textContent = "🗑 Clear chat";
     clearBtn.style.cssText = `
-      background: none;
-      border: none;
-      color: var(--text-muted, #8898b4);
+      background: rgba(255,107,107,0.08);
+      border: 1px solid rgba(255,107,107,0.2);
+      color: #ff6b6b;
       cursor: pointer;
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 5px;
-      transition: color 0.15s, background 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-family: 'DM Sans', Arial, sans-serif;
       white-space: nowrap;
+      transition: background 0.15s;
     `;
-    clearBtn.textContent = "Clear chat";
-    clearBtn.addEventListener("mouseenter", () => {
-      clearBtn.style.color = "#e6edf3";
-      clearBtn.style.background = "rgba(255,255,255,0.06)";
-    });
-    clearBtn.addEventListener("mouseleave", () => {
-      clearBtn.style.color = "";
-      clearBtn.style.background = "";
-    });
+    clearBtn.addEventListener("mouseenter", () => { clearBtn.style.background = "rgba(255,107,107,0.18)"; });
+    clearBtn.addEventListener("mouseleave", () => { clearBtn.style.background = "rgba(255,107,107,0.08)"; });
     clearBtn.addEventListener("click", clearAIHistory);
-    header.appendChild(clearBtn);
-  }
 
-  header.after(thread);
-  // Chat history toggle button
-  if (!document.getElementById("ai-chat-toggle")) {
     const toggleBtn = document.createElement("button");
     toggleBtn.id = "ai-chat-toggle";
-    toggleBtn.innerHTML = `<i class='bx bx-chevron-down' style="font-size:14px;transition:transform 0.2s"></i><span>Chat history</span>`;
+    toggleBtn.innerHTML = `<span>Hide history</span><i class='bx bx-chevron-up' style="font-size:14px;transition:transform 0.2s"></i>`;
+    toggleBtn.style.cssText = `
+      background: rgba(79,140,255,0.08);
+      border: 1px solid rgba(79,140,255,0.2);
+      color: var(--accent, #4f8cff);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-family: 'DM Sans', Arial, sans-serif;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    `;
+    toggleBtn.addEventListener("mouseenter", () => { toggleBtn.style.background = "rgba(79,140,255,0.15)"; });
+    toggleBtn.addEventListener("mouseleave", () => { toggleBtn.style.background = "rgba(79,140,255,0.08)"; });
     toggleBtn.addEventListener("click", () => {
       const isExpanded = thread.classList.toggle("expanded");
       const icon = toggleBtn.querySelector("i");
-      icon.style.transform = isExpanded ? "rotate(180deg)" : "rotate(0deg)";
       const label = toggleBtn.querySelector("span");
-      label.textContent = isExpanded ? "Hide history" : "Chat history";
-      if (isExpanded) scrollChatToBottom();
+      if (isExpanded) {
+        icon.style.transform = "rotate(0deg)";
+        label.textContent = "Hide history";
+        scrollChatToBottom();
+      } else {
+        icon.style.transform = "rotate(180deg)";
+        label.textContent = "Show history";
+      }
     });
-    thread.after(toggleBtn);
+
+    controlsRow.appendChild(clearBtn);
+    controlsRow.appendChild(toggleBtn);
+
+    // Correct order: header → controls → thread
+    header.after(thread);
+    header.after(controlsRow);
   }
 }
 
@@ -649,14 +670,13 @@ function appendAIMessage(role, text, isError = false, isStreaming = false) {
   const emptyState = document.getElementById("ai-chat-empty");
   if (emptyState) emptyState.style.display = "none";
   // Show the toggle button when there are messages
-  const toggleBtn = document.getElementById("ai-chat-toggle");
-  if (toggleBtn) {
-    toggleBtn.classList.add("visible");
-    // Auto-expand when a new message arrives
+  const controls = document.getElementById("ai-chat-controls");
+  if (controls) {
+    controls.style.display = "flex";
     thread.classList.add("expanded");
-    const icon = toggleBtn.querySelector("i");
-    if (icon) icon.style.transform = "rotate(180deg)";
-    const label = toggleBtn.querySelector("span");
+    const icon = controls.querySelector("i");
+    if (icon) icon.style.transform = "rotate(0deg)";
+    const label = controls.querySelector("#ai-chat-toggle span");
     if (label) label.textContent = "Hide history";
   }
 

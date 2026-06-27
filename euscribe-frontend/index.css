@@ -622,31 +622,19 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   border-bottom: 1px solid var(--border);
 }
 
-/* Toggle button — pill style */
-#ai-chat-toggle {
+/* Controls row — Clear chat + Hide history on same line */
+#ai-chat-controls {
   display: none;
-  width: calc(100% - 24px);
-  margin: 8px 12px 0;
-  padding: 6px 12px;
-  background: rgba(79,140,255,0.08);
-  border: 1px solid rgba(79,140,255,0.2);
-  border-radius: 20px;
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  gap: 6px;
   align-items: center;
   justify-content: space-between;
-  font-family: 'DM Sans', Arial, sans-serif;
-  transition: background 0.15s, border-color 0.15s;
+  padding: 6px 14px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  gap: 8px;
+  background: var(--surface-alt);
 }
-#ai-chat-toggle:hover {
-  background: rgba(79,140,255,0.15);
-  border-color: rgba(79,140,255,0.4);
-}
-#ai-chat-toggle.visible { display: flex; }
+
 .ai-panel.closed {
   transform: translateX(100%);
 }
@@ -863,6 +851,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
 }
 .ai-chat-input textarea:focus { border-color: var(--accent); }
 .ai-chat-input textarea::placeholder { color: var(--muted); }
+
 
 
 .ai-send-btn {
