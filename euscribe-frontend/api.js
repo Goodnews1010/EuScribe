@@ -646,10 +646,26 @@ function ensureChatUI() {
       if (isExpanded) {
         icon.style.transform = "rotate(0deg)";
         label.textContent = "Hide history";
+        controlsRow.style.display = "flex";
+        const peek = document.getElementById("ai-chat-peek");
+        if (peek) peek.classList.remove("visible");
         scrollChatToBottom();
       } else {
-        icon.style.transform = "rotate(180deg)";
-        label.textContent = "Show history";
+        controlsRow.style.display = "none";
+        let peek = document.getElementById("ai-chat-peek");
+        if (!peek) {
+          peek = document.createElement("button");
+          peek.id = "ai-chat-peek";
+          peek.textContent = "▸ Chat history";
+          peek.addEventListener("click", () => {
+            thread.classList.add("expanded");
+            controlsRow.style.display = "flex";
+            peek.classList.remove("visible");
+            scrollChatToBottom();
+          });
+          controlsRow.after(peek);
+        }
+        peek.classList.add("visible");
       }
     });
 
@@ -678,8 +694,9 @@ function appendAIMessage(role, text, isError = false, isStreaming = false) {
     if (icon) icon.style.transform = "rotate(0deg)";
     const label = controls.querySelector("#ai-chat-toggle span");
     if (label) label.textContent = "Hide history";
+    const peek = document.getElementById("ai-chat-peek");
+    if (peek) peek.classList.remove("visible");
   }
-
   const bubble = document.createElement("div");
   const isUser = role === "user";
 

@@ -634,6 +634,21 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   gap: 8px;
   background: var(--surface-alt);
 }
+#ai-chat-peek {
+  display: none;
+  width: 100%;
+  padding: 4px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  cursor: pointer;
+  text-align: center;
+  flex-shrink: 0;
+}
+#ai-chat-peek.visible { display: block; }
+#ai-chat-peek:hover { color: var(--accent); }
 
 .ai-panel.closed {
   transform: translateX(100%);
