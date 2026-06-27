@@ -550,10 +550,6 @@ function ensureChatUI() {
     flex-direction: column;
     gap: 12px;
     padding: 12px 14px;
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0;
-    max-height: 420px;
     scroll-behavior: smooth;
   `;
 
