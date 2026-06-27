@@ -193,8 +193,19 @@ function loadChatHistory(docId) {
 
   const thread = document.getElementById("ai-chat-thread");
 
-  // Clear the visible thread
-  if (thread) thread.innerHTML = "";
+  // Clear the visible thread and collapse it
+  if (thread) {
+    thread.innerHTML = "";
+    thread.classList.remove("expanded");
+  }
+  const toggleBtn = document.getElementById("ai-chat-toggle");
+  if (toggleBtn) {
+    toggleBtn.classList.remove("visible");
+    const icon = toggleBtn.querySelector("i");
+    if (icon) icon.style.transform = "rotate(0deg)";
+    const label = toggleBtn.querySelector("span");
+    if (label) label.textContent = "Chat history";
+  }
   const emptyState = document.getElementById("ai-chat-empty");
 
   // Load this doc's history from localStorage
@@ -237,9 +248,18 @@ function clearAIHistory() {
     localStorage.removeItem(`euscribe_chat_${_currentChatDocId}`);
   }
   const thread = document.getElementById("ai-chat-thread");
-  if (thread) thread.innerHTML = "";
-  const emptyState = document.getElementById("ai-chat-empty");
-  if (emptyState) emptyState.style.display = "flex";
+  if (thread) {
+    thread.innerHTML = "";
+    thread.classList.remove("expanded");
+  }
+  const toggleBtn = document.getElementById("ai-chat-toggle");
+  if (toggleBtn) {
+    toggleBtn.classList.remove("visible");
+    const icon = toggleBtn.querySelector("i");
+    if (icon) icon.style.transform = "rotate(0deg)";
+    const label = toggleBtn.querySelector("span");
+    if (label) label.textContent = "Chat history";
+  }
 }
 /* ============================================================
    DOCUMENT CONTEXT — gives AI awareness of the current doc
