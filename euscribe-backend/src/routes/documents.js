@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Document = require('../models/Document');
 const multer = require('multer');
-const pdfParse = require('pdf-parse');
+const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 const mammoth = require('mammoth');
 
 // Memory storage = file never touches disk, just lives in RAM during the request.
