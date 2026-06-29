@@ -49,21 +49,16 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
   const parsed = await pdfParse.default 
   ? pdfParse.default(buffer, { max: 0 }) 
   : pdfParse(buffer, { max: 0 });
-  const raw = parsed.text;
-  extractedText = raw
-    .split('\n')
-    .map(line => line.trim())
-    .reduce((acc, line) => {
-      if (line === '') {
-        if (acc && !acc.endsWith('</p><p>')) return acc + '</p><p>';
-        return acc;
-      }
-      return acc + line + ' ';
-    }, '<p>') + '</p>';
+  extractedText = parsed.text
+  .split(/\n{2,}/)
+  .map(block => block.replace(/\n/g, ' ').trim())
+  .filter(Boolean)
+  .map(block => `<p>${block}</p>`)
+  .join('');
 }else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
-      const result = await mammoth.extractRawText({ buffer });
+      const result = await mammoth.convertToHtml({ buffer });
       extractedText = result.value;
     } else {
       return res.status(400).json({
