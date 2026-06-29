@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Document = require('../models/Document');
 const multer = require('multer');
-const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 
 // Memory storage = file never touches disk, just lives in RAM during the request.
@@ -46,15 +46,15 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     let extractedText = '';
 
     if (mimetype === 'application/pdf') {
-  const parsed = await pdfParse.default 
-  ? pdfParse.default(buffer, { max: 0 }) 
-  : pdfParse(buffer, { max: 0 });
+  const pdfParseFunc = typeof pdfParse === 'function' ? pdfParse : pdfParse.default;
+  const parsed = await pdfParseFunc(buffer, { max: 0 });
   extractedText = parsed.text
-  .split(/\n{2,}/)
-  .map(block => block.replace(/\n/g, ' ').trim())
-  .filter(Boolean)
-  .map(block => `<p>${block}</p>`)
-  .join('');
+    .split(/\n{2,}/)
+    .map(block => block.replace(/\n/g, ' ').trim())
+    .filter(Boolean)
+    .map(block => `<p>${block}</p>`)
+    .join('');
+}
 }else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
