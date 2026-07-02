@@ -7,11 +7,11 @@ const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 
 // Memory storage = file never touches disk, just lives in RAM during the request.
-// 10MB cap is plenty for text documents and keeps Render's free tier happy.
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
+  limits: { fileSize: 25 * 1024 * 1024 },
+});;
 
 // GET /api/documents
 router.get('/', auth, async (req, res) => {
@@ -80,7 +80,28 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     res.status(500).json({ message: 'Failed to process the uploaded file' });
   }
 });
+router.post('/upload', auth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    // ... rest of your existing code
+  } catch (err) {
+    console.error('Upload parse error:', err);
+    res.status(500).json({ message: 'Failed to process the uploaded file' });
+  }
+});
 
+//Express error-handling middleware needs 4 args
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ message: 'File is too large. Max size is 25MB.' });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
+});
 // PUT /api/documents/:id
 router.put('/:id', auth, async (req, res) => {
   try {
