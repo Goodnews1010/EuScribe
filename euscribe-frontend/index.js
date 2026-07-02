@@ -436,6 +436,11 @@ uploadInput.addEventListener('change', async function () {
 
   euToast('Uploading...', 'info');
 
+  // Warn the user if the backend might be cold-starting
+  const slowUploadTimer = setTimeout(() => {
+    euToast('Still working — the server may be waking up, this can take up to a minute.', 'info');
+  }, 8000);
+
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -457,12 +462,14 @@ uploadInput.addEventListener('change', async function () {
     newDoc.id = newDoc._id || newDoc.id;
     newDoc.name = newDoc.title || newDoc.name;
 
+    clearTimeout(slowUploadTimer);
     documents.unshift(newDoc);
     saveToStorage();
     renderDocuments();
     loadDocument(newDoc.id);
     euToast('Document uploaded successfully!', 'success');
   } catch (err) {
+    clearTimeout(slowUploadTimer);
     console.error('Upload error:', err);
     euToast(err.message || 'Failed to upload document.', 'error');
   }
