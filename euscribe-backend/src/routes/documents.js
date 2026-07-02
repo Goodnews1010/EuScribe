@@ -59,7 +59,17 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
       mimetype ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
-      const result = await mammoth.convertToHtml({ buffer });
+      const result = await mammoth.convertToHtml({
+        buffer,
+        styleMap: [
+          "p[style-name='Heading 1'] => h1:fresh",
+          "p[style-name='Heading 2'] => h2:fresh",
+          "p[style-name='Heading 3'] => h3:fresh",
+          "p[style-name='Heading 4'] => h4:fresh",
+          "p[style-name='Heading 5'] => h5:fresh",
+          "p[style-name='Heading 6'] => h6:fresh",
+        ],
+      }); 
       extractedText = result.value;
     } else {
       return res.status(400).json({
@@ -77,17 +87,6 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
     });
 
     res.status(201).json(doc);
-  } catch (err) {
-    console.error("Upload parse error:", err);
-    res.status(500).json({ message: "Failed to process the uploaded file" });
-  }
-});
-router.post("/upload", auth, upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-    // ... rest of your existing code
   } catch (err) {
     console.error("Upload parse error:", err);
     res.status(500).json({ message: "Failed to process the uploaded file" });
