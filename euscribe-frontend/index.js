@@ -158,6 +158,7 @@ function normalizeEmptyContent() {
     content.innerHTML = "";
   }
 }
+let statsTimer;
 content.addEventListener("input", () => {
   saveStatus.textContent = "Saving...";
   saveStatus.classList.add("saving");
@@ -170,7 +171,9 @@ content.addEventListener("input", () => {
     saveStatus.textContent = "Saved";
     saveStatus.classList.remove("saving");
   }, typingDelay);
-  updateDocStats();
+
+  clearTimeout(statsTimer);
+  statsTimer = setTimeout(updateDocStats, 300);
   normalizeEmptyContent();
 });
 
@@ -523,6 +526,42 @@ content.addEventListener("paste", function (e) {
   let html = e.clipboardData.getData("text/html");
   let plain = e.clipboardData.getData("text/plain");
 
+  const LARGE_PASTE_THRESHOLD = 20000; // chars — tune as needed
+
+  // Fast path: big paste -> skip DOM style-stripping, insert plain text
+  if ((html && html.length > LARGE_PASTE_THRESHOLD) || (!html && plain.length > LARGE_PASTE_THRESHOLD)) {
+    saveStatus.textContent = "Pasting...";
+    saveStatus.classList.add("saving");
+
+    // Insert as plain text via Range API (much faster than execCommand for big blobs)
+    const sel = window.getSelection();
+    if (sel.rangeCount) {
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      const frag = document.createDocumentFragment();
+      plain.split("\n").forEach((line, i, arr) => {
+        frag.appendChild(document.createTextNode(line));
+        if (i < arr.length - 1) frag.appendChild(document.createElement("br"));
+      });
+      range.insertNode(frag);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    // Defer save/render so the paste itself finishes rendering first
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        saveCurrentDocument();
+        updateDocStats();
+        saveStatus.textContent = "Saved";
+        saveStatus.classList.remove("saving");
+      }, 0);
+    });
+    return;
+  }
+
+  // Existing path for normal-sized pastes
   if (html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");

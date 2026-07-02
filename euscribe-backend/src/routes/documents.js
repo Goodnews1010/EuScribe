@@ -55,7 +55,7 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     .map(block => `<p>${block}</p>`)
     .join('');
 }
-}else if (
+} else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
       const result = await mammoth.convertToHtml({ buffer });
