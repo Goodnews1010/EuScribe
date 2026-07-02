@@ -40,6 +40,7 @@ content.addEventListener("mouseout", (e) => {
 =================================================== */
 let documents = JSON.parse(localStorage.getItem("euscribeDocuments")) || [];
 let currentDocId = null;
+let editingDocId = null; // tracks which sidebar item is mid-rename, so re-renders don't wipe it out
 
 function saveToStorage() {
   localStorage.setItem("euscribeDocuments", JSON.stringify(documents));
@@ -190,6 +191,20 @@ function renameCurrentDocument(newName, sourceEl) {
   saveToStorage();
   renderDocuments();
 }
+function renameDocumentById(id, newName) {
+  const doc = documents.find((item) => String(item.id) === String(id));
+  if (!doc) return;
+  doc.name = newName || "Untitled Document";
+  doc.updatedAt = new Date().toISOString();
+  if (String(currentDocId) === String(id)) {
+    filename.value = doc.name;
+    topFileTitle.value = doc.name;
+  }
+  saveToStorage();
+  if (typeof syncToBackend === "function") syncToBackend(doc);
+  renderDocuments();
+}
+
 
 function finalizeDocumentName() {
   if (!currentDocId) return;
@@ -244,6 +259,7 @@ async function deleteDocument(id) {
    RENDER SIDEBAR FILES
 =================================================== */
 function renderDocuments() {
+  if (editingDocId !== null) return; // don't rebuild the list while a rename is in progress
   fileList.innerHTML = "";
   const searchValue = searchInput.value.toLowerCase();
   const filteredDocs = documents.filter((doc) =>
@@ -275,50 +291,59 @@ function renderDocuments() {
     nameInput.addEventListener("click", () => loadDocument(doc.id));
     fileItem.querySelector(".file-meta").addEventListener("click", () => loadDocument(doc.id));
 
+    let cancelingEdit = false;
+
+    function enterEditMode() {
+      editingDocId = doc.id;
+      nameInput.readOnly = false;
+      nameInput.focus();
+      nameInput.select();
+      editBtn.className = "bx bx-check edit-name";
+    }
+
+    function commitRename() {
+      const newName = nameInput.value.trim() || "Untitled Document";
+      nameInput.value = newName;
+      nameInput.readOnly = true;
+      editBtn.className = "bx bx-edit-alt edit-name";
+      editingDocId = null;
+      renameDocumentById(doc.id, newName);
+    }
+
+    function cancelRename() {
+      nameInput.value = doc.name;
+      nameInput.readOnly = true;
+      editBtn.className = "bx bx-edit-alt edit-name";
+      editingDocId = null;
+    }
+
     editBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isEditing = !nameInput.readOnly;
-      if (isEditing) {
-        nameInput.readOnly = true;
-        editBtn.className = "bx bx-edit-alt edit-name";
-        const newName = nameInput.value.trim() || "Untitled Document";
-        nameInput.value = newName;
-        loadDocument(doc.id);
-        renameCurrentDocument(newName, null);
-        finalizeDocumentName();
+      if (editingDocId === doc.id) {
+        commitRename();
       } else {
-        if (String(currentDocId) !== String(doc.id)) {
-          const d = documents.find((item) => String(item.id) === String(doc.id));
-          if (d) {
-            currentDocId = d.id;
-            content.innerHTML = d.content;
-            filename.value = d.name;
-            topFileTitle.value = d.name;
-            updateDocStats();
-          }
-        }
-        nameInput.readOnly = false;
-        nameInput.focus();
-        nameInput.select();
-        editBtn.className = "bx bx-check-bold edit-name";
+        enterEditMode();
       }
     });
 
     nameInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") editBtn.click();
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitRename();
+      }
       if (e.key === "Escape") {
-        nameInput.value = doc.name;
-        nameInput.readOnly = true;
-        editBtn.className = "bx bx-edit-alt edit-name";
+        cancelingEdit = true;
+        cancelRename();
       }
     });
 
     nameInput.addEventListener("blur", () => {
       setTimeout(() => {
-        if (document.activeElement !== editBtn) {
-          nameInput.readOnly = true;
-          editBtn.className = "bx bx-edit-alt edit-name";
+        if (cancelingEdit) {
+          cancelingEdit = false;
+          return;
         }
+        if (editingDocId === doc.id) commitRename();
       }, 150);
     });
 

@@ -550,8 +550,8 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   scroll-behavior: smooth;
   box-shadow: 0 10px 40px rgba(0,0,0,.12);
 }
-.text-editor::-webkit-scrollbar { width: 10px; cursor: pointer;}
-.text-editor::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; cursor: pointer;}
+.text-editor::-webkit-scrollbar { width: 10px; }
+.text-editor::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 .text-editor:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.08);
