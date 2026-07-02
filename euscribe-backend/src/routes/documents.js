@@ -54,7 +54,6 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     .filter(Boolean)
     .map(block => `<p>${block}</p>`)
     .join('');
-}
 } else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
