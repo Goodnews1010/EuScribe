@@ -140,6 +140,8 @@ async function loadDocumentsFromBackend() {
         id: localId,
         name: doc.title || "Untitled Document",
         content: doc.content || "",
+        createdAt: doc.createdAt || null,
+        updatedAt: doc.updatedAt || null, // ← add this line
       };
     });
 
@@ -250,7 +252,7 @@ function clearAIHistory() {
     thread.classList.remove("expanded");
   }
   const controls = document.getElementById("ai-chat-controls");
-  if (controls) controls.style.display = "none"; 
+  if (controls) controls.style.display = "none";
 }
 /* ============================================================
    DOCUMENT CONTEXT — gives AI awareness of the current doc
@@ -589,8 +591,12 @@ function ensureChatUI() {
       white-space: nowrap;
       transition: background 0.15s;
     `;
-    clearBtn.addEventListener("mouseenter", () => { clearBtn.style.background = "rgba(255,107,107,0.18)"; });
-    clearBtn.addEventListener("mouseleave", () => { clearBtn.style.background = "rgba(255,107,107,0.08)"; });
+    clearBtn.addEventListener("mouseenter", () => {
+      clearBtn.style.background = "rgba(255,107,107,0.18)";
+    });
+    clearBtn.addEventListener("mouseleave", () => {
+      clearBtn.style.background = "rgba(255,107,107,0.08)";
+    });
     clearBtn.addEventListener("click", clearAIHistory);
 
     const toggleBtn = document.createElement("button");
@@ -612,8 +618,12 @@ function ensureChatUI() {
       gap: 4px;
       transition: background 0.15s;
     `;
-    toggleBtn.addEventListener("mouseenter", () => { toggleBtn.style.background = "rgba(79,140,255,0.15)"; });
-    toggleBtn.addEventListener("mouseleave", () => { toggleBtn.style.background = "rgba(79,140,255,0.08)"; });
+    toggleBtn.addEventListener("mouseenter", () => {
+      toggleBtn.style.background = "rgba(79,140,255,0.15)";
+    });
+    toggleBtn.addEventListener("mouseleave", () => {
+      toggleBtn.style.background = "rgba(79,140,255,0.08)";
+    });
     toggleBtn.addEventListener("click", () => {
       const isExpanded = thread.classList.toggle("expanded");
       const icon = toggleBtn.querySelector("i");

@@ -1093,9 +1093,9 @@ body.light .editor-area {
   }
 
   /* ── EDITOR ───────────────────────────────────────────── */
-  .editor-area {
+.editor-area {
   flex: 1;
-  padding: 12px 10px 22px;   /* was: 12px 10px — adds real bottom breathing room */
+  padding: 12px 10px 22px;
   background: var(--bg);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -1107,11 +1107,11 @@ body.light .editor-area {
   min-height: 100%;
   height: auto;
   padding: 22px 18px;
-  border-radius: 10px;
+  border-radius: 20px;
   font-size: 15px;
   line-height: 1.75;
-  border-color: rgba(255, 255, 255, 0.08);   /* new: brighter border so it's visible on dark bg */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35); /* new: stronger, tighter shadow for small screens */
+  border: 2px solid rgba(79, 140, 255, 0.55);       /* visible blue border */
+  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.12);   /* soft blue glow around it */
 }
 
   /* ── AI PANEL — bottom sheet ──────────────────────────── */
