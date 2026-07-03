@@ -232,6 +232,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   display: flex;
   margin-top: var(--topbar-h);
   height: calc(100vh - var(--topbar-h));
+  height: calc(100dvh - var(--topbar-h));
   margin-right: var(--ai-panel-w);
   overflow: hidden;
 }
@@ -1001,6 +1002,7 @@ body.light .editor-area {
     margin-top: var(--topbar-h);
     margin-right: 0 !important;
     height: calc(100vh - var(--topbar-h) - var(--bottom-nav-h));
+    height: calc(100dvh - var(--topbar-h) - var(--bottom-nav-h));
     overflow: hidden;
   }
 
@@ -1012,6 +1014,7 @@ body.light .editor-area {
     width: var(--sidebar-w);
     max-width: 300px;
     height: calc(100vh - var(--topbar-h) - var(--bottom-nav-h));
+    height: calc(100dvh - var(--topbar-h) - var(--bottom-nav-h));
     transform: translateX(-100%);
     z-index: 960;
     box-shadow: 6px 0 30px rgba(0,0,0,0.5);
