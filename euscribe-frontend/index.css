@@ -191,7 +191,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   font-weight: 600;
   transition: background 0.2s;
 }
-.avatar:hover { background: #1f2633; }
+.avatar:hover { background: var(--surface-alt); }
 .dropdown {
   position: absolute;
   right: 0;
@@ -223,7 +223,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   text-align: center;
   transition: background 0.2s;
 }
-.dropdown > button:hover { background: #1f2633; }
+.dropdown > button:hover { background: var(--surface-alt); }
 
 /* ============================================================
    APP SHELL
@@ -380,7 +380,7 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
   cursor: text;
   outline: none;
 }
-.file-name:focus { background: #3a3a55; border-radius: 4px; padding: 2px 4px; }
+.file-name:focus { background: var(--surface-alt); border-radius: 4px; padding: 2px 4px; }
 .delete { color: var(--danger); cursor: pointer; font-size: 16px; }
 
 /* ============================================================
@@ -895,10 +895,13 @@ body.light .text-editor {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border);
 }
+
 body.light .topbar    { background: var(--surface-alt); }
 body.light .subbar    { background: var(--surface-alt); }
 body.light .sidebar   { background: var(--surface-alt); }
-
+body.light .editor-area {
+  background: radial-gradient(circle at top, #f4f6fa, #e9edf3);
+}
 /* ============================================================
    MOBILE OVERLAY
    ============================================================ */
@@ -1097,6 +1100,7 @@ body.light .sidebar   { background: var(--surface-alt); }
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
+
 
   .text-editor {
     max-width: 100%;

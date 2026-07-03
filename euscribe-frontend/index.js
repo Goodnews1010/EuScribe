@@ -1051,7 +1051,7 @@ function updateDocStats() {
       border-bottom: 1px solid rgba(79,140,255,0.2);
       font-family: 'DM Sans', Arial, sans-serif;
       font-size: 13px;
-      color: #c8d8ff;
+      color: ${document.body.classList.contains('light') ? '#2b5ad1' : '#c8d8ff'};
       animation: euSlideDown 0.3s ease;
     `;
 
