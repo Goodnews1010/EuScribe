@@ -390,10 +390,10 @@ function showAnnouncementBanner(ann) {
   banner.id = "euscribe-announcement";
   banner.style.cssText = `
     position:fixed;top:0;left:0;right:0;z-index:9999;
-    background:linear-gradient(135deg,#1a2a4a,#0d1a30);
+    background: var(--surface-alt);
     border-bottom:1px solid rgba(79,140,255,0.3);
     padding:10px 20px;display:flex;align-items:center;gap:12px;
-    font-family:'DM Sans',sans-serif;font-size:13px;color:#e6edf3;
+    font-family:'DM Sans',sans-serif;font-size:13px;color: var(--text);
     box-shadow:0 2px 20px rgba(0,0,0,0.4);animation:slideDown 0.3s ease;
   `;
   banner.innerHTML = `
@@ -574,7 +574,7 @@ function ensureChatUI() {
     justify-content: center;
     gap: 8px;
     padding: 32px 16px;
-    color: var(--text-muted, #8898b4);
+    color: var(--muted);
     font-size: 13px;
     text-align: center;
   `;
@@ -718,10 +718,10 @@ function appendAIMessage(role, text, isError = false, isStreaming = false) {
     word-break: break-word;
     ${
       isUser
-        ? "background: rgba(79,140,255,0.15); border: 1px solid rgba(79,140,255,0.25); color: #e6edf3;"
+        ? "background: rgba(79,140,255,0.15); border: 1px solid rgba(79,140,255,0.25); color: var(--text);"
         : isError
           ? "background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b;"
-          : "background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #e6edf3;"
+          : "background: var(--surface-alt); border: 1px solid var(--border); color: var(--text);"
     }
   `;
 
@@ -801,7 +801,7 @@ function styleActionBtn(btn, ghost = false) {
     transition: background 0.15s, color 0.15s;
     ${
       ghost
-        ? "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #8898b4;"
+        ? "background: var(--surface-alt); border: 1px solid var(--border); color: var(--muted);"
         : "background: linear-gradient(135deg,#4f8cff,#3a7de8); border: none; color: #fff;"
     }
   `;
