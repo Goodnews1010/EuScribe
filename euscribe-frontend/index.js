@@ -384,6 +384,24 @@ function fileHandle(value) {
     link.href = url;
     link.download = `${topFileTitle.value}.txt`;
     link.click();
+    } else if (value === "docx") {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head><meta charset="utf-8"></head>
+      <body>
+        <h1>${topFileTitle.value || "Untitled Document"}</h1>
+        ${content.innerHTML}
+      </body>
+    </html>
+  `;
+  const blob = htmlDocx.asBlob(htmlContent);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${topFileTitle.value || "document"}.docx`;
+  link.click();
+  URL.revokeObjectURL(url);
   } else if (value === "pdf") {
     const exportContent = content.cloneNode(true);
     exportContent.style.cssText = `
