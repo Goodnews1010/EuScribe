@@ -122,46 +122,6 @@ router.put("/:id", auth, async (req, res) => {
   }
 });
 
-const HTMLtoDOCX = require("html-to-docx");
-
-// GET /api/documents/:id/export/docx
-router.get("/:id/export/docx", auth, async (req, res) => {
-  try {
-    const doc = await Document.findOne({
-      _id: req.params.id,
-      userId: req.user.id,
-    });
-    if (!doc) return res.status(404).json({ message: "Document not found" });
-
-    // Wrap in a basic HTML shell with the title as an H1
-    const htmlContent = `
-      <h1>${doc.title || "Untitled"}</h1>
-      ${doc.content}
-    `;
-
-    const fileBuffer = await HTMLtoDOCX(htmlContent, null, {
-      table: { row: { cantSplit: true } },
-      footer: false,
-      pageNumber: false,
-    });
-
-    const safeTitle = (doc.title || "document").replace(/[^a-z0-9]/gi, "_");
-
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${safeTitle}.docx"`
-    );
-    res.send(fileBuffer);
-  } catch (err) {
-    console.error("DOCX export error:", err);
-    res.status(500).json({ message: "Failed to export document" });
-  }
-});
-
 // DELETE /api/documents/:id
 router.delete("/:id", auth, async (req, res) => {
   try {
