@@ -256,6 +256,22 @@ async function deleteDocument(id) {
 }
 
 /* ===================================================
+   MOBILE VIEWPORT HEIGHT FIX
+=================================================== */
+function setRealViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setRealViewportHeight();
+window.addEventListener('resize', setRealViewportHeight);
+window.addEventListener('orientationchange', setRealViewportHeight);
+
+function formatDoc(cmd, value = null) {
+  document.execCommand(cmd, false, value);
+  saveCurrentDocument();
+}
+
+/* ===================================================
    RENDER SIDEBAR FILES
 =================================================== */
 function renderDocuments() {
