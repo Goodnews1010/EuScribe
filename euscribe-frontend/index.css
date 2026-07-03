@@ -1055,7 +1055,7 @@ body.light .editor-area {
     width: max-content;
   }
 
-  /* Hide the top row (filename, file select, format, font, colors) */
+  /* Hide the top row (filename) */
   .toolbar-top { display: none; }
 
   /* Actions row — horizontal, no wrap */
@@ -1094,24 +1094,25 @@ body.light .editor-area {
 
   /* ── EDITOR ───────────────────────────────────────────── */
   .editor-area {
-    flex: 1;
-    padding: 12px 10px;
-    background: var(--bg);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  flex: 1;
+  padding: 12px 10px 22px;   /* was: 12px 10px — adds real bottom breathing room */
+  background: var(--bg);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
-
-  .text-editor {
-    max-width: 100%;
-    width: 100%;
-    min-height: 100%;
-    height: auto;
-    padding: 22px 18px;
-    border-radius: 10px;
-    font-size: 15px;
-    line-height: 1.75;
-  }
+.text-editor {
+  max-width: 100%;
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  padding: 22px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.75;
+  border-color: rgba(255, 255, 255, 0.08);   /* new: brighter border so it's visible on dark bg */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35); /* new: stronger, tighter shadow for small screens */
+}
 
   /* ── AI PANEL — bottom sheet ──────────────────────────── */
   .ai-panel {
