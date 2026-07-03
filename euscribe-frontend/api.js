@@ -282,9 +282,9 @@ function getDocumentContext() {
 (function setupAICards() {
   const prompts = {
     "Fix Grammar & Spelling": (text) =>
-      `Fix all grammar and spelling errors in this text. Return only the corrected text, nothing else:\n\n${text}`,
+      `Fix all grammar and spelling errors in this text. Output ONLY the corrected text with no explanations, notes, or commentary of any kind:\n\n${text}`,
     "Rewrite for Clarity": (text) =>
-      `Rewrite the following text for better clarity and readability. Return only the rewritten text:\n\n${text}`,
+      `Rewrite the following text for better clarity and readability. Output ONLY the rewritten text with no explanations, notes, or commentary of any kind:\n\n${text}`,
     Summarize: (text) =>
       `Summarize the following text into concise key points. Return only the summary:\n\n${text}`,
     "Expand & Elaborate": (text) =>
@@ -303,34 +303,7 @@ function getDocumentContext() {
       `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
   };
 
-  document.querySelectorAll(".ai-action-card").forEach((card) => {
-    const titleEl = card.querySelector(".ai-action-title");
-    if (!titleEl) return;
-    const title = titleEl.textContent.trim();
-    if (title === "Ask Anything") return;
-    if (prompts[title]) {
-      card.addEventListener("click", function () {
-        const selectedText = getSelectedText();
-        if (!selectedText) {
-          appendAIMessage(
-            "assistant",
-            "Please select some text in the editor first, then try again.",
-            true,
-          );
-          return;
-        }
-        const aiPanel = document.getElementById("aiPanel");
-        if (
-          aiPanel &&
-          !aiPanel.classList.contains("open") &&
-          window.innerWidth <= 900
-        ) {
-          aiPanel.classList.add("open");
-        }
-        callAI(prompts[title](selectedText), title);
-      });
-    }
-  });
+  callAI(prompts[title](selectedText), title, true);
 
   /* ── Ask Anything ── */
   const sendBtn = document.querySelector(".ai-send-btn");
@@ -430,7 +403,7 @@ function dismissAnnouncement(id) {
 /* ============================================================
    AI CALL — streaming, with conversation history + doc context
    ============================================================ */
-async function callAI(prompt, displayLabel = null) {
+async function callAI(prompt, displayLabel = null, skipContext = false) {
   const token = getToken();
 
   // Build the user-facing label shown in the chat thread
@@ -438,7 +411,9 @@ async function callAI(prompt, displayLabel = null) {
     displayLabel || prompt.slice(0, 80) + (prompt.length > 80 ? "…" : "");
 
   // Append document context to the actual prompt sent to AI (invisible to chat UI)
-  const docContext = getDocumentContext();
+  // Skipped for Quick Actions (Fix/Rewrite/Summarize/etc.) since the selected
+  // text is already in the prompt — adding the full doc on top confuses the model.
+  const docContext = skipContext ? "" : getDocumentContext();
   const fullPrompt = docContext
     ? `${prompt}\n\n[Context: you are assisting a writer. Here is the document they are currently working on for reference:${docContext}]`
     : prompt;
