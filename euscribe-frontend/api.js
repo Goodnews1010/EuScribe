@@ -120,48 +120,6 @@ async function deleteFromBackend(localId) {
   }
 }
 
-/* ── GLOBAL: export a document as DOCX ── */
-async function exportDocumentAsDocx(localId) {
-  const token = getToken();
-  if (!token) return;
-
-  const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
-  const backendId = idMap[localId];
-  if (!backendId) {
-    console.warn("No backend ID found for this document yet.");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API}/api/documents/${backendId}/export/docx`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        localStorage.removeItem("euscribe_token");
-        window.location.href = "euscribe-auth.html";
-        return;
-      }
-      throw new Error("Export failed");
-    }
-
-    const blob = await res.blob();
-    const doc = documents.find((d) => d.id === localId);
-    const filename = (doc?.name || "document").replace(/[^a-z0-9]/gi, "_");
-
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${filename}.docx`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.warn("DOCX export failed:", err.message);
-  }
-}
-
 /* ── GLOBAL: load all docs from MongoDB on startup ── */
 async function loadDocumentsFromBackend() {
   const token = getToken();
@@ -347,7 +305,19 @@ function getDocumentContext() {
       `Rewrite the following text in a creative, expressive and imaginative style. Return only the rewritten text:\n\n${text}`,
   };
 
-  callAI(prompts[title](selectedText), title, true);
+  // Wire up every action card (Improve tab + Tone tab)
+  document.querySelectorAll(".ai-action-card").forEach((card) => {
+    card.addEventListener("click", function () {
+      const title = this.querySelector(".ai-action-title")?.textContent.trim();
+      if (!title || !prompts[title]) return;
+      const selectedText = getSelectedText();
+      if (!selectedText) {
+        euToast("Select some text first.", "info");
+        return;
+      }
+      callAI(prompts[title](selectedText), title, true);
+    });
+  });
 
   /* ── Ask Anything ── */
   const sendBtn = document.querySelector(".ai-send-btn");
