@@ -384,11 +384,18 @@ function fileHandle(value) {
     link.href = url;
     link.download = `${topFileTitle.value}.txt`;
     link.click();
-    } else if (value === "docx") {
+    } } else if (value === "docx") {
   const htmlContent = `
     <!DOCTYPE html>
     <html>
-      <head><meta charset="utf-8"></head>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body, p, h1, h2, h3, h4, li, span, div {
+            font-family: 'Calibri', 'Arial', sans-serif;
+          }
+        </style>
+      </head>
       <body>
         <h1>${topFileTitle.value || "Untitled Document"}</h1>
         ${content.innerHTML}
@@ -402,7 +409,7 @@ function fileHandle(value) {
   link.download = `${topFileTitle.value || "document"}.docx`;
   link.click();
   URL.revokeObjectURL(url);
-  } else if (value === "pdf") {
+} else if (value === "pdf") {
     const exportContent = content.cloneNode(true);
     exportContent.style.cssText = `
       background: #ffffff !important;
