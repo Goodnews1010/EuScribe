@@ -761,6 +761,7 @@ content.addEventListener("paste", function (e) {
         <option value="new">New File</option>
         <option value="upload">Upload PDF / DOCX</option>
         <option value="txt">Save as .txt</option>
+        <option value="docx">Save as .docx</option>
         <option value="pdf">Save as .pdf</option>
       `;
     fileSelect.addEventListener("change", function () {
