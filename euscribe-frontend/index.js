@@ -384,7 +384,7 @@ function fileHandle(value) {
     link.href = url;
     link.download = `${topFileTitle.value}.txt`;
     link.click();
-    } } else if (value === "docx") {
+    }else if (value === "docx") {
   const htmlContent = `
     <!DOCTYPE html>
     <html>

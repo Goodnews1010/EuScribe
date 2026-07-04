@@ -115,7 +115,7 @@
       /* 7 — Export */
       {
         title: "Export Anywhere",
-        body: "Open the <strong>File</strong> menu in the toolbar to save your document as a polished <strong>PDF</strong> or plain <strong>.txt</strong> file at any time.",
+        body: "Open the <strong>File</strong> menu in the toolbar to save your document as a polished <strong>PDF</strong> or <strong>DOCX</strong> or plain <strong>.txt</strong> file at any time.",
         target: mobile ? null : ".toolbar-top",
         pos: "bottom",
         icon: "📤",
