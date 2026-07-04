@@ -48,69 +48,69 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
     let extractedText = "";
 
     if (mimetype === "application/pdf") {
-  const parsed = await pdfParse(buffer, { max: 0 });
+      const parsed = await pdfParse(buffer, { max: 0 });
 
-  // Split into raw lines first
-  const rawLines = parsed.text
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
+      // Split into raw lines first
+      const rawLines = parsed.text
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
 
-  const paragraphs = [];
-  let buffer = "";
+      const paragraphs = [];
+      let paraBuffer = "";
 
-  for (let i = 0; i < rawLines.length; i++) {
-    const line = rawLines[i];
+      for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i];
 
-    // Skip likely page numbers ("12", "Page 12", "12 of 45")
-    if (/^(page\s*)?\d+(\s*of\s*\d+)?$/i.test(line)) continue;
+        if (/^(page\s*)?\d+(\s*of\s*\d+)?$/i.test(line)) continue;
 
-    if (!buffer) {
-      buffer = line;
-      continue;
-    }
+        if (!paraBuffer) {
+          paraBuffer = line;
+          continue;
+        }
 
-    const buffEndsSentence = /[.!?:]$/.test(buffer);
-    const lineStartsCapital = /^[A-Z0-9"“]/.test(line);
-    const looksLikeHeading = line.length < 60 && /^[A-Z0-9][^.]*$/.test(line) && !buffEndsSentence;
+        const buffEndsSentence = /[.!?:]$/.test(paraBuffer);
+        const lineStartsCapital = /^[A-Z0-9"“]/.test(line);
+        const looksLikeHeading =
+          line.length < 60 && /^[A-Z0-9][^.]*$/.test(line) && !buffEndsSentence;
 
-    if (buffEndsSentence && lineStartsCapital) {
-      paragraphs.push(buffer);
-      buffer = line;
-    } else if (looksLikeHeading) {
-      paragraphs.push(buffer);
-      paragraphs.push(line);
-      buffer = "";
+        if (buffEndsSentence && lineStartsCapital) {
+          paragraphs.push(paraBuffer);
+          paraBuffer = line;
+        } else if (looksLikeHeading) {
+          paragraphs.push(paraBuffer);
+          paragraphs.push(line);
+          paraBuffer = "";
+        } else {
+          paraBuffer += " " + line;
+        }
+      }
+      if (paraBuffer) paragraphs.push(paraBuffer);
+
+      extractedText = paragraphs
+        .map((block) => `<p>${block.trim()}</p>`)
+        .join("");
+    } else if (
+      mimetype ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      const result = await mammoth.convertToHtml({
+        buffer,
+        styleMap: [
+          "p[style-name='Heading 1'] => h1:fresh",
+          "p[style-name='Heading 2'] => h2:fresh",
+          "p[style-name='Heading 3'] => h3:fresh",
+          "p[style-name='Heading 4'] => h4:fresh",
+          "p[style-name='Heading 5'] => h5:fresh",
+          "p[style-name='Heading 6'] => h6:fresh",
+        ],
+      });
+      extractedText = result.value;
     } else {
-      buffer += " " + line;
+      return res.status(400).json({
+        message: "Unsupported file type. Please upload a PDF or DOCX file.",
+      });
     }
-  }
-  if (buffer) paragraphs.push(buffer);
-
-  extractedText = paragraphs
-    .map((block) => `<p>${block.trim()}</p>`)
-    .join("");
-} else if (
-  mimetype ===
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-) {
-  const result = await mammoth.convertToHtml({
-    buffer,
-    styleMap: [
-      "p[style-name='Heading 1'] => h1:fresh",
-      "p[style-name='Heading 2'] => h2:fresh",
-      "p[style-name='Heading 3'] => h3:fresh",
-      "p[style-name='Heading 4'] => h4:fresh",
-      "p[style-name='Heading 5'] => h5:fresh",
-      "p[style-name='Heading 6'] => h6:fresh",
-    ],
-  }); 
-  extractedText = result.value;
-} else {
-  return res.status(400).json({
-    message: "Unsupported file type. Please upload a PDF or DOCX file.",
-  });
-}
 
     // Strip the extension for a cleaner default title
     const title = originalname.replace(/\.(pdf|docx)$/i, "");
@@ -127,8 +127,6 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
     res.status(500).json({ message: "Failed to process the uploaded file" });
   }
 });
-
-
 
 //Express error-handling middleware needs 4 args
 router.use((err, req, res, next) => {
