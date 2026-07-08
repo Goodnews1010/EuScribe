@@ -1110,8 +1110,11 @@ body.light .editor-area {
   border-radius: 20px;
   font-size: 15px;
   line-height: 1.75;
-  border: 2px solid rgba(79, 140, 255, 0.55);       /* visible blue border */
-  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.12);   /* soft blue glow around it */
+}
+
+.text-editor:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.15);
 }
 
   /* ── AI PANEL — bottom sheet ──────────────────────────── */

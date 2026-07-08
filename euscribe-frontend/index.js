@@ -12,6 +12,30 @@ async function addLink() {
   if (url) formatDoc("createLink", url);
 }
 
+function formatDoc(cmd, value = null) {
+  document.execCommand(cmd, false, value);
+  saveCurrentDocument();
+}
+
+/* ===================================================
+   SELECTION PRESERVATION (fixes mobile color/highlight)
+=================================================== */
+let savedRange = null;
+
+document.addEventListener("selectionchange", () => {
+  const sel = window.getSelection();
+  if (sel.rangeCount > 0 && !sel.isCollapsed && content.contains(sel.anchorNode)) {
+    savedRange = sel.getRangeAt(0).cloneRange();
+  }
+});
+
+function restoreSelection() {
+  if (!savedRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(savedRange);
+}
+
 const content = document.getElementById("content");
 const filename = document.getElementById("filename");
 const topFileTitle = document.querySelector(".file-title");
@@ -782,8 +806,9 @@ content.addEventListener("paste", function (e) {
     colorLabel.style.flexShrink = "0";
     colorLabel.innerHTML = `<span>Color</span><input type="color" value="#e6edf3" />`;
     colorLabel.querySelector("input").addEventListener("input", function () {
-      document.execCommand("foreColor", false, this.value);
-    });
+  restoreSelection();
+  document.execCommand("foreColor", false, this.value);
+});
     actionsRow.appendChild(colorLabel);
 
     const highlightLabel = document.createElement("label");
@@ -791,8 +816,9 @@ content.addEventListener("paste", function (e) {
     highlightLabel.style.flexShrink = "0";
     highlightLabel.innerHTML = `<span>Highlight</span><input type="color" value="#ffff00" />`;
     highlightLabel.querySelector("input").addEventListener("input", function () {
-      document.execCommand("hiliteColor", false, this.value);
-    });
+  restoreSelection();
+  document.execCommand("hiliteColor", false, this.value);
+});
     actionsRow.appendChild(highlightLabel);
 
     formatSelectInjected = true;
