@@ -585,8 +585,10 @@ body.light .theme-icon-moon { transform: scale(0) rotate(90deg); opacity: 0; }/*
 
 .text-editor table {
   display: block;
-  overflow-x: auto; /* wide tables get their own scrollbar instead of breaking layout */
+  overflow-x: auto;
+  overflow-y: visible;
 }
+
 /* ============================================================
       WORD COUNT
    ============================================================ */
