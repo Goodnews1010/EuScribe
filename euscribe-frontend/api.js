@@ -145,6 +145,14 @@ async function loadDocumentsFromBackend() {
       };
     });
 
+    // Preserve the currently open doc if it hasn't made it into the backend
+    // response yet (e.g. it was created locally while this fetch was in flight)
+    const openDoc = documents.find((d) => d.id === currentDocId);
+    const openDocIsSynced = openDoc && localDocs.some((d) => d.id === openDoc.id);
+    if (openDoc && !openDocIsSynced) {
+      localDocs.unshift(openDoc);
+    }
+
     localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
     localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
 
@@ -471,6 +479,7 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let fullResponse = "";
+    let buffer = "";
 
     // Remove typing indicator now that stream has started
     const typingIndicator = aiBubble.querySelector(".ai-typing");
@@ -480,12 +489,18 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
       // Groq streams SSE lines: "data: {...}\n\n"
-      const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-      for (const line of lines) {
+      // A line can get split across two reads, so buffer any incomplete
+      // trailing piece instead of parsing every chunk in isolation.
+      buffer += decoder.decode(value, { stream: true });
+
+      const parts = buffer.split("\n");
+      buffer = parts.pop(); // last piece may be incomplete — save for next read
+
+      for (const line of parts) {
+        if (!line.startsWith("data: ")) continue;
         const jsonStr = line.replace("data: ", "").trim();
-        if (jsonStr === "[DONE]") break;
+        if (jsonStr === "[DONE]") continue;
         try {
           const parsed = JSON.parse(jsonStr);
           const token = parsed.choices?.[0]?.delta?.content || "";
@@ -493,7 +508,7 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
           textEl.textContent = fullResponse;
           scrollChatToBottom();
         } catch (_) {
-          /* partial JSON chunk, skip */
+          /* truly malformed, skip */
         }
       }
     }
