@@ -503,6 +503,11 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
         if (jsonStr === "[DONE]") continue;
         try {
           const parsed = JSON.parse(jsonStr);
+          if (parsed.error) {
+            fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
+            textEl.textContent = fullResponse;
+            continue;
+          }
           const token = parsed.choices?.[0]?.delta?.content || "";
           fullResponse += token;
           textEl.textContent = fullResponse;
