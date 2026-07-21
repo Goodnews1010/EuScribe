@@ -31,7 +31,8 @@ router.post('/complete', async (req, res) => {
 
 // POST /api/ai/stream  (streaming — used by the new chat UI)
 // Accepts: { messages: [{ role, content }] }  — full conversation history
-// Returns: SSE stream (text/event-stream) forwarded directly from Groq
+// Returns: SSE stream (text/event-stream), reformatted from Gemini into
+// OpenAI-style delta chunks so the frontend parser doesn't need to change
 router.post('/stream', async (req, res) => {
   try {
     const { messages } = req.body;
@@ -46,30 +47,32 @@ router.post('/stream', async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no'); // disable nginx buffering if behind proxy
 
-    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    // Convert OpenAI-style messages into Gemini's "contents" format.
+    // Gemini uses "model" instead of "assistant" for the AI role.
+    const contents = messages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`;
+
+    const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages,           // full history — enables multi-turn context
-        max_tokens: 1000,
-        stream: true        // enables SSE from Groq
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents }),
     });
 
-    if (!groqRes.ok) {
-      const errText = await groqRes.text();
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
       res.write(`data: ${JSON.stringify({ error: errText })}\n\n`);
       res.end();
       return;
     }
 
-    // Pipe Groq's SSE stream straight through to the client
-    const reader = groqRes.body.getReader();
+    // Stream and reformat Gemini's chunks into the shape the frontend expects
+    const reader = geminiRes.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = '';
 
     // If client disconnects, stop reading
     req.on('close', () => reader.cancel());
@@ -77,8 +80,24 @@ router.post('/stream', async (req, res) => {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      res.write(chunk); // already formatted as SSE lines by Groq
+
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n');
+      buffer = parts.pop(); // last piece may be incomplete — save for next read
+
+      for (const line of parts) {
+        if (!line.startsWith('data: ')) continue;
+        const jsonStr = line.replace('data: ', '').trim();
+        if (!jsonStr) continue;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const token = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: token } }] })}\n\n`);
+        } catch (_) {
+          // skip malformed line
+        }
+      }
     }
 
     res.write('data: [DONE]\n\n');
