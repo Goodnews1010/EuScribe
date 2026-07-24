@@ -1,31 +1,72 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
+/**
+ * Strips Markdown syntax from AI-generated text so it renders as clean
+ * plain text in EuScribe's editor.
+ */
+function sanitizeMarkdown(text) {
+  if (!text) return text;
+
+  let clean = text;
+
+  // Headers: "### Chapter One" -> "CHAPTER ONE"
+  clean = clean.replace(/^#{1,6}\s*(.+)$/gm, (match, content) => {
+    return content.trim().toUpperCase();
+  });
+
+  // Bold: "**word**" -> "word"
+  clean = clean.replace(/\*\*(.+?)\*\*/g, "$1");
+
+  // Italic: "*word*" or "_word_" -> "word"
+  clean = clean.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "$1");
+  clean = clean.replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, "$1");
+
+  // Bullet lists: "* item" or "- item" -> "• item"
+  clean = clean.replace(/^[\*\-]\s+/gm, "• ");
+
+  // Inline code: `code` -> code
+  clean = clean.replace(/`([^`]+)`/g, "$1");
+
+  // Code fences: remove ``` lines entirely (keep content inside)
+  clean = clean.replace(/```[a-zA-Z]*\n?/g, "");
+
+  // Horizontal rules: "---" or "***" -> section divider
+  clean = clean.replace(/^([\-\*_]){3,}$/gm, "=".repeat(40));
+
+  // Collapse 3+ blank lines down to 2
+  clean = clean.replace(/\n{3,}/g, "\n\n");
+
+  return clean.trim();
+}
+
 // POST /api/ai/complete  (non-streaming — kept for backward compatibility)
-router.post('/complete', async (req, res) => {
+router.post("/complete", async (req, res) => {
   try {
     const { prompt } = req.body;
-    if (!prompt) return res.status(400).json({ message: 'Prompt is required' });
+    if (!prompt) return res.status(400).json({ message: "Prompt is required" });
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 1000,
+        }),
       },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1000
-      })
-    });
+    );
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || '';
-    res.json({ result: text });
-
+    const text = data.choices?.[0]?.message?.content || "";
+    res.json({ result: sanitizeMarkdown(text) });
   } catch (err) {
-    res.status(500).json({ message: 'AI request failed', error: err.message });
+    res.status(500).json({ message: "AI request failed", error: err.message });
   }
 });
 
@@ -33,32 +74,32 @@ router.post('/complete', async (req, res) => {
 // Accepts: { messages: [{ role, content }] }  — full conversation history
 // Returns: SSE stream (text/event-stream), reformatted from Gemini into
 // OpenAI-style delta chunks so the frontend parser doesn't need to change
-router.post('/stream', async (req, res) => {
+router.post("/stream", async (req, res) => {
   try {
     const { messages } = req.body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ message: 'messages array is required' });
+      return res.status(400).json({ message: "messages array is required" });
     }
 
     // Set SSE headers before touching the body
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // disable nginx buffering if behind proxy
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no"); // disable nginx buffering if behind proxy
 
     // Convert OpenAI-style messages into Gemini's "contents" format.
     // Gemini uses "model" instead of "assistant" for the AI role.
     const contents = messages.map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
+      role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }));
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`;
 
     const geminiRes = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents }),
     });
 
@@ -72,41 +113,49 @@ router.post('/stream', async (req, res) => {
     // Stream and reformat Gemini's chunks into the shape the frontend expects
     const reader = geminiRes.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
+    let fullText = "";
 
     // If client disconnects, stop reading
-    req.on('close', () => reader.cancel());
+    req.on("close", () => reader.cancel());
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const parts = buffer.split('\n');
+      const parts = buffer.split("\n");
       buffer = parts.pop(); // last piece may be incomplete — save for next read
 
       for (const line of parts) {
-        if (!line.startsWith('data: ')) continue;
-        const jsonStr = line.replace('data: ', '').trim();
+        if (!line.startsWith("data: ")) continue;
+        const jsonStr = line.replace("data: ", "").trim();
         if (!jsonStr) continue;
 
         try {
           const parsed = JSON.parse(jsonStr);
-          const token = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: token } }] })}\n\n`);
+          const token = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          fullText += token; // ← add this line
+          res.write(
+            `data: ${JSON.stringify({ choices: [{ delta: { content: token } }] })}\n\n`,
+          );
         } catch (_) {
           // skip malformed line
         }
       }
     }
 
-    res.write('data: [DONE]\n\n');
-    res.end();
+    const cleanedFullText = sanitizeMarkdown(fullText);
+    res.write(
+      `data: ${JSON.stringify({ final: true, cleaned: cleanedFullText })}\n\n`,
+    );
 
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (err) {
     // If headers already sent, can't send JSON error — just end stream
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Streaming failed', error: err.message });
+      res.status(500).json({ message: "Streaming failed", error: err.message });
     } else {
       res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
       res.end();

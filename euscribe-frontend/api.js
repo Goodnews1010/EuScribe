@@ -148,7 +148,8 @@ async function loadDocumentsFromBackend() {
     // Preserve the currently open doc if it hasn't made it into the backend
     // response yet (e.g. it was created locally while this fetch was in flight)
     const openDoc = documents.find((d) => d.id === currentDocId);
-    const openDocIsSynced = openDoc && localDocs.some((d) => d.id === openDoc.id);
+    const openDocIsSynced =
+      openDoc && localDocs.some((d) => d.id === openDoc.id);
     if (openDoc && !openDocIsSynced) {
       localDocs.unshift(openDoc);
     }
@@ -502,16 +503,31 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
         const jsonStr = line.replace("data: ", "").trim();
         if (jsonStr === "[DONE]") continue;
         try {
-          const parsed = JSON.parse(jsonStr);
-          if (parsed.error) {
-            fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
+          try {
+            const parsed = JSON.parse(jsonStr);
+
+            if (parsed.error) {
+              fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
+              textEl.textContent = fullResponse;
+              continue;
+            }
+
+            // NEW: final sanitized version arrives right before [DONE].
+            // Swap in the cleaned text instead of the raw streamed tokens.
+            if (parsed.final) {
+              fullResponse = parsed.cleaned;
+              textEl.textContent = fullResponse;
+              scrollChatToBottom();
+              continue;
+            }
+
+            const token = parsed.choices?.[0]?.delta?.content || "";
+            fullResponse += token;
             textEl.textContent = fullResponse;
-            continue;
+            scrollChatToBottom();
+          } catch (_) {
+            /* truly malformed, skip */
           }
-          const token = parsed.choices?.[0]?.delta?.content || "";
-          fullResponse += token;
-          textEl.textContent = fullResponse;
-          scrollChatToBottom();
         } catch (_) {
           /* truly malformed, skip */
         }
