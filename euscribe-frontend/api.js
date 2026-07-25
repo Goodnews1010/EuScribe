@@ -527,10 +527,7 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
             scrollChatToBottom();
           } catch (_) {
             /* truly malformed, skip */
-          }
-        } catch (_) {
-          /* truly malformed, skip */
-        }
+          } 
       }
     }
 
@@ -711,7 +708,7 @@ function ensureChatUI() {
   }
 }
 
-function appendAIMessage(role, text, isError = false, isStreaming = false) {
+functio~n appendAIMessage(role, text, isError = false, isStreaming = false) {
   const thread = document.getElementById("ai-chat-thread");
   if (!thread) return {};
 
