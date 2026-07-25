@@ -611,6 +611,42 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue2);cursor:poi
 }
 .ann-current i{color:var(--blue2);font-size:16px;flex-shrink:0;margin-top:2px}
 
+/* ── THEME TOGGLE (added, no existing logic touched) ── */
+:root[data-theme="dark"]{
+  --bg:         #0B0C0F;
+  --surface:    #131417;
+  --surface2:   #1A1C20;
+  --surface3:   #202226;
+  --surface4:   #2A2D33;
+
+  --border:     #24262B;
+  --border2:    #2A2D33;
+  --border3:    #383B42;
+
+  --text:       #EDEEF0;
+  --text2:      #9CA3AF;
+  --text3:      #6B7280;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+}
+:root[data-theme="dark"] .topbar{ background:rgba(19,20,23,0.85); }
+:root[data-theme="dark"] .badge-gray{ background:var(--surface3); }
+:root[data-theme="dark"] .sidebar-overlay.show{ background:rgba(0,0,0,0.6); }
+:root[data-theme="dark"] .modal-overlay{ background:rgba(0,0,0,0.65); }
+
+.theme-toggle{
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text2);cursor:pointer;font-size:15px;
+  transition:all 0.2s;flex-shrink:0;
+}
+.theme-toggle:hover{color:var(--text);border-color:var(--border3)}
+.theme-toggle i{transition:transform 0.3s var(--ease)}
+.theme-toggle:hover i{transform:rotate(15deg)}
+
 /* ── MOBILE ── */
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){
@@ -632,6 +668,18 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue2);cursor:poi
 </style>
 </head>
 <body>
+
+<!-- THEME INIT: applied before paint to avoid a flash of the wrong theme.
+     Reads a saved preference; does not touch any existing app logic/IDs. -->
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('euscribe_theme');
+    var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  }catch(e){}
+})();
+</script>
 
 <!-- MODAL: USER PROFILE -->
 <div class="modal-overlay hidden" id="profileModal">
@@ -730,6 +778,9 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue2);cursor:poi
         </div>
       </div>
       <div class="topbar-right">
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle dark mode">
+          <i class='bx bxs-moon' id="themeToggleIcon"></i>
+        </button>
         <div class="topbar-time" id="topbarClock">00:00:00</div>
         <div class="role-indicator ri-super" id="topbarRoleIndicator">
           <i class='bx bxs-crown' style="font-size:11px"></i>
@@ -1336,6 +1387,22 @@ function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
+
+/* ── THEME TOGGLE (new function, doesn't touch anything above) ── */
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('euscribe_theme', next); } catch(e) {}
+  const icon = document.getElementById('themeToggleIcon');
+  if (icon) icon.className = next === 'dark' ? 'bx bxs-sun' : 'bx bxs-moon';
+}
+// Sync the toggle icon with whatever theme was applied before paint
+document.addEventListener('DOMContentLoaded', () => {
+  const icon = document.getElementById('themeToggleIcon');
+  if (icon) icon.className = document.documentElement.getAttribute('data-theme') === 'dark' ? 'bx bxs-sun' : 'bx bxs-moon';
+});
 
 /* ── CLOCK ── */
 function startClock() {
