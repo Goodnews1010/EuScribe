@@ -499,37 +499,34 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
       buffer = parts.pop(); // last piece may be incomplete — save for next read
 
       for (const line of parts) {
-        if (!line.startsWith("data: ")) continue;
-        const jsonStr = line.replace("data: ", "").trim();
-        if (jsonStr === "[DONE]") continue;
-        try {
-          try {
-            const parsed = JSON.parse(jsonStr);
+  if (!line.startsWith("data: ")) continue;
+  const jsonStr = line.replace("data: ", "").trim();
+  if (jsonStr === "[DONE]") continue;
 
-            if (parsed.error) {
-              fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
-              textEl.textContent = fullResponse;
-              continue;
-            }
+  try {
+    const parsed = JSON.parse(jsonStr);
 
-            // NEW: final sanitized version arrives right before [DONE].
-            // Swap in the cleaned text instead of the raw streamed tokens.
-            if (parsed.final) {
-              fullResponse = parsed.cleaned;
-              textEl.textContent = fullResponse;
-              scrollChatToBottom();
-              continue;
-            }
-
-            const token = parsed.choices?.[0]?.delta?.content || "";
-            fullResponse += token;
-            textEl.textContent = fullResponse;
-            scrollChatToBottom();
-          } catch (_) {
-            /* truly malformed, skip */
-          } 
-      }
+    if (parsed.error) {
+      fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
+      textEl.textContent = fullResponse;
+      continue;
     }
+
+    if (parsed.final) {
+      fullResponse = parsed.cleaned;
+      textEl.textContent = fullResponse;
+      scrollChatToBottom();
+      continue;
+    }
+
+    const token = parsed.choices?.[0]?.delta?.content || "";
+    fullResponse += token;
+    textEl.textContent = fullResponse;
+    scrollChatToBottom();
+  } catch (_) {
+    /* truly malformed, skip */
+  }
+}
 
     // Save completed response to history for follow-up context
     aiConversationHistory.push({ role: "assistant", content: fullResponse });
@@ -708,7 +705,7 @@ function ensureChatUI() {
   }
 }
 
-functio~n appendAIMessage(role, text, isError = false, isStreaming = false) {
+function appendAIMessage(role, text, isError = false, isStreaming = false) {
   const thread = document.getElementById("ai-chat-thread");
   if (!thread) return {};
 
