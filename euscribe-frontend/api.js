@@ -499,34 +499,35 @@ async function callAI(prompt, displayLabel = null, skipContext = false) {
       buffer = parts.pop(); // last piece may be incomplete — save for next read
 
       for (const line of parts) {
-  if (!line.startsWith("data: ")) continue;
-  const jsonStr = line.replace("data: ", "").trim();
-  if (jsonStr === "[DONE]") continue;
+        if (!line.startsWith("data: ")) continue;
+        const jsonStr = line.replace("data: ", "").trim();
+        if (jsonStr === "[DONE]") continue;
 
-  try {
-    const parsed = JSON.parse(jsonStr);
+        try {
+          const parsed = JSON.parse(jsonStr);
 
-    if (parsed.error) {
-      fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
-      textEl.textContent = fullResponse;
-      continue;
+          if (parsed.error) {
+            fullResponse += `\n[Error from server: ${JSON.stringify(parsed.error)}]`;
+            textEl.textContent = fullResponse;
+            continue;
+          }
+
+          if (parsed.final) {
+            fullResponse = parsed.cleaned;
+            textEl.textContent = fullResponse;
+            scrollChatToBottom();
+            continue;
+          }
+
+          const token = parsed.choices?.[0]?.delta?.content || "";
+          fullResponse += token;
+          textEl.textContent = fullResponse;
+          scrollChatToBottom();
+        } catch (_) {
+          /* truly malformed, skip */
+        }
+      }
     }
-
-    if (parsed.final) {
-      fullResponse = parsed.cleaned;
-      textEl.textContent = fullResponse;
-      scrollChatToBottom();
-      continue;
-    }
-
-    const token = parsed.choices?.[0]?.delta?.content || "";
-    fullResponse += token;
-    textEl.textContent = fullResponse;
-    scrollChatToBottom();
-  } catch (_) {
-    /* truly malformed, skip */
-  }
-}
 
     // Save completed response to history for follow-up context
     aiConversationHistory.push({ role: "assistant", content: fullResponse });
