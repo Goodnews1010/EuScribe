@@ -26,11 +26,6 @@ function sanitizeMarkdown(text) {
   return clean.trim();
 }
 
-/**
- * Returns true if a Gemini error response looks transient (worth retrying
- * or falling back on) rather than a permanent client error (bad key, bad
- * request, etc).
- */
 function isTransientError(status, bodyText) {
   if (status === 503 || status === 429) return true;
   if (bodyText && /UNAVAILABLE|overloaded|rate.?limit/i.test(bodyText)) return true;
@@ -41,11 +36,6 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Calls Gemini's streaming endpoint with retries on transient failures.
- * Returns the fetch Response on success, or throws with a flag indicating
- * whether the failure was transient (so the caller can decide to fall back).
- */
 async function fetchGeminiWithRetry(geminiUrl, body, maxRetries = 2) {
   let lastErrText = "";
   let lastStatus = 0;
@@ -62,6 +52,12 @@ async function fetchGeminiWithRetry(geminiUrl, body, maxRetries = 2) {
     lastStatus = res.status;
     lastErrText = await res.text();
 
+    // LOGGING: show exactly what Gemini returned on each attempt
+    console.error(
+      `[ai.js] Gemini attempt ${attempt + 1}/${maxRetries + 1} failed — status ${lastStatus}:`,
+      lastErrText.slice(0, 500),
+    );
+
     const transient = isTransientError(res.status, lastErrText);
     const isLastAttempt = attempt === maxRetries;
 
@@ -73,17 +69,18 @@ async function fetchGeminiWithRetry(geminiUrl, body, maxRetries = 2) {
       throw err;
     }
 
-    // Exponential backoff: ~1s, then ~2s, etc.
     await sleep(1000 * Math.pow(2, attempt));
   }
 }
 
-/**
- * Fallback: get a full (non-streaming) completion from Groq, then send it
- * to the client as a single simulated "delta" chunk so the frontend's
- * streaming parser doesn't need any special-casing.
- */
 async function fallbackToGroq(messages, res) {
+  console.log("[ai.js] Attempting Groq fallback...");
+
+  if (!process.env.GROQ_API_KEY) {
+    console.error("[ai.js] GROQ_API_KEY is missing from environment!");
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
   const groqRes = await fetch(
     "https://api.groq.com/openai/v1/chat/completions",
     {
@@ -101,6 +98,8 @@ async function fallbackToGroq(messages, res) {
   );
 
   if (!groqRes.ok) {
+    const errText = await groqRes.text();
+    console.error(`[ai.js] Groq fallback failed — status ${groqRes.status}:`, errText.slice(0, 500));
     throw new Error(`Groq fallback also failed (${groqRes.status})`);
   }
 
@@ -108,8 +107,8 @@ async function fallbackToGroq(messages, res) {
   const text = data.choices?.[0]?.message?.content || "";
   const cleaned = sanitizeMarkdown(text);
 
-  // Send as one delta chunk, then finish, so the frontend renders it
-  // exactly like a normal (if instant) stream.
+  console.log("[ai.js] Groq fallback succeeded.");
+
   res.write(
     `data: ${JSON.stringify({ choices: [{ delta: { content: cleaned } }] })}\n\n`,
   );
@@ -144,6 +143,7 @@ router.post("/complete", async (req, res) => {
     const text = data.choices?.[0]?.message?.content || "";
     res.json({ result: sanitizeMarkdown(text) });
   } catch (err) {
+    console.error("[ai.js] /complete failed:", err.message);
     res.status(500).json({ message: "AI request failed", error: err.message });
   }
 });
@@ -172,13 +172,14 @@ router.post("/stream", async (req, res) => {
   try {
     geminiRes = await fetchGeminiWithRetry(geminiUrl, { contents }, 2);
   } catch (err) {
-    // Gemini failed even after retries. If it was a transient issue
-    // (overload/rate limit), try Groq as a fallback instead of erroring out.
+    console.error("[ai.js] Gemini failed after all retries:", err.status, err.body?.slice(0, 500));
+
     if (err.transient) {
       try {
         await fallbackToGroq(messages, res);
         return;
       } catch (fallbackErr) {
+        console.error("[ai.js] Fallback to Groq also failed:", fallbackErr.message);
         res.write(
           `data: ${JSON.stringify({
             error: "AI is currently unavailable. Please try again shortly.",
@@ -189,7 +190,6 @@ router.post("/stream", async (req, res) => {
       }
     }
 
-    // Non-transient error (bad key, bad request, etc) — surface a clean message
     res.write(
       `data: ${JSON.stringify({
         error: "AI request failed. Please try again.",
@@ -240,6 +240,7 @@ router.post("/stream", async (req, res) => {
     res.write("data: [DONE]\n\n");
     res.end();
   } catch (err) {
+    console.error("[ai.js] Error while reading Gemini stream:", err.message);
     if (!res.headersSent) {
       res.status(500).json({ message: "Streaming failed", error: err.message });
     } else {
