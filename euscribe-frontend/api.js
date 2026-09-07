@@ -155,10 +155,7 @@ async function loadDocumentsFromBackend() {
       localDocs.unshift(openDoc);
     }
 
-    localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
-    localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
-
-    clearTimeout(window._mongoLoadFallback);
+        clearTimeout(window._mongoLoadFallback);
 
     documents.length = 0;
     localDocs.forEach((d) => documents.push(d));
@@ -168,6 +165,76 @@ async function loadDocumentsFromBackend() {
       if (typeof createNewDocument === "function") createNewDocument();
     } else if (!currentDocId) {
       if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    }
+
+    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
+    // because there's a lot of document content), don't let that break the
+    // actual document list, which is already updated and rendered above.
+    try {
+      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
+    } catch (storageErr) {
+      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
+    }    clearTimeout(window._mongoLoadFallback);
+
+    documents.length = 0;
+    localDocs.forEach((d) => documents.push(d));
+
+    if (typeof renderDocuments === "function") renderDocuments();
+    if (localDocs.length === 0) {
+      if (typeof createNewDocument === "function") createNewDocument();
+    } else if (!currentDocId) {
+      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    }
+
+    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
+    // because there's a lot of document content), don't let that break the
+    // actual document list, which is already updated and rendered above.
+    try {
+      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
+    } catch (storageErr) {
+      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
+    }    clearTimeout(window._mongoLoadFallback);
+
+    documents.length = 0;
+    localDocs.forEach((d) => documents.push(d));
+
+    if (typeof renderDocuments === "function") renderDocuments();
+    if (localDocs.length === 0) {
+      if (typeof createNewDocument === "function") createNewDocument();
+    } else if (!currentDocId) {
+      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    }
+
+    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
+    // because there's a lot of document content), don't let that break the
+    // actual document list, which is already updated and rendered above.
+    try {
+      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
+    } catch (storageErr) {
+      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
+    }    clearTimeout(window._mongoLoadFallback);
+
+    documents.length = 0;
+    localDocs.forEach((d) => documents.push(d));
+
+    if (typeof renderDocuments === "function") renderDocuments();
+    if (localDocs.length === 0) {
+      if (typeof createNewDocument === "function") createNewDocument();
+    } else if (!currentDocId) {
+      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
+    }
+
+    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
+    // because there's a lot of document content), don't let that break the
+    // actual document list, which is already updated and rendered above.
+    try {
+      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
+      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
+    } catch (storageErr) {
+      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
     }
   } catch (err) {
     console.warn("Could not load documents from backend:", err.message);
