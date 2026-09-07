@@ -127,6 +127,7 @@ async function loadDocumentsFromBackend() {
   try {
     const res = await fetch(`${API}/api/documents`, {
       headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store'
     });
     if (!res.ok) return;
     const backendDocs = await res.json();

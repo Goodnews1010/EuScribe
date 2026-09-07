@@ -7,6 +7,7 @@ const passport = require("passport");
 dotenv.config();
 
 const app = express();
+app.set('etag', false);
 
 app.use(
   cors({

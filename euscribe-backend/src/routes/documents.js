@@ -16,6 +16,7 @@ const upload = multer({
 // GET /api/documents
 router.get("/", auth, async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-store');
     const docs = await Document.find({ userId: req.user.id }).sort({
       updatedAt: -1,
     });
