@@ -100,7 +100,22 @@ async function syncToBackend(localDoc) {
     console.warn("Backend sync failed:", err.message);
   }
 }
-
+/* ── GLOBAL: fetch a single doc's full content on demand ── */
+async function fetchDocumentContent(backendId) {
+  const token = getToken();
+  if (!token || !backendId) return null;
+  try {
+    const res = await fetch(`${API}/api/documents/${backendId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const doc = await res.json();
+    return doc.content || "";
+  } catch (err) {
+    console.warn("Could not fetch document content:", err.message);
+    return null;
+  }
+}
 /* ── GLOBAL: delete a doc from MongoDB ── */
 async function deleteFromBackend(localId) {
   const token = getToken();
@@ -142,7 +157,7 @@ async function loadDocumentsFromBackend() {
         name: doc.title || "Untitled Document",
         content: doc.content || "",
         createdAt: doc.createdAt || null,
-        updatedAt: doc.updatedAt || null, // ← add this line
+        updatedAt: doc.updatedAt || null,
       };
     });
 
@@ -155,67 +170,7 @@ async function loadDocumentsFromBackend() {
       localDocs.unshift(openDoc);
     }
 
-        clearTimeout(window._mongoLoadFallback);
-
-    documents.length = 0;
-    localDocs.forEach((d) => documents.push(d));
-
-    if (typeof renderDocuments === "function") renderDocuments();
-    if (localDocs.length === 0) {
-      if (typeof createNewDocument === "function") createNewDocument();
-    } else if (!currentDocId) {
-      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
-    }
-
-    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
-    // because there's a lot of document content), don't let that break the
-    // actual document list, which is already updated and rendered above.
-    try {
-      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
-      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
-    } catch (storageErr) {
-      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
-    }    clearTimeout(window._mongoLoadFallback);
-
-    documents.length = 0;
-    localDocs.forEach((d) => documents.push(d));
-
-    if (typeof renderDocuments === "function") renderDocuments();
-    if (localDocs.length === 0) {
-      if (typeof createNewDocument === "function") createNewDocument();
-    } else if (!currentDocId) {
-      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
-    }
-
-    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
-    // because there's a lot of document content), don't let that break the
-    // actual document list, which is already updated and rendered above.
-    try {
-      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
-      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
-    } catch (storageErr) {
-      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
-    }    clearTimeout(window._mongoLoadFallback);
-
-    documents.length = 0;
-    localDocs.forEach((d) => documents.push(d));
-
-    if (typeof renderDocuments === "function") renderDocuments();
-    if (localDocs.length === 0) {
-      if (typeof createNewDocument === "function") createNewDocument();
-    } else if (!currentDocId) {
-      if (typeof loadDocument === "function") loadDocument(localDocs[0].id);
-    }
-
-    // localStorage is just a cache/fallback — if it fails (e.g. quota exceeded
-    // because there's a lot of document content), don't let that break the
-    // actual document list, which is already updated and rendered above.
-    try {
-      localStorage.setItem("euscribe_id_map", JSON.stringify(idMap));
-      localStorage.setItem("euscribeDocuments", JSON.stringify(localDocs));
-    } catch (storageErr) {
-      console.warn("Could not cache documents to localStorage (probably quota exceeded):", storageErr.message);
-    }    clearTimeout(window._mongoLoadFallback);
+    clearTimeout(window._mongoLoadFallback);
 
     documents.length = 0;
     localDocs.forEach((d) => documents.push(d));
@@ -241,6 +196,22 @@ async function loadDocumentsFromBackend() {
   }
 }
 
+/* ── GLOBAL: fetch a single doc's full content on demand ── */
+async function fetchDocumentContent(backendId) {
+  const token = getToken();
+  if (!token || !backendId) return null;
+  try {
+    const res = await fetch(`${API}/api/documents/${backendId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const doc = await res.json();
+    return doc.content || "";
+  } catch (err) {
+    console.warn("Could not fetch document content:", err.message);
+    return null;
+  }
+}
 /* ── Kick off backend load and announcement ── */
 loadDocumentsFromBackend();
 loadAnnouncement();

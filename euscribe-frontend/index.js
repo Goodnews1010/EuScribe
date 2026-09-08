@@ -135,17 +135,33 @@ function createNewDocument() {
 /* ===================================================
    LOAD DOCUMENT
 =================================================== */
-function loadDocument(id) {
+async function loadDocument(id) {
   const doc = documents.find((item) => String(item.id) === String(id));
   if (!doc) return;
   currentDocId = doc.id;
-  content.innerHTML = doc.content;
+
   filename.value = doc.name;
   topFileTitle.value = doc.name;
   renderDocuments();
+
+  // Content may not be loaded yet (list endpoint omits it) — fetch on demand
+  if (!doc.content) {
+    content.innerHTML = "Loading…";
+    const idMap = JSON.parse(localStorage.getItem("euscribe_id_map") || "{}");
+    const backendId = idMap[doc.id] || doc.id;
+    const fullContent = await fetchDocumentContent(backendId);
+    if (fullContent !== null) {
+      doc.content = fullContent;
+    }
+    if (String(currentDocId) === String(id)) {
+      content.innerHTML = doc.content || "";
+    }
+  } else {
+    content.innerHTML = doc.content;
+  }
+
   updateDocStats();
 
-  // Load this document's AI conversation history
   if (typeof loadChatHistory === "function") {
     loadChatHistory(doc.id);
   }
