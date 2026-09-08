@@ -326,7 +326,7 @@ function renderDocuments() {
     fileItem.classList.add("file-item");
     if (String(doc.id) === String(currentDocId)) fileItem.style.border = "1px solid #4f8cff";
 
-    const wordCount = countWords(doc.content);
+    const wordCount = doc.content ? countWords(doc.content) : (doc.wordCount || 0);
     const wordLabel = wordCount === 1 ? "1 word" : `${wordCount.toLocaleString()} words`;
     const metaText = `${wordLabel} • Edited ${formatTimeAgo(doc.updatedAt)}`;
 

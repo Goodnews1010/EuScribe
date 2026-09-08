@@ -13,12 +13,22 @@ const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 },
 });
 
+// Counts words in HTML content by stripping tags first
+function countWords(html) {
+  const text = String(html || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  if (!text) return 0;
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
 // GET /api/documents  (list only — no content, keeps this fast)
 router.get("/", auth, async (req, res) => {
   try {
     res.set('Cache-Control', 'no-store');
     const docs = await Document.find({ userId: req.user.id })
-      .select('title createdAt updatedAt')
+      .select('title createdAt updatedAt wordCount')
       .sort({ updatedAt: -1 });
     res.json(docs);
   } catch (err) {
@@ -41,7 +51,12 @@ router.get("/:id", auth, async (req, res) => {
 router.post("/", auth, async (req, res) => {
   try {
     const { title, content } = req.body;
-    const doc = await Document.create({ userId: req.user.id, title, content });
+    const doc = await Document.create({
+      userId: req.user.id,
+      title,
+      content,
+      wordCount: countWords(content),
+    });
     res.status(201).json(doc);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -131,6 +146,7 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
       userId: req.user.id,
       title,
       content: extractedText,
+      wordCount: countWords(extractedText),
     });
 
     res.status(201).json(doc);
@@ -152,12 +168,17 @@ router.use((err, req, res, next) => {
   }
   next(err);
 });
+
 // PUT /api/documents/:id
 router.put("/:id", auth, async (req, res) => {
   try {
+    const updates = { ...req.body };
+    if (typeof updates.content === "string") {
+      updates.wordCount = countWords(updates.content);
+    }
     const doc = await Document.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
-      { ...req.body },
+      updates,
       { new: true },
     );
     if (!doc) return res.status(404).json({ message: "Document not found" });

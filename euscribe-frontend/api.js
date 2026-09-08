@@ -158,6 +158,7 @@ async function loadDocumentsFromBackend() {
         content: doc.content || "",
         createdAt: doc.createdAt || null,
         updatedAt: doc.updatedAt || null,
+        wordCount: doc.wordCount || 0,
       };
     });
 
