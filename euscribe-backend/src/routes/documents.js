@@ -5,6 +5,7 @@ const Document = require("../models/Document");
 const multer = require("multer");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
+const sanitizeHtml = require("sanitize-html");
 
 // Memory storage = file never touches disk, just lives in RAM during the request.
 
@@ -12,6 +13,35 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
 });
+
+// Strips dangerous tags/attributes (script, onerror, etc.) while keeping
+// the formatting tags the editor actually uses.
+function cleanContent(html) {
+  return sanitizeHtml(html || "", {
+    allowedTags: [
+      "p", "br", "b", "strong", "i", "em", "u", "s", "strike",
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "ul", "ol", "li", "blockquote", "a", "span", "div",
+      "table", "thead", "tbody", "tr", "th", "td",
+    ],
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+      span: ["style"],
+      div: ["style"],
+      table: ["style"],
+      td: ["style", "colspan", "rowspan"],
+      th: ["style", "colspan", "rowspan"],
+    },
+    allowedStyles: {
+      "*": {
+        color: [/^#[0-9a-f]{3,6}$/i, /^rgb/],
+        "background-color": [/^#[0-9a-f]{3,6}$/i, /^rgb/],
+        "text-align": [/^left$|^right$|^center$/],
+        "font-weight": [/^bold$|^normal$|^\d+$/],
+      },
+    },
+  });
+}
 
 // Counts words in HTML content by stripping tags first
 function countWords(html) {
@@ -51,11 +81,12 @@ router.get("/:id", auth, async (req, res) => {
 router.post("/", auth, async (req, res) => {
   try {
     const { title, content } = req.body;
+    const cleanedContent = cleanContent(content);
     const doc = await Document.create({
       userId: req.user.id,
       title,
-      content,
-      wordCount: countWords(content),
+      content: cleanedContent,
+      wordCount: countWords(cleanedContent),
     });
     res.status(201).json(doc);
   } catch (err) {
@@ -139,14 +170,16 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
       });
     }
 
+    const cleanedContent = cleanContent(extractedText);
+
     // Strip the extension for a cleaner default title
     const title = originalname.replace(/\.(pdf|docx)$/i, "");
 
     const doc = await Document.create({
       userId: req.user.id,
       title,
-      content: extractedText,
-      wordCount: countWords(extractedText),
+      content: cleanedContent,
+      wordCount: countWords(cleanedContent),
     });
 
     res.status(201).json(doc);
@@ -174,6 +207,7 @@ router.put("/:id", auth, async (req, res) => {
   try {
     const updates = { ...req.body };
     if (typeof updates.content === "string") {
+      updates.content = cleanContent(updates.content);
       updates.wordCount = countWords(updates.content);
     }
     const doc = await Document.findOneAndUpdate(

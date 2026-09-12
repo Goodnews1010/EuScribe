@@ -2,10 +2,20 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');   // ← ADD THIS
 const User = require('../models/User');
 
+// Limits: 10 attempts per 15 minutes, per IP address
+const authLimiter = rateLimit({                    // ← ADD THIS
+  windowMs: 15 * 60 * 1000,                          // 15 minutes
+  max: 10,                                           // 10 requests per window
+  message: { message: 'Too many attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // POST /api/auth/signup
-router.post('/signup', async (req, res) => {
+router.post('/signup', authLimiter, async (req, res) => {   // ← CHANGED
   try {
     const { name, email, password } = req.body;
 
@@ -27,7 +37,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {    // ← CHANGED
   try {
     const { email, password } = req.body;
 

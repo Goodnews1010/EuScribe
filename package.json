@@ -1,9 +1,11 @@
 {
   "dependencies": {
     "docx": "^9.7.1",
+    "express-rate-limit": "^8.7.0",
     "mammoth": "^1.12.0",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.1",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "sanitize-html": "^2.17.7"
   }
 }
