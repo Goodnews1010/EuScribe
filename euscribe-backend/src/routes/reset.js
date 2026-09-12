@@ -4,9 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const User = require('../models/User');
-
-// Store reset tokens in memory
-const resetTokens = {};
+const PasswordResetToken = require('../models/PasswordResetToken');   // ← ADD THIS
 
 // POST /api/password/forgot
 router.post('/forgot', async (req, res) => {
@@ -18,7 +16,13 @@ router.post('/forgot', async (req, res) => {
     if (!user) return res.status(400).json({ message: 'No account found with that email' });
 
     const token = crypto.randomBytes(32).toString('hex');
-    resetTokens[token] = { email, expires: Date.now() + 15 * 60 * 1000 };
+
+    // Save the token to MongoDB instead of the in-memory object
+    await PasswordResetToken.create({
+      token,
+      email,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+    });
 
     const resetLink = `https://goodnews1010.github.io/EuScribe/euscribe-frontend/euscribe-auth.html?reset=${token}`;
 
@@ -54,10 +58,12 @@ router.post('/reset', async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: 'Token and password are required' });
 
-    const record = resetTokens[token];
+    // Look the token up in MongoDB instead of the in-memory object
+    const record = await PasswordResetToken.findOne({ token });
     if (!record) return res.status(400).json({ message: 'Invalid or expired reset link' });
-    if (Date.now() > record.expires) {
-      delete resetTokens[token];
+
+    if (Date.now() > record.expiresAt.getTime()) {
+      await PasswordResetToken.deleteOne({ token });
       return res.status(400).json({ message: 'Reset link has expired' });
     }
     if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
@@ -65,7 +71,7 @@ router.post('/reset', async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     await User.findOneAndUpdate({ email: record.email }, { password: hashed });
 
-    delete resetTokens[token];
+    await PasswordResetToken.deleteOne({ token });   // token is single-use, delete it now
     res.json({ message: 'Password reset successful' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
