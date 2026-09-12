@@ -1,3 +1,4 @@
+const authMiddleware = require("../middleware/auth");
 const express = require("express");
 const router = express.Router();
 
@@ -118,7 +119,7 @@ async function fallbackToGroq(messages, res) {
 }
 
 // POST /api/ai/complete  (non-streaming — kept for backward compatibility)
-router.post("/complete", async (req, res) => {
+router.post("/complete", authMiddleware, async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ message: "Prompt is required" });
@@ -149,7 +150,7 @@ router.post("/complete", async (req, res) => {
 });
 
 // POST /api/ai/stream  (streaming — used by the new chat UI)
-router.post("/stream", async (req, res) => {
+router.post("/stream", authMiddleware, async (req, res) => {
   const { messages } = req.body;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
